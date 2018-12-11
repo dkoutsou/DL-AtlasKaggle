@@ -1,11 +1,12 @@
+# import numpy as np
 from base.base_train import BaseTrain
-from tqdm import tqdm
-import numpy as np
+# from tqdm import tqdm
 
 
 class TemplateTrainer(BaseTrain):
     def __init__(self, sess, model, data, config, logger):
-        super(TemplateTrainer, self).__init__(sess, model, data, config, logger)
+        super(TemplateTrainer, self).__init__(sess, model, data, config,
+                                              logger)
 
     def train_epoch(self):
         """

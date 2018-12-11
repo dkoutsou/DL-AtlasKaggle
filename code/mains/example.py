@@ -16,7 +16,7 @@ def main():
         args = get_args()
         config = process_config(args.config)
 
-    except:
+    except Exception:
         print("missing or invalid arguments")
         exit(0)
 
@@ -26,14 +26,14 @@ def main():
     sess = tf.Session()
     # create your data generator
     data = DataGenerator(config)
-    
+
     # create an instance of the model you want
     model = ExampleModel(config)
     # create tensorboard logger
     logger = Logger(sess, config)
     # create trainer and pass all the previous components to it
     trainer = ExampleTrainer(sess, model, data, config, logger)
-    #load model if exists
+    # load model if exists
     model.load(sess)
     # here you train your model
     trainer.train()
