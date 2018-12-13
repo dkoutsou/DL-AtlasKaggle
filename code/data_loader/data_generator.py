@@ -21,7 +21,6 @@ class DataGenerator:
 
     def next_batch(self):        
         idx = np.random.choice(self.n, self.config.batch_size)
-        print(idx)
         batchfile, batchlabel = self.filenames[idx], self.labels[idx]
         batchimages = np.asarray([[np.asarray(Image.open(x)) for x in y] for y in batchfile])
         yield batchimages, batchlabel
