@@ -14,20 +14,18 @@ class DataGenerator:
         # A vector of images id.
         image_ids = tmp["Id"]
         self.n = len(image_ids)
-        # for each id sublist of the 4 filenames
-        four_filenames_list = [[cwd + self.config.data_path + 'train/'+ id + '_' + c +'.png'for c in ['red', 'green', 'yellow', 'blue']] for id in image_ids]
-        #print(four_filenames_list)
-        # put every thing in one tensor of dimension [batch_size, 4, 512, 512]
-        self.input = np.asarray([[np.asarray(Image.open(x)) for x in y] for y in four_filenames_list])
-       # self.input = np.reshape(self.input, (-1, 4, 512, 512))
-        print(np.shape(self.input))
+        # for each id sublist of the 4 filenames [batch_size, 4]
+        self.filenames = np.asarray([[cwd + self.config.data_path + 'train/'+ id + '_' + c +'.png'for c in ['red', 'green', 'yellow', 'blue']] for id in image_ids])
         # Labels 
         self.labels = np.reshape(tmp["Target"],(-1,1))
 
     def next_batch(self):        
         idx = np.random.choice(self.n, self.config.batch_size)
         print(idx)
-        yield self.input[idx], self.labels[idx]
+        batchfile, batchlabel = self.filenames[idx], self.labels[idx]
+        batchimages = np.asarray([[np.asarray(Image.open(x)) for x in y] for y in batchfile])
+        yield batchimages, batchlabel
+
 
 
 if __name__ == '__main__':
@@ -37,8 +35,9 @@ if __name__ == '__main__':
     config = Bunch(config_dict)
     TrainingSet = DataGenerator(config)
     batch = TrainingSet.next_batch()
-    for i in batch:
-        print(i)
+    for img, y in batch:
+        print(np.shape(img))
+        print(np.shape(y))
     
 
 
