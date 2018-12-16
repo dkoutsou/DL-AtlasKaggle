@@ -6,7 +6,20 @@ from PIL import Image
 
 
 class DataGenerator:
+    """A class that implements an iterator to load the data. It uses  as an
+    environmental variable the data folder and then loads the necessary files
+    (labels and images) and starts loading the data
+    """
     def __init__(self, config):
+        """The constructor of the DataGenerator class. It loads the training
+        labels and the images.
+
+        Parameters
+        ----------
+            config: dict
+                a dictionary with necessary information for the dataloader
+                (e.g batch size)
+        """
         cwd = os.getenv("DATA_PATH")
         if cwd is None:
             print("Set your DATA_PATH env first")
@@ -26,6 +39,11 @@ class DataGenerator:
         self.labels = tmp["Target"].values.reshape((-1, 1))
 
     def next_batch(self):
+        """
+        An iterator that generates a random integer in order to load the batch
+        size
+        """
+
         idx = np.random.choice(self.n, self.config.batch_size)
         batchfile, batchlabel = self.filenames[idx], self.labels[idx]
         batchimages = np.asarray([[np.asarray(Image.open(x)) for x in y]
