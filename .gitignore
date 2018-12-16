@@ -103,6 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-
-#data
+# data
 /data/
+
+# personal paths
+set_path.sh
