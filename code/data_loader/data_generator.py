@@ -1,13 +1,63 @@
 import numpy as np
+import os
+import sys
+import pandas as pd
+from PIL import Image
 
 
 class DataGenerator:
+    """A class that implements an iterator to load the data. It uses  as an
+    environmental variable the data folder and then loads the necessary files
+    (labels and images) and starts loading the data
+    """
     def __init__(self, config):
-        self.config = config
-        # load data here
-        self.input = np.ones((500, 784))
-        self.y = np.ones((500, 10))
+        """The constructor of the DataGenerator class. It loads the training
+        labels and the images.
 
-    def next_batch(self, batch_size):
-        idx = np.random.choice(500, batch_size)
-        yield self.input[idx], self.y[idx]
+        Parameters
+        ----------
+            config: dict
+                a dictionary with necessary information for the dataloader
+                (e.g batch size)
+        """
+        cwd = os.getenv("DATA_PATH")
+        if cwd is None:
+            print("Set your DATA_PATH env first")
+            sys.exit(1)
+        self.config = config
+        # Read csv file
+        tmp = pd.read_csv(os.path.abspath(cwd + 'train.csv'), delimiter=',')
+        # A vector of images id.
+        image_ids = tmp["Id"]
+        self.n = len(image_ids)
+        # for each id sublist of the 4 filenames [batch_size, 4]
+        self.filenames = np.asarray(
+                            [[cwd + '/train/' + id + '_' + c + '.png'
+                              for c in ['red', 'green', 'yellow', 'blue']]
+                             for id in image_ids])
+        # Labels
+        self.labels = tmp["Target"].values.reshape((-1, 1))
+
+    def next_batch(self):
+        """
+        An iterator that generates a random integer in order to load the batch
+        size
+        """
+
+        idx = np.random.choice(self.n, self.config.batch_size)
+        batchfile, batchlabel = self.filenames[idx], self.labels[idx]
+        batchimages = np.asarray([[np.asarray(Image.open(x)) for x in y]
+                                  for y in batchfile])
+        yield batchimages, batchlabel
+
+
+if __name__ == '__main__':
+    # just for testing
+    from bunch import Bunch
+    config_dict = {'batch_size': 32}
+    config = Bunch(config_dict)
+    TrainingSet = DataGenerator(config)
+    batch = TrainingSet.next_batch()
+    for img, y in batch:
+        print(np.shape(img))
+        print(np.shape(y))
