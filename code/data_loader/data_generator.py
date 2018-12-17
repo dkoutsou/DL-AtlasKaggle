@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import MultiLabelBinarizer
+import re 
 
 class DataGenerator:
     """A class that implements an iterator to load the data. It uses  as an
@@ -74,6 +75,51 @@ class DataGenerator:
                      for y in batchfile])
                 yield batchimages, batchlabel
 
+class DataTestLoader:
+    """A class that implements an iterator to load the data. It uses  as an
+    environmental variable the data folder and then loads the necessary files
+    (labels and images) and starts loading the data
+    """
+
+    def __init__(self, config):
+        """The constructor of the DataTestLoader class. It loads the testing images.
+
+        Parameters
+        ----------
+            config: dict
+                a dictionary with necessary information for the dataloader
+                (e.g batch size)
+        """
+        cwd = os.getenv("DATA_PATH")
+        if cwd is None:
+            print("Set your DATA_PATH env first")
+            sys.exit(1)
+        self.config = config
+        list_files = [f for f in os.listdir(cwd + '/test/')]
+        self.image_ids = [re.search('(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word') for s in list_files]
+        self.n = len(self.image_ids)
+        # for each id sublist of the 4 filenames [batch_size, 4]
+        self.filenames = np.asarray(
+            [[cwd + 'test/' + id + '_' + c + '.png'
+              for c in ['red', 'green', 'yellow', 'blue']]
+             for id in self.image_ids])
+        
+
+    def batch_iterator(self):
+        """
+        Generates a batch iterator for the dataset.
+        """
+        num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
+        for batch_num in range(num_batches_per_epoch):
+            start_index = batch_num * self.config.batch_size
+            end_index = min((batch_num + 1) *
+                            self.config.batch_size, self.n)
+            batchfile = self.filenames[start_index:end_index]
+            batchimages = np.asarray(
+                [[np.asarray(Image.open(x)) for x in y]
+                    for y in batchfile])
+            yield batchimages
+
 
 if __name__ == '__main__':
     # just for testing
@@ -81,7 +127,13 @@ if __name__ == '__main__':
     config_dict = {'batch_size': 32}
     config = Bunch(config_dict)
     TrainingSet = DataGenerator(config)
+    """
     all_batches = TrainingSet.batch_iterator()
     for batch_x, batch_y in all_batches:
         print(np.shape(batch_x))   # (32, 4, 512, 512)
         print(np.shape(batch_y))
+    """
+    TestLoader = DataTestLoader(config)
+    all_test_batches = TestLoader.batch_iterator()
+    for batch_x in all_test_batches:
+        print(np.shape(batch_x))   # (32, 4, 512, 512)  
