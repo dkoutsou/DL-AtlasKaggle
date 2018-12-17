@@ -68,7 +68,6 @@ class DataGenerator:
                 # after split [['22', '0'], ['12', '23', '0']]
                 # after binarize it is one hot representation
                 batchlabel = [[int(c) for c in l.split(' ')] for l in batchlabel]
-                print(batchlabel)
                 batchlabel = binarizer.fit_transform(batchlabel)
                 batchimages = np.asarray(
                     [[np.asarray(Image.open(x)) for x in y]
