@@ -10,6 +10,7 @@ class DataGenerator:
     environmental variable the data folder and then loads the necessary files
     (labels and images) and starts loading the data
     """
+
     def __init__(self, config):
         """The constructor of the DataGenerator class. It loads the training
         labels and the images.
@@ -32,23 +33,38 @@ class DataGenerator:
         self.n = len(image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray(
-                            [[cwd + '/train/' + id + '_' + c + '.png'
-                              for c in ['red', 'green', 'yellow', 'blue']]
-                             for id in image_ids])
+            [[cwd + '/train/' + id + '_' + c + '.png'
+              for c in ['red', 'green', 'yellow', 'blue']]
+             for id in image_ids])
         # Labels
         self.labels = tmp["Target"].values.reshape((-1, 1))
 
-    def next_batch(self):
+    def batch_iterator(self):
         """
-        An iterator that generates a random integer in order to load the batch
-        size
+        Generates a batch iterator for the dataset.
         """
-
-        idx = np.random.choice(self.n, self.config.batch_size)
-        batchfile, batchlabel = self.filenames[idx], self.labels[idx]
-        batchimages = np.asarray([[np.asarray(Image.open(x)) for x in y]
-                                  for y in batchfile])
-        yield batchimages, batchlabel
+        num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
+        # use 1 as default if num_epochs is not specified (i.e. for baseline)
+        try:
+            r = self.config.num_epochs
+        except AttributeError:
+            print('WARN: num_epochs not set - using 1')
+            r = 1
+        for _ in range(r):
+            # Shuffle the data at each epoch
+            shuffle_indices = np.random.permutation(np.arange(self.n))
+            shuffled_filenames = self.filenames[shuffle_indices]
+            shuffled_labels = self.labels[shuffle_indices]
+            for batch_num in range(num_batches_per_epoch):
+                start_index = batch_num * self.config.batch_size
+                end_index = min((batch_num + 1) *
+                                self.config.batch_size, self.n)
+                batchfile = shuffled_filenames[start_index:end_index]
+                batchlabel = shuffled_labels[start_index:end_index]
+                batchimages = np.asarray(
+                    [[np.asarray(Image.open(x)) for x in y]
+                     for y in batchfile])
+                yield batchimages, batchlabel
 
 
 if __name__ == '__main__':
@@ -57,7 +73,7 @@ if __name__ == '__main__':
     config_dict = {'batch_size': 32}
     config = Bunch(config_dict)
     TrainingSet = DataGenerator(config)
-    batch = TrainingSet.next_batch()
-    for img, y in batch:
-        print(np.shape(img))
-        print(np.shape(y))
+    all_batches = TrainingSet.batch_iterator()
+    for batch_x, batch_y in all_batches:
+        print(np.shape(batch_x))   # (32, 4, 512, 512)
+        print(np.shape(batch_y))
