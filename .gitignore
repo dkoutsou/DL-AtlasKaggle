@@ -111,3 +111,6 @@ set_path.sh
 
 # DS store
 *.DS_Store
+
+# Result
+/result
