@@ -4,7 +4,8 @@ import sys
 import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import MultiLabelBinarizer
-import re 
+import re
+
 
 class DataGenerator:
     """A class that implements an iterator to load the data. It uses  as an
@@ -39,7 +40,6 @@ class DataGenerator:
              for id in image_ids])
         # Labels
         self.labels = tmp["Target"].values
-        
 
     def batch_iterator(self):
         """
@@ -68,12 +68,14 @@ class DataGenerator:
                 # e.g. before e.g. ['22 0' '12 23 0']
                 # after split [['22', '0'], ['12', '23', '0']]
                 # after binarize it is one hot representation
-                batchlabel = [[int(c) for c in l.split(' ')] for l in batchlabel]
+                batchlabel = [[int(c) for c in l.split(' ')]
+                              for l in batchlabel]
                 batchlabel = binarizer.fit_transform(batchlabel)
                 batchimages = np.asarray(
                     [[np.asarray(Image.open(x)) for x in y]
                      for y in batchfile])
                 yield batchimages, batchlabel
+
 
 class DataTestLoader:
     """A class that implements an iterator to load the data. It uses  as an
@@ -96,14 +98,15 @@ class DataTestLoader:
             sys.exit(1)
         self.config = config
         list_files = [f for f in os.listdir(cwd + '/test/')]
-        self.image_ids = [re.search('(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word') for s in list_files]
+        self.image_ids = [re.search(
+            '(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
+             for s in list_files]
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray(
             [[cwd + 'test/' + id + '_' + c + '.png'
               for c in ['red', 'green', 'yellow', 'blue']]
              for id in self.image_ids])
-        
 
     def batch_iterator(self):
         """
@@ -136,4 +139,4 @@ if __name__ == '__main__':
     TestLoader = DataTestLoader(config)
     all_test_batches = TestLoader.batch_iterator()
     for batch_x in all_test_batches:
-        print(np.shape(batch_x))   # (32, 4, 512, 512)  
+        print(np.shape(batch_x))   # (32, 4, 512, 512)
