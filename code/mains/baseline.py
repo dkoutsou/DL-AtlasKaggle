@@ -62,8 +62,8 @@ def extract_features(all_batches, config, train=True):
     if train:
         for batch_img, batch_label in all_batches:
             # just for testing just use 20 batch as training set
-            if counter > 1:
-                break
+            #if counter > 20:
+            #    break
             print('processing batch {}'.format(counter))
             if counter == 1:
                 labels = batch_label
@@ -78,8 +78,8 @@ def extract_features(all_batches, config, train=True):
     else:
         for batch_img in all_batches:
             # just for testing just use 20 batch as training set
-            if counter > 1:
-                break
+            #if counter > 20:
+            #    break
             print('processing batch {}'.format(counter))
             t1 = time.time()
             feats = np.asarray(parmap.map(
@@ -159,8 +159,8 @@ def main():
 
     # get cv score
     rf = RandomForestClassifier(n_estimators=100)
-    #cv_scores = get_baseline_CV_score(train_feats, train_labels, rf)
-    # print(cv_scores)
+    cv_scores = get_baseline_CV_score(train_feats, train_labels, rf)
+    print(cv_scores)
 
     # Load Test Set
     TestSet = DataTestLoader(config)
