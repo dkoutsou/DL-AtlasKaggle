@@ -3,7 +3,7 @@ import os
 import sys
 import pandas as pd
 from PIL import Image
-
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class DataGenerator:
     """A class that implements an iterator to load the data. It uses  as an
@@ -37,12 +37,14 @@ class DataGenerator:
               for c in ['red', 'green', 'yellow', 'blue']]
              for id in image_ids])
         # Labels
-        self.labels = tmp["Target"].values.reshape((-1, 1))
+        self.labels = tmp["Target"].values
+        
 
     def batch_iterator(self):
         """
         Generates a batch iterator for the dataset.
         """
+        binarizer = MultiLabelBinarizer(classes=np.arange(28))
         num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
         # use 1 as default if num_epochs is not specified (i.e. for baseline)
         try:
@@ -61,6 +63,13 @@ class DataGenerator:
                                 self.config.batch_size, self.n)
                 batchfile = shuffled_filenames[start_index:end_index]
                 batchlabel = shuffled_labels[start_index:end_index]
+                # To one-hot representation of labels
+                # e.g. before e.g. ['22 0' '12 23 0']
+                # after split [['22', '0'], ['12', '23', '0']]
+                # after binarize it is one hot representation
+                batchlabel = [[int(c) for c in l.split(' ')] for l in batchlabel]
+                print(batchlabel)
+                batchlabel = binarizer.fit_transform(batchlabel)
                 batchimages = np.asarray(
                     [[np.asarray(Image.open(x)) for x in y]
                      for y in batchfile])
