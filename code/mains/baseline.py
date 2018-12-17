@@ -1,5 +1,3 @@
-import tensorflow as tf
-
 from data_loader.data_generator import DataGenerator, DataTestLoader
 from utils.config import process_config
 from utils.dirs import create_dirs
@@ -21,7 +19,7 @@ def get_features_from_batch_images(img, r, p):
 
     Args:
         img: the image with 4 input channel
-        r: 512//p number of patches in 
+        r: 512//p number of patches in
             one side of the image
         p: patch size for local histogram
     """
@@ -41,7 +39,7 @@ def extract_features(all_batches, config, train=True):
     """ Main features extraction function.
 
     Args:
-        all_batches: batches iterator either from 
+        all_batches: batches iterator either from
                     DataGenerator class or from TestLoader
                     class. If TestLoader set train to False.
         config: config file
@@ -62,7 +60,7 @@ def extract_features(all_batches, config, train=True):
     if train:
         for batch_img, batch_label in all_batches:
             # just for testing just use 20 batch as training set
-            #if counter > 20:
+            # if counter > 20:
             #    break
             print('processing batch {}'.format(counter))
             if counter == 1:
@@ -78,7 +76,7 @@ def extract_features(all_batches, config, train=True):
     else:
         for batch_img in all_batches:
             # just for testing just use 20 batch as training set
-            #if counter > 20:
+            # if counter > 20:
             #    break
             print('processing batch {}'.format(counter))
             t1 = time.time()
@@ -113,7 +111,7 @@ def get_baseline_CV_score(feats, labels, estimator, scores=['f1_macro']):
 
 
 def fit_predict(train_feats, train_labels, test_feats, estimator):
-    """ Wrapper for the fit + predict pipeline. 
+    """ Wrapper for the fit + predict pipeline.
 
     Args:
         train_feats: matrix[n_samples, n_feats] with training features
@@ -133,8 +131,8 @@ def fit_predict(train_feats, train_labels, test_feats, estimator):
 
 
 def main():
-    """ Main procedure: extract features,  
-    get RF cross-validation performance, 
+    """ Main procedure: extract features,
+    get RF cross-validation performance,
     fit and predict baseline and save csv for Kaggle.
 
     Note:
@@ -171,13 +169,15 @@ def main():
     prediction = fit_predict(train_feats, train_labels, test_feats, rf)
     ids = TestSet.image_ids
     result = pd.DataFrame()
-    
-    l = [' '.join([str(p) for p in sample_pred]) for sample_pred in prediction]
-    result['Id'] = ids[0:len(l)]
-    result['Predict'] = l
+
+    string_pred = [' '.join([str(p) for p in sample_pred])
+                   for sample_pred in prediction]
+    result['Id'] = ids
+    result['Predict'] = string_pred
     print(result)
     create_dirs([config.result_folder+config.exp_name])
-    result.to_csv(config.result_folder+config.exp_name+'/prediction.csv', index=False)
+    result.to_csv(config.result_folder+config.exp_name +
+                  '/prediction.csv', index=False)
 
 
 if __name__ == '__main__':
