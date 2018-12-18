@@ -73,11 +73,11 @@ class DeepYeastModel(BaseModel):
                 self.config.learning_rate).minimize(
                 self.loss,
                 global_step=self.global_step_tensor)
-            correct_prediction = tf.equal(
+            self.prediction = tf.round(out)
+            self.correct_prediction = tf.equal(
                 tf.round(out), self.label)
             self.accuracy = tf.reduce_mean(
-                tf.cast(correct_prediction, tf.float32))
-            # TODO could also add accuracy per class.
+                tf.cast(self.correct_prediction, tf.float32))
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used
