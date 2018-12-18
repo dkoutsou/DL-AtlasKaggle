@@ -14,12 +14,14 @@ class NetworkTrainer(BaseTrain):
         accs = []
         for _ in loop:
             loss, acc = self.train_step(iterator)
+            print(acc)
             losses.append(loss)
             accs.append(acc)
         loss = np.mean(losses)
         acc = np.mean(accs)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
+        print('Step {}: training_loss:{}, training_acc:{}'.format(cur_it, loss, acc))
         summaries_dict = {
             'loss': loss,
             'acc': acc,
