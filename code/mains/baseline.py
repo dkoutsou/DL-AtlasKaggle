@@ -183,8 +183,8 @@ def main():
     result['Id'] = ids
     result['Predict'] = string_pred
     print(result)
-    create_dirs([config.result_folder+config.exp_name])
-    result.to_csv(config.result_folder+config.exp_name +
+    create_dirs([config.summary_dir])
+    result.to_csv(config.summary_dir +
                   '/prediction.csv', index=False)
 
 
