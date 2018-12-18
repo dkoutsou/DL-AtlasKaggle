@@ -42,7 +42,7 @@ class DataGenerator:
         self.labels = tmp["Target"].values
         # Number batches per epoch
         self.num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
-    
+
     def batch_iterator(self):
         """
         Generates a batch iterator for the dataset.
@@ -101,7 +101,7 @@ class DataTestLoader:
         list_files = [f for f in os.listdir(cwd + '/test/')]
         self.image_ids = list(set([re.search(
             '(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
-             for s in list_files]))
+            for s in list_files]))
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray(

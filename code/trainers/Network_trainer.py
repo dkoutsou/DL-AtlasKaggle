@@ -21,7 +21,8 @@ class NetworkTrainer(BaseTrain):
         acc = np.mean(accs)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
-        print('Step {}: training_loss:{}, training_acc:{}'.format(cur_it, loss, acc))
+        print('Step {}: training_loss:{}, training_acc:{}'
+              .format(cur_it, loss, acc))
         train_summaries_dict = {
             'loss': loss,
             'acc': acc,
@@ -43,7 +44,7 @@ class NetworkTrainer(BaseTrain):
         ],
             feed_dict=feed_dict)
         return loss, acc
-    
+
     def val_step(self, val_iterator):
         batch_x, batch_y = next(val_iterator)
         feed_dict = {
