@@ -22,12 +22,13 @@ class NetworkTrainer(BaseTrain):
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
         print('Step {}: training_loss:{}, training_acc:{}'.format(cur_it, loss, acc))
-        summaries_dict = {
+        train_summaries_dict = {
             'loss': loss,
             'acc': acc,
         }
-        self.logger.summarize(cur_it, summaries_dict=summaries_dict)
+        self.logger.summarize(cur_it, summaries_dict=train_summaries_dict)
         self.model.save(self.sess)
+        # TODO: add a validation step to do so have to modify DataGenerator.
 
     def train_step(self, iterator):
         batch_x, batch_y = next(iterator)
@@ -38,6 +39,20 @@ class NetworkTrainer(BaseTrain):
         }
         _, loss, acc = self.sess.run([
             self.model.train_step, self.model.loss,
+            self.model.accuracy
+        ],
+            feed_dict=feed_dict)
+        return loss, acc
+    
+    def val_step(self, val_iterator):
+        batch_x, batch_y = next(val_iterator)
+        feed_dict = {
+            self.model.input: batch_x,
+            self.model.label: batch_y,
+            self.model.is_training: True
+        }
+        loss, acc = self.sess.run([
+            self.model.loss,
             self.model.accuracy
         ],
             feed_dict=feed_dict)
