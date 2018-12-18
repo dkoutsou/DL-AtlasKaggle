@@ -4,7 +4,6 @@ from utils.dirs import create_dirs
 from utils.utils import get_args
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import RidgeClassifierCV
 from sklearn.model_selection import cross_val_score
 import parmap
 import numpy as np
@@ -73,7 +72,7 @@ def extract_features(all_batches, config, train=True):
                 feats = batch_feats
             else:
                 labels = np.concatenate((labels, batch_label))
-                feats = np.concatenate((feats, batch_feats)) #TODO check
+                feats = np.concatenate((feats, batch_feats))  # TODO check
             counter += 1
         return feats, labels
     else:
@@ -157,7 +156,7 @@ def main():
     all_batches = TrainingSet.batch_iterator()
     # extract features
     train_feats, train_labels = extract_features(all_batches, config)
-    print(np.sum(train_labels, axis = 1))
+    print(np.sum(train_labels, axis=1))
     print(np.sum(train_labels))
     # get cv score
     estimator = RandomForestClassifier(n_estimators=1000)
