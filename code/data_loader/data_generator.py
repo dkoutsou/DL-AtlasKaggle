@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.model_selection import train_test_split
 import re
 
 
@@ -40,42 +41,81 @@ class DataGenerator:
              for id in image_ids])
         # Labels
         self.labels = tmp["Target"].values
-        # Number batches per epoch
-        self.num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
 
-    def batch_iterator(self):
+        # Build a validation set
+        try:
+            self.train_filenames, self.val_filenames,\
+                self.train_labels, self.val_labels = train_test_split(
+                    self.filenames, self.labels,
+                    test_size=self.config.val_split,
+                    random_state=42)
+        except AttributeError:
+            self.train_filenames, self.val_filenames,\
+                self.train_labels, self.val_labels = train_test_split(
+                    self.filenames, self.labels,
+                    test_size=0.2, random_state=42)
+        self.n_train = len(self.train_labels)
+        self.n_val = len(self.val_labels)
+        print('Size of training set is {}'.format(self.n_train))
+        print('Size of validation set is {}'.format(self.n_val))
+        # Number batches per epoch
+        self.train_batches_per_epoch = int(
+            (self.n_train-1)/self.config.batch_size) + 1
+        self.val_batches_per_epoch = int(
+            (self.n_val-1)/self.config.batch_size) + 1
+        self.all_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
+
+    def batch_iterator(self, type='all'):
         """
-        Generates a batch iterator for the dataset.
+        Generates a batch iterator for the dataset for one epoch.
+        Args:
+            type: 'all' for whole dataset batching (i.e. for CV for baseline)
+                  'train' for training set batching
+                   'val' for validation batching
+        Example:
+            data = DataGenerator(config)
+            training_batches = data.batch_iterator('train')
+            val_batches = data.batch_iterator('val')
+            all_batches = data.batch_iterator('all')
         """
         binarizer = MultiLabelBinarizer(classes=np.arange(28))
-        # use 1 as default if num_epochs is not specified (i.e. for baseline)
-        try:
-            r = self.config.num_epochs
-        except AttributeError:
-            print('WARN: num_epochs not set - using 1')
-            r = 1
-        for _ in range(r):
-            # Shuffle the data at each epoch
-            shuffle_indices = np.random.permutation(np.arange(self.n))
-            shuffled_filenames = self.filenames[shuffle_indices]
-            shuffled_labels = self.labels[shuffle_indices]
-            for batch_num in range(self.num_batches_per_epoch):
-                start_index = batch_num * self.config.batch_size
-                end_index = min((batch_num + 1) *
-                                self.config.batch_size, self.n)
-                batchfile = shuffled_filenames[start_index:end_index]
-                batchlabel = shuffled_labels[start_index:end_index]
-                # To one-hot representation of labels
-                # e.g. before e.g. ['22 0' '12 23 0']
-                # after split [['22', '0'], ['12', '23', '0']]
-                # after binarize it is one hot representation
-                batchlabel = [[int(c) for c in l.split(' ')]
-                              for l in batchlabel]
-                batchlabel = binarizer.fit_transform(batchlabel)
-                batchimages = np.asarray(
-                    [[np.asarray(Image.open(x)) for x in y]
-                     for y in batchfile])
-                yield batchimages, batchlabel
+        if type == 'all':
+            filenames = self.filenames
+            labels = self.labels
+            num_batches_per_epoch = self.all_batches_per_epoch
+        elif type == 'train':
+            filenames = self.train_filenames
+            labels = self.train_labels
+            num_batches_per_epoch = self.train_batches_per_epoch
+        elif type == 'val':
+            filenames = self.val_filenames
+            labels = self.val_labels
+            num_batches_per_epoch = self.val_batches_per_epoch
+        else:
+            print('Wrong type argument for batch_iterator')
+            exit(0)
+        # Shuffle the data at each epoch
+        n = len(labels)
+        shuffle_indices = np.random.permutation(np.arange(n))
+        shuffled_filenames = filenames[shuffle_indices]
+        shuffled_labels = labels[shuffle_indices]
+        for batch_num in range(num_batches_per_epoch):
+            start_index = batch_num * self.config.batch_size
+            end_index = min((batch_num + 1) *
+                            self.config.batch_size, n)
+            batchfile = shuffled_filenames[start_index:end_index]
+            batchlabel = shuffled_labels[start_index:end_index]
+            # To one-hot representation of labels
+            # e.g. before e.g. ['22 0' '12 23 0']
+            # after split [['22', '0'], ['12', '23', '0']]
+            # after binarize it is one hot representation
+            batchlabel = [[int(c) for c in l.split(' ')]
+                          for l in batchlabel]
+            batchlabel = binarizer.fit_transform(batchlabel)
+            batchimages = np.asarray(
+                [[np.asarray(Image.open(x)) for x in y]
+                    for y in batchfile])
+            yield batchimages, batchlabel
 
 
 class DataTestLoader:
