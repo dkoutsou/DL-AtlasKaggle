@@ -40,13 +40,14 @@ class DataGenerator:
              for id in image_ids])
         # Labels
         self.labels = tmp["Target"].values
-
+        # Number batches per epoch
+        self.num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
+    
     def batch_iterator(self):
         """
         Generates a batch iterator for the dataset.
         """
         binarizer = MultiLabelBinarizer(classes=np.arange(28))
-        num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
         # use 1 as default if num_epochs is not specified (i.e. for baseline)
         try:
             r = self.config.num_epochs
@@ -58,7 +59,7 @@ class DataGenerator:
             shuffle_indices = np.random.permutation(np.arange(self.n))
             shuffled_filenames = self.filenames[shuffle_indices]
             shuffled_labels = self.labels[shuffle_indices]
-            for batch_num in range(num_batches_per_epoch):
+            for batch_num in range(self.num_batches_per_epoch):
                 start_index = batch_num * self.config.batch_size
                 end_index = min((batch_num + 1) *
                                 self.config.batch_size, self.n)
