@@ -100,7 +100,7 @@ class DataTestLoader:
         self.config = config
         list_files = [f for f in os.listdir(cwd + '/test/')]
         self.image_ids = list(set([re.search(
-            '(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
+            r'(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
             for s in list_files]))
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
