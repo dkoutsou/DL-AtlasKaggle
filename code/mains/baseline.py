@@ -4,6 +4,7 @@ from utils.dirs import create_dirs
 from utils.utils import get_args
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import RidgeClassifierCV
 from sklearn.model_selection import cross_val_score
 import parmap
 import numpy as np
@@ -63,14 +64,16 @@ def extract_features(all_batches, config, train=True):
             # if counter > 20:
             #    break
             print('processing batch {}'.format(counter))
-            if counter == 1:
-                labels = batch_label
-            else:
-                labels = np.concatenate((labels, batch_label))
             t1 = time.time()
-            feats = np.asarray(parmap.map(
+            batch_feats = np.asarray(parmap.map(
                 get_features_from_batch_images, batch_img, r, p, pm_pbar=True))
             print(time.time()-t1)
+            if counter == 1:
+                labels = batch_label
+                feats = batch_feats
+            else:
+                labels = np.concatenate((labels, batch_label))
+                feats = np.concatenate((feats, batch_feats)) #TODO check
             counter += 1
         return feats, labels
     else:
@@ -80,9 +83,13 @@ def extract_features(all_batches, config, train=True):
             #    break
             print('processing batch {}'.format(counter))
             t1 = time.time()
-            feats = np.asarray(parmap.map(
+            batch_feats = np.asarray(parmap.map(
                 get_features_from_batch_images, batch_img, r, p, pm_pbar=True))
             print(time.time()-t1)
+            if counter == 1:
+                feats = batch_feats
+            else:
+                feats = np.concatenate((feats, batch_feats))
             counter += 1
         return feats
 
@@ -99,10 +106,6 @@ def get_baseline_CV_score(feats, labels, estimator, scores=['f1_macro']):
     Returns:
         cv_scores: an array of scores objects
     """
-    print(np.shape(labels))
-    feats = np.reshape(feats, (len(labels), -1))
-    print(np.shape(feats))
-    print(np.shape(labels))
     cv_scores = []
     for score in scores:
         cv_scores = np.append(cv_scores, cross_val_score(
@@ -154,10 +157,12 @@ def main():
     all_batches = TrainingSet.batch_iterator()
     # extract features
     train_feats, train_labels = extract_features(all_batches, config)
-
+    print(np.sum(train_labels, axis = 1))
+    print(np.sum(train_labels))
     # get cv score
-    rf = RandomForestClassifier(n_estimators=100)
-    cv_scores = get_baseline_CV_score(train_feats, train_labels, rf)
+    estimator = RandomForestClassifier(n_estimators=1000)
+    # estimator = RidgeClassifierCV()
+    cv_scores = get_baseline_CV_score(train_feats, train_labels, estimator)
     print(cv_scores)
 
     # Load Test Set
@@ -166,12 +171,15 @@ def main():
 
     # Fit and predict for Kaggle
     test_feats = extract_features(test_batches, config, train=False)
-    prediction = fit_predict(train_feats, train_labels, test_feats, rf)
+    print(np.shape(test_feats))
+    prediction = fit_predict(train_feats, train_labels, test_feats, estimator)
     ids = TestSet.image_ids
+    print(np.shape(ids))
     result = pd.DataFrame()
 
     string_pred = [' '.join([str(p) for p in sample_pred])
                    for sample_pred in prediction]
+    print(np.shape(string_pred))
     result['Id'] = ids
     result['Predict'] = string_pred
     print(result)
