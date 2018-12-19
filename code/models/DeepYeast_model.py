@@ -12,7 +12,7 @@ class DeepYeastModel(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
 
         self.input = tf.placeholder(
-            tf.float32, shape=[None, 4, 512, 512])
+            tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
         # Architecture translated from DeepYeast source code
         # original code was written in tf.keras
@@ -73,7 +73,8 @@ class DeepYeastModel(BaseModel):
                 self.config.learning_rate).minimize(
                 self.loss,
                 global_step=self.global_step_tensor)
-            self.prediction = tf.round(out)
+        with tf.name_scope("output"):
+            self.prediction = tf.round(out, name="prediction")
             self.correct_prediction = tf.equal(
                 tf.round(out), self.label)
             self.accuracy = tf.reduce_mean(
