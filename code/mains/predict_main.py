@@ -1,17 +1,16 @@
 import tensorflow as tf
 
-from data_loader.data_generator import DataGenerator, DataTestLoader
+from data_loader.data_generator import DataTestLoader
 from models.DeepYeast_model import DeepYeastModel
 from utils.config import process_config
-from utils.dirs import create_dirs
-from utils.logger import Logger
 from utils.utils import get_args
 from utils.predictor import Predictor
+
 
 def main():
     """ Loads the model from the checkpoint dir
     as specified in the given config file.
-    Calls the prediction function to save the 
+    Calls the prediction function to save the
     prediction csv file to the checkpoint dir.
     """
     # capture the config path from the run arguments
