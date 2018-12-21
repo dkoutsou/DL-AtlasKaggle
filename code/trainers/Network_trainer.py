@@ -28,7 +28,7 @@ class NetworkTrainer(BaseTrain):
         train_acc = np.mean(accs)
         train_f1 = np.mean(f1s)
         # Evaluate on val every epoch
-        # val_loss, val_acc, val_f1 = self.val_step()
+        val_loss, val_acc, val_f1 = self.val_step()
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
         print('Step {}: training_loss:{}, training_acc:{}'.format(
