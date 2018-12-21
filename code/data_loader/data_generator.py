@@ -24,6 +24,7 @@ class DataGenerator:
                 a dictionary with necessary information for the dataloader
                 (e.g batch size)
         """
+        np.random.seed(42)
         cwd = os.getenv("DATA_PATH")
         if cwd is None:
             print("Set your DATA_PATH env first")
@@ -35,10 +36,10 @@ class DataGenerator:
         image_ids = tmp["Id"]
         self.n = len(image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
-        self.filenames = np.asarray(
-            [[cwd + '/train/' + id + '_' + c + '.png'
-              for c in ['red', 'green', 'yellow', 'blue']]
-             for id in image_ids])
+        self.filenames = np.asarray([[
+            cwd + '/train/' + id + '_' + c + '.png'
+            for c in ['red', 'green', 'yellow', 'blue']
+        ] for id in image_ids])
         # Labels
         self.labels = tmp["Target"].values
 
@@ -50,6 +51,7 @@ class DataGenerator:
                     test_size=self.config.val_split,
                     random_state=42)
         except AttributeError:
+            print('WARN: val_split not set - using 0.2')
             self.train_filenames, self.val_filenames,\
                 self.train_labels, self.val_labels = train_test_split(
                     self.filenames, self.labels,
@@ -60,10 +62,11 @@ class DataGenerator:
         print('Size of validation set is {}'.format(self.n_val))
         # Number batches per epoch
         self.train_batches_per_epoch = int(
-            (self.n_train-1)/self.config.batch_size) + 1
+            (self.n_train - 1) / self.config.batch_size) + 1
         self.val_batches_per_epoch = int(
-            (self.n_val-1)/self.config.batch_size) + 1
-        self.all_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
+            (self.n_val - 1) / self.config.batch_size) + 1
+        self.all_batches_per_epoch = int(
+            (self.n - 1) / self.config.batch_size) + 1
 
     def batch_iterator(self, type='all'):
         """
@@ -101,21 +104,22 @@ class DataGenerator:
         shuffled_labels = labels[shuffle_indices]
         for batch_num in range(num_batches_per_epoch):
             start_index = batch_num * self.config.batch_size
-            end_index = min((batch_num + 1) *
-                            self.config.batch_size, n)
+            end_index = min((batch_num + 1) * self.config.batch_size, n)
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
             # To one-hot representation of labels
             # e.g. before e.g. ['22 0' '12 23 0']
             # after split [['22', '0'], ['12', '23', '0']]
             # after binarize it is one hot representation
-            batchlabel = [[int(c) for c in l.split(' ')]
-                          for l in batchlabel]
+            batchlabel = [[int(c) for c in l.split(' ')] for l in batchlabel]
             batchlabel = binarizer.fit_transform(batchlabel)
             batchimages = np.asarray(
-                [[np.asarray(Image.open(x)) for x in y]
-                    for y in batchfile])
+                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
             yield batchimages, batchlabel
+
+    def set_batch_iterator(self, type='all'):
+        train_iterator = self.batch_iterator(type=type)
+        self.train_iterator = train_iterator
 
 
 class DataTestLoader:
@@ -139,29 +143,29 @@ class DataTestLoader:
             sys.exit(1)
         self.config = config
         list_files = [f for f in os.listdir(cwd + '/test/')]
-        self.image_ids = list(set([re.search(
-            r'(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
-            for s in list_files]))
+        self.image_ids = list(
+            set([
+                re.search(r'(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
+                for s in list_files
+            ]))
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
-        self.filenames = np.asarray(
-            [[cwd + 'test/' + id + '_' + c + '.png'
-              for c in ['red', 'green', 'yellow', 'blue']]
-             for id in self.image_ids])
+        self.filenames = np.asarray([[
+            cwd + 'test/' + id + '_' + c + '.png'
+            for c in ['red', 'green', 'yellow', 'blue']
+        ] for id in self.image_ids])
 
     def batch_iterator(self):
         """
         Generates a batch iterator for the dataset.
         """
-        num_batches_per_epoch = int((self.n-1)/self.config.batch_size) + 1
+        num_batches_per_epoch = int((self.n - 1) / self.config.batch_size) + 1
         for batch_num in range(num_batches_per_epoch):
             start_index = batch_num * self.config.batch_size
-            end_index = min((batch_num + 1) *
-                            self.config.batch_size, self.n)
+            end_index = min((batch_num + 1) * self.config.batch_size, self.n)
             batchfile = self.filenames[start_index:end_index]
             batchimages = np.asarray(
-                [[np.asarray(Image.open(x)) for x in y]
-                    for y in batchfile])
+                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
             yield batchimages
 
 
@@ -180,4 +184,4 @@ if __name__ == '__main__':
     TestLoader = DataTestLoader(config)
     all_test_batches = TestLoader.batch_iterator()
     for batch_x in all_test_batches:
-        print(np.shape(batch_x))   # (32, 4, 512, 512)
+        print(np.shape(batch_x))  # (32, 4, 512, 512)

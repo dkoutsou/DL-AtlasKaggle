@@ -46,13 +46,15 @@ class Predictor:
         for batch_imgs in testIterator.batch_iterator():
             # if counter > 4:
             #    break
-            one_hot_batch_pred = self.sess.run(
-                self.model.prediction, {self.model.input: batch_imgs})
+            one_hot_batch_pred = self.sess.run(self.model.prediction, {
+                self.model.input: batch_imgs,
+                self.model.is_training: False
+            })
             batch_pred = bin.inverse_transform(one_hot_batch_pred)
-            predicted_labels = np.append(
-                predicted_labels,
-                [' '.join([str(p) for p in sample_pred])
-                 for sample_pred in batch_pred])
+            predicted_labels = np.append(predicted_labels, [
+                ' '.join([str(p) for p in sample_pred])
+                for sample_pred in batch_pred
+            ])
             # counter += 1
             # print(np.shape(predicted_labels))
         ids = testIterator.image_ids[0:8]

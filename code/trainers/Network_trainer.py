@@ -9,13 +9,13 @@ class NetworkTrainer(BaseTrain):
         super(NetworkTrainer, self).__init__(sess, model, data, config, logger)
 
     def train_epoch(self):
-        train_iterator = self.data.batch_iterator(type='train')
+        self.data.set_batch_iterator(type='train')
         loop = tqdm(range(self.data.train_batches_per_epoch))
         losses = []
         accs = []
         f1s = []
         for _ in loop:
-            loss, acc, f1 = self.train_step(train_iterator)
+            loss, acc, f1 = self.train_step()
             # just for testing but before end of epoch
             # print(loss)
             # print(f1
@@ -28,40 +28,36 @@ class NetworkTrainer(BaseTrain):
         train_acc = np.mean(accs)
         train_f1 = np.mean(f1s)
         # Evaluate on val every epoch
-        val_loss, val_acc, val_f1 = self.val_step()
+        # val_loss, val_acc, val_f1 = self.val_step()
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
-        print('Step {}: training_loss:{}, training_acc:{}'
-              .format(cur_it, train_loss, train_acc))
-        print('Step {}: val_loss:{}, val_acc:{}'
-              .format(cur_it, val_loss, val_acc))
+        print('Step {}: training_loss:{}, training_acc:{}'.format(
+            cur_it, train_loss, train_acc))
+        print('Step {}: val_loss:{}, val_acc:{}'.format(
+            cur_it, val_loss, val_acc))
         train_summaries_dict = {
             'loss': train_loss,
             'acc': train_acc,
             'f1': train_f1
         }
-        val_summaries_dict = {
-            'loss': val_loss,
-            'acc': val_acc,
-            'f1': val_f1
-        }
+        val_summaries_dict = {'loss': val_loss, 'acc': val_acc, 'f1': val_f1}
         self.logger.summarize(cur_it, summaries_dict=train_summaries_dict)
         self.logger.summarize(
             cur_it, summaries_dict=val_summaries_dict, summarizer='test')
         self.model.save(self.sess)
 
-    def train_step(self, iterator):
-        batch_x, batch_y = next(iterator)
+    def train_step(self):
+        batch_x, batch_y = next(self.data.train_iterator)
         feed_dict = {
             self.model.input: batch_x,
             self.model.label: batch_y,
             self.model.is_training: True
         }
         _, loss, acc, pred = self.sess.run([
-            self.model.train_step, self.model.loss,
-            self.model.accuracy, self.model.prediction
+            self.model.train_step, self.model.loss, self.model.accuracy,
+            self.model.prediction
         ],
-            feed_dict=feed_dict)
+                                           feed_dict=feed_dict)
         f1 = f1_score(batch_y, pred, average='macro')
         return loss, acc, f1
 
@@ -77,10 +73,8 @@ class NetworkTrainer(BaseTrain):
                 self.model.label: batch_y,
                 self.model.is_training: False
             }
-            loss, acc, pred = self.sess.run([
-                self.model.loss,
-                self.model.accuracy, self.model.prediction
-            ],
+            loss, acc, pred = self.sess.run(
+                [self.model.loss, self.model.accuracy, self.model.prediction],
                 feed_dict=feed_dict)
             val_losses.append(loss)
             val_accs.append(acc)

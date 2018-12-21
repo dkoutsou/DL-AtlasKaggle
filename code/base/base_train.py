@@ -35,3 +35,10 @@ class BaseTrain:
         - return any metrics you need to summarize
         """
         raise NotImplementedError
+
+    def val_step(self):
+        """
+        implement the logic of the validation step
+        - runs once in every epoch
+        """
+        raise NotImplementedError
