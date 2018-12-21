@@ -96,7 +96,7 @@ class DataGenerator:
             num_batches_per_epoch = self.val_batches_per_epoch
         else:
             print('Wrong type argument for batch_iterator')
-            exit(0)
+            exit(1)
         # Shuffle the data at each epoch
         n = len(labels)
         shuffle_indices = np.random.permutation(np.arange(n))
