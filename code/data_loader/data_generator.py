@@ -31,7 +31,8 @@ class DataGenerator:
             sys.exit(1)
         self.config = config
         # Read csv file
-        tmp = pd.read_csv(os.path.abspath(cwd + 'train.csv'), delimiter=',')
+        print(os.path.abspath(cwd + 'train.csv'))
+        tmp = pd.read_csv(os.path.abspath(cwd + 'train.csv'), delimiter=',', engine='python')
         # A vector of images id.
         image_ids = tmp["Id"]
         self.n = len(image_ids)
