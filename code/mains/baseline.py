@@ -72,7 +72,7 @@ def extract_features(all_batches, config, train=True):
                 feats = batch_feats
             else:
                 labels = np.concatenate((labels, batch_label))
-                feats = np.concatenate((feats, batch_feats))  # TODO check
+                feats = np.concatenate((feats, batch_feats))
             counter += 1
         return feats, labels
     else:
