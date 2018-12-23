@@ -7,7 +7,7 @@ from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.logger import Logger
 from utils.utils import get_args
-
+from tensorflow.python.client import device_lib
 
 def main():
     # capture the config path from the run arguments
@@ -19,11 +19,10 @@ def main():
     except Exception:
         print("missing or invalid arguments")
         raise
-
     # create the experiments dirs
     create_dirs([config.summary_dir, config.checkpoint_dir])
     # create tensorflow session
-    sess = tf.Session()
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True))
     # create your data generator
     data = DataGenerator(config)
     # create an instance of the model you want
@@ -39,4 +38,5 @@ def main():
 
 
 if __name__ == '__main__':
+    print(tf.test.is_gpu_available())
     main()
