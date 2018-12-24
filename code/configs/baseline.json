@@ -1,6 +1,5 @@
 {
-  "exp_name": "baseline",
+  "exp_name": "baseline_first",
   "batch_size": 1024, 
-  "patch_size": 64,
-  "experiment_dir":"/Users/melaniebernhardt/Desktop/DL-AtlasKaggle/result/"
+  "patch_size": 64
 }
