@@ -23,7 +23,7 @@ def main():
     create_dirs([config.summary_dir, config.checkpoint_dir])
     # create tensorflow session
     configSess = tf.ConfigProto(allow_soft_placement=True,
-        log_device_placement=False)
+                                log_device_placement=False)
     configSess.gpu_options.allow_growth = True
     sess = tf.Session(config=configSess)
     # create your data generator
@@ -41,5 +41,6 @@ def main():
 
 
 if __name__ == '__main__':
-    print('the gpu is avaiable {}'.format(tf.test.is_gpu_available()),flush=True)
+    print('the gpu is avaiable {}'.format(
+        tf.test.is_gpu_available()), flush=True)
     main()
