@@ -30,8 +30,10 @@ def get_features_from_batch_images(img, r, p):
         # extract 8*8 patches of 64*64 px and derive 10 bins histogram
         for j in range(r):
             for k in range(r):
-                tmp_feats = np.append(tmp_feats, np.histogram(
-                    current_img[j*p:(j+1)*(p), k*p:(k+1)*p])[0])
+                tmp_feats = np.append(
+                    tmp_feats,
+                    np.histogram(current_img[j * p:(j + 1) * (p), k *
+                                             p:(k + 1) * p])[0])
     return tmp_feats
 
 
@@ -54,42 +56,30 @@ def extract_features(all_batches, config, train=True):
     """
     # manually derive basic intensities features
     # takes 20 sec / 1048 images batch on my laptop in 4 cores //
-    counter = 1
     p = config.patch_size
-    r = 512//p
-    if train:
-        for batch_img, batch_label in all_batches:
-            # just for testing just use 20 batch as training set
-            # if counter > 20:
-            #    break
-            print('processing batch {}'.format(counter))
-            t1 = time.time()
-            batch_feats = np.asarray(parmap.map(
+    r = 512 // p
+    labels = np.empty(0)
+    feats = np.empty(0)
+    for counter, tmp in enumerate(all_batches):
+        if train:
+            batch_img, batch_label = tmp
+        else:
+            batch_img = tmp
+            batch_label = np.empty(0)
+        # just for testing just use 20 batch as training set
+        print('processing batch {}'.format(counter))
+        t1 = time.time()
+        batch_feats = np.asarray(
+            parmap.map(
                 get_features_from_batch_images, batch_img, r, p, pm_pbar=True))
-            print(time.time()-t1)
-            if counter == 1:
-                labels = batch_label
-                feats = batch_feats
-            else:
-                labels = np.concatenate((labels, batch_label))
-                feats = np.concatenate((feats, batch_feats))
-            counter += 1
+        print(time.time() - t1)
+        labels = np.concatenate((labels,
+                                 batch_label)) if labels.size else batch_label
+        feats = np.concatenate((feats,
+                                batch_feats)) if feats.size else batch_feats
+    if train:
         return feats, labels
     else:
-        for batch_img in all_batches:
-            # just for testing just use 20 batch as training set
-            # if counter > 20:
-            #    break
-            print('processing batch {}'.format(counter))
-            t1 = time.time()
-            batch_feats = np.asarray(parmap.map(
-                get_features_from_batch_images, batch_img, r, p, pm_pbar=True))
-            print(time.time()-t1)
-            if counter == 1:
-                feats = batch_feats
-            else:
-                feats = np.concatenate((feats, batch_feats))
-            counter += 1
         return feats
 
 
@@ -107,8 +97,9 @@ def get_baseline_CV_score(feats, labels, estimator, scores=['f1_macro']):
     """
     cv_scores = []
     for score in scores:
-        cv_scores = np.append(cv_scores, cross_val_score(
-            estimator, feats, labels, scoring=score))
+        cv_scores = np.append(
+            cv_scores, cross_val_score(
+                estimator, feats, labels, scoring=score))
     return cv_scores
 
 
@@ -129,7 +120,7 @@ def fit_predict(train_feats, train_labels, test_feats, estimator):
     estimator.fit(train_feats, train_labels)
     one_hot_pred = estimator.predict(test_feats)
     predicted_labels = bin.inverse_transform(one_hot_pred)
-    return(predicted_labels)
+    return (predicted_labels)
 
 
 def main():
@@ -159,7 +150,7 @@ def main():
     print(np.sum(train_labels, axis=1))
     print(np.sum(train_labels))
     # get cv score
-    estimator = RandomForestClassifier(n_estimators=1000)
+    estimator = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
     # estimator = RidgeClassifierCV()
     cv_scores = get_baseline_CV_score(train_feats, train_labels, estimator)
     print(cv_scores)
@@ -176,15 +167,15 @@ def main():
     print(np.shape(ids))
     result = pd.DataFrame()
 
-    string_pred = [' '.join([str(p) for p in sample_pred])
-                   for sample_pred in prediction]
+    string_pred = [
+        ' '.join([str(p) for p in sample_pred]) for sample_pred in prediction
+    ]
     print(np.shape(string_pred))
     result['Id'] = ids
     result['Predict'] = string_pred
     print(result)
     create_dirs([config.summary_dir])
-    result.to_csv(config.summary_dir +
-                  '/prediction.csv', index=False)
+    result.to_csv(config.summary_dir + '/prediction.csv', index=False)
 
 
 if __name__ == '__main__':
