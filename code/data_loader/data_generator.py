@@ -51,7 +51,7 @@ class DataGenerator:
         self.labels = [[int(c) for c in l.split(' ')] for l in self.labels]
         self.labels = binarizer.fit_transform(self.labels)
         # Compute class weigths
-        self.class_weights = np.reshape(1/np.sum(self.labels, axis=0), (1,-1))
+        self.class_weights = np.reshape(1/np.sum(self.labels, axis=0), (1, -1))
         # Build a validation set
         try:
             self.train_filenames, self.val_filenames,\
@@ -90,7 +90,6 @@ class DataGenerator:
             val_batches = data.batch_iterator('val')
             all_batches = data.batch_iterator('all')
         """
-        binarizer = MultiLabelBinarizer(classes=np.arange(28))
         if type == 'all':
             filenames = self.filenames
             labels = self.labels
