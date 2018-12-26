@@ -43,7 +43,15 @@ class DataGenerator:
         ] for id in image_ids])
         # Labels
         self.labels = tmp["Target"].values
-
+        # To one-hot representation of labels
+        # e.g. before e.g. ['22 0' '12 23 0']
+        # after split [['22', '0'], ['12', '23', '0']]
+        # after binarize it is one hot representation
+        binarizer = MultiLabelBinarizer(classes=np.arange(28))
+        self.labels = [[int(c) for c in l.split(' ')] for l in self.labels]
+        self.labels = binarizer.fit_transform(self.labels)
+        # Compute class weigths
+        self.class_weights = np.reshape(1/np.sum(self.labels, axis=0), (1, -1))
         # Build a validation set
         try:
             self.train_filenames, self.val_filenames,\
@@ -82,7 +90,6 @@ class DataGenerator:
             val_batches = data.batch_iterator('val')
             all_batches = data.batch_iterator('all')
         """
-        binarizer = MultiLabelBinarizer(classes=np.arange(28))
         if type == 'all':
             filenames = self.filenames
             labels = self.labels
@@ -108,12 +115,6 @@ class DataGenerator:
             end_index = min((batch_num + 1) * self.config.batch_size, n)
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
-            # To one-hot representation of labels
-            # e.g. before e.g. ['22 0' '12 23 0']
-            # after split [['22', '0'], ['12', '23', '0']]
-            # after binarize it is one hot representation
-            batchlabel = [[int(c) for c in l.split(' ')] for l in batchlabel]
-            batchlabel = binarizer.fit_transform(batchlabel)
             batchimages = np.asarray(
                 [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
             yield batchimages, batchlabel

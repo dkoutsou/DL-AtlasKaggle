@@ -22,8 +22,10 @@ def main():
     # create the experiments dirs
     create_dirs([config.summary_dir, config.checkpoint_dir])
     # create tensorflow session
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
-                                            log_device_placement=True))
+    configSess = tf.ConfigProto(allow_soft_placement=True,
+                                log_device_placement=False)
+    configSess.gpu_options.allow_growth = True
+    sess = tf.Session(config=configSess)
     # create your data generator
     data = DataGenerator(config)
     # create an instance of the model you want
@@ -39,5 +41,6 @@ def main():
 
 
 if __name__ == '__main__':
-    print(tf.test.is_gpu_available())
+    print('the gpu is avaiable {}'.format(
+        tf.test.is_gpu_available()), flush=True)
     main()
