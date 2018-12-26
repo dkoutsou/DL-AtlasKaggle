@@ -97,7 +97,6 @@ class NetworkTrainer(BaseTrain):
         val_preds = []
         val_true = []
         for batch_x, batch_y in val_iterator:
-            print('here')
             feed_dict = {
                 self.model.input: batch_x,
                 self.model.label: batch_y,
