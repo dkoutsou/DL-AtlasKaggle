@@ -45,15 +45,16 @@ class NetworkTrainer(BaseTrain):
                 }
                 self.logger.summarize(
                     cur_it, summaries_dict=train_summaries_dict)
-            
-            if (cur_it%20==0) and (cur_it>0):
+
+            if (cur_it % 20 == 0) and (cur_it > 0):
                 # Evaluate on val every epoch
                 val_loss, val_f1 = self.val_step()
                 print('Step {}: val_loss:{}, val_f1:{}'.format(
-                cur_it, val_loss, val_f1))
+                    cur_it, val_loss, val_f1))
                 val_summaries_dict = {'loss': val_loss, 'f1': val_f1}
                 self.logger.summarize(
-                    cur_it, summaries_dict=val_summaries_dict, summarizer='test')
+                    cur_it, summaries_dict=val_summaries_dict,
+                    summarizer='test')
                 self.model.save(self.sess)
 
         train_loss = np.mean(losses)
@@ -68,7 +69,7 @@ class NetworkTrainer(BaseTrain):
         # Evaluate on val every epoch
         val_loss, val_f1 = self.val_step()
         print('Step {}: val_loss:{}, val_f1:{}'.format(
-        cur_it, val_loss, val_f1))
+            cur_it, val_loss, val_f1))
         val_summaries_dict = {'loss': val_loss, 'f1': val_f1}
         self.logger.summarize(cur_it, summaries_dict=train_summaries_dict)
         self.logger.summarize(
@@ -83,7 +84,7 @@ class NetworkTrainer(BaseTrain):
             self.model.label: batch_y,
             self.model.is_training: True,
             self.model.class_weights: self.data.class_weights
-        }           
+        }
         _, loss, pred = self.sess.run([
             self.model.train_step, self.model.loss,
             self.model.prediction
