@@ -32,6 +32,16 @@ class NetworkTrainer(BaseTrain):
                 }
                 self.logger.summarize(
                     cur_it, summaries_dict=train_summaries_dict)
+            if (cur_it%20==0) and (cur_it>0):
+                # Evaluate on val every epoch
+                val_loss, val_f1 = self.val_step()
+                print('Step {}: val_loss:{}, val_f1:{}'.format(
+                cur_it, val_loss, val_f1))
+                val_summaries_dict = {'loss': val_loss, 'f1': val_f1}
+                self.logger.summarize(
+                    cur_it, summaries_dict=val_summaries_dict, summarizer='test')
+                self.model.save(self.sess)
+
         train_loss = np.mean(losses)
         train_f1 = np.mean(f1s)
         cur_it = self.model.global_step_tensor.eval(self.sess)
