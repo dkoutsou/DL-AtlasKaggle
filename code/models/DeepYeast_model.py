@@ -83,8 +83,10 @@ class DeepYeastModel(BaseModel):
         out = tf.nn.sigmoid(logits, name='out')
         with tf.name_scope("loss"):
             if self.config.use_weighted_loss:
-                self.loss = tf.losses.compute_weighted_loss(tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits), weights=self.class_weights)
+                self.loss = tf.losses.compute_weighted_loss(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=logits),
+                    weights=self.class_weights)
             else:
                 self.loss = tf.reduce_mean(
                     tf.nn.sigmoid_cross_entropy_with_logits(
