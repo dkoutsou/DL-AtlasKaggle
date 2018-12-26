@@ -83,9 +83,6 @@ class DeepYeastModel(BaseModel):
                     self.loss, global_step=self.global_step_tensor)
         with tf.name_scope("output"):
             self.prediction = tf.round(out, name="prediction")
-            self.correct_prediction = tf.equal(tf.round(out), self.label)
-            self.accuracy = tf.reduce_mean(
-                tf.cast(self.correct_prediction, tf.float32))
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used
