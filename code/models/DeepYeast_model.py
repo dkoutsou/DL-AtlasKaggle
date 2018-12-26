@@ -9,8 +9,15 @@ class DeepYeastModel(BaseModel):
         self.init_saver()
 
     def build_model(self):
+        try:
+            if self.config.use_weighted_loss:
+                pass
+        except AttributeError:
+            print('WARN: use_weighted_loss not set - using False')
+            self.config.use_weighted_loss = False
         self.is_training = tf.placeholder(tf.bool)
-
+        self.class_weights = tf.placeholder(
+            tf.float32, shape=[1, 28], name="weights")
         self.input = tf.placeholder(
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
@@ -75,9 +82,13 @@ class DeepYeastModel(BaseModel):
         # label being true. I.e. if > 0.5 output the prediction.
         out = tf.nn.sigmoid(logits, name='out')
         with tf.name_scope("loss"):
-            self.loss = tf.reduce_mean(
-                tf.nn.sigmoid_cross_entropy_with_logits(
-                    labels=self.label, logits=logits))
+            if self.config.use_weighted_loss:
+                self.loss = tf.losses.compute_weighted_loss(tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=logits), weights=self.class_weights)
+            else:
+                self.loss = tf.reduce_mean(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=logits))
             self.train_step = tf.train.AdamOptimizer(
                 self.config.learning_rate).minimize(
                     self.loss, global_step=self.global_step_tensor)
