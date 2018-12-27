@@ -123,6 +123,7 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
             n_jobs=self.n_jobs,
             random_state=self.random_state,
             class_weight=self.class_weight)
+        print(self.rf)
         return self.rf.fit(X, y, sample_weight=sample_weight)
 
     def predict_proba(self, X):
