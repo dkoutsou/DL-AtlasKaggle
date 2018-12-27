@@ -136,7 +136,9 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         probas = np.hstack(probas)
 
         for i in range(probas.shape[0]):
+            print(probas[i, :])
             probas[i, :] = self._proba_2_one_hot(probas[i, :])
+            print(probas[i, :])
 
         probas = probas.astype(np.int)
         return probas
