@@ -45,7 +45,18 @@ def data_aug(data_folder, train_labels):
                 rebalanced_images.append([image_name + '_rot' + str(i_rot), image_target])
                 rebalanced_images.append([image_name + '_rev' + str(i_rot), image_target])
 
+def num_aug():
+    # Find number of augmentations necessary
+    sorted_label_values = train_labels.drop(["Id", "Target"], axis=1).sum(axis=0).sort_values(ascending=False)
+    aug = 0
+    num_augs = {sorted_label_values.index[0]: 0}
 
+    for i in range(1, len(sorted_label_values )):
+        while (sorted_label_values[0] / sorted_label_values[i] > aug) & (aug < 8) & (
+                sorted_label_values[i] * 2 < sorted_label_values[0]):
+            aug += 2
+        num_augs[sorted_label_values.index[i]] = aug
+    return num_augs
 
 
 if __name__=='__main__':
