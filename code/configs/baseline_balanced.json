@@ -2,7 +2,7 @@
   "exp_name": "baseline_balanced",
   "batch_size": 1024,
   "patch_size": 64,
-  "n_estimators": 1000,
+  "n_estimators": 2000,
   "class_weight": "balanced",
   "val_split": 0.0
 }

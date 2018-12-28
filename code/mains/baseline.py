@@ -29,7 +29,11 @@ def get_baseline_CV_score(feats, labels, estimator, scores=['f1_macro']):
     return cv_scores
 
 
-def fit_predict(train_feats, train_labels, test_feats, estimator):
+def fit_predict(train_feats,
+                train_labels,
+                test_feats,
+                estimator,
+                sample_weight=None):
     """ Wrapper for the fit + predict pipeline.
 
     Args:
@@ -43,7 +47,7 @@ def fit_predict(train_feats, train_labels, test_feats, estimator):
     """
     bin = MultiLabelBinarizer(classes=np.arange(28))
     bin.fit(train_labels)  # needed for instantiation of the object
-    estimator.fit(train_feats, train_labels)
+    estimator.fit(train_feats, train_labels, sample_weight=sample_weight)
     one_hot_pred = estimator.predict(test_feats)
     predicted_labels = bin.inverse_transform(one_hot_pred)
     return predicted_labels
@@ -72,18 +76,29 @@ def main():
     all_batches = TrainingSet.batch_iterator()
 
     # init model
+    try:
+        if config.sampling_algo:
+            pass
+    except AttributeError:
+        config.sampling_algo = None
+    try:
+        if config.class_weight:
+            pass
+    except AttributeError:
+        config.class_weight = None
     estimator = RandomForestBaseline(
         n_estimators=config.n_estimators,
         n_jobs=-1,
         random_state=42,
-        class_weight=config.class_weight)
+        class_weight=config.class_weight,
+        resample_algo=config.sampling_algo)
 
     # extract features
     train_feats, train_labels = estimator._extract_features(
         all_batches, config.patch_size)
     samples_per_class = np.sum(train_labels, axis=0)
     print("Samples per class: ", samples_per_class.tolist())
-    print("Total samples: ", np.sum(train_labels))
+    print("Total samples: ", train_labels.shape[0])
 
     # get cv score
     print("Calculating CV score...")

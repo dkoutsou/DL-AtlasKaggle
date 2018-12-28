@@ -4,6 +4,7 @@ import numpy as np
 import parmap
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
+from utils.oversampler import Oversampler
 
 
 class RandomForestBaseline(BaseEstimator, TransformerMixin):
@@ -15,11 +16,19 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
                  n_estimators=1000,
                  n_jobs=None,
                  random_state=None,
-                 class_weight=None):
+                 class_weight=None,
+                 resample_algo=None,
+                 resample_strategy='naive'):
         self.n_estimators = n_estimators
         self.n_jobs = n_jobs
         self.random_state = random_state
         self.class_weight = class_weight
+
+        # Resampling needs to be done in fit() otherwise
+        # generated samples will leak to CV
+        self.resample_algo = resample_algo
+        self.resample_strategy = resample_strategy
+
         self.rf = None
 
     def _get_features_from_batch_images(self, img, r, p):
@@ -124,6 +133,11 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
             random_state=self.random_state,
             class_weight=self.class_weight)
         print(self.rf)
+        if self.resample_algo is not None:
+            print("Before oversampling: ", X.shape, y.shape)
+            sampler = Oversampler(type=self.resample_algo)
+            X, y = sampler.resample(X, y, self.resample_strategy)
+            print("After oversampling: ", X.shape, y.shape)
         return self.rf.fit(X, y, sample_weight=sample_weight)
 
     def predict_proba(self, X):
