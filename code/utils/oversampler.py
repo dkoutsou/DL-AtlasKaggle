@@ -1,21 +1,10 @@
 import numpy as np
 from imblearn.over_sampling import ADASYN, SMOTE
 
-# WIP
-# Imblearn supports multi-class but not multi-output data
-# (since sampling the minority class means we are sampling
-# other classes too)
-# TODO:
-# - Iteratively sample from minority class ignoring label relations
-#   and setting rest of labels of generated samples to 0. (i.e
-#   generated samples belong ONLY to minority class)
-# - Build label relation graph, partition label sapce based on graph,
-#   oversample and then inverse transform back
-
 
 class Oversampler:
-    """ This class is a wrapper around
-    imblearn.oversample.
+    """ This class is a wrapper around imblearn.oversample that adds support
+    for multi-output datasets (but ignores relations between labels)
     """
 
     def __init__(self, type='adasyn'):
@@ -59,7 +48,7 @@ class Oversampler:
 
         return Xnew, y_new
 
-    def resample_naive(self, X, y, step=200, imb_ratio=20):
+    def resample(self, X, y, step=200, imb_ratio=20):
         """
         Iteratively adds samples to the minority class until the
         given imbalance ratio is reached. Imbalance ratio of 1
@@ -89,19 +78,6 @@ class Oversampler:
             ratio = np.max(counts) / np.min(counts)
         print("Imbalance ratio:", ratio)
         return Xresampled, yresampled
-
-    def resample(self, X, y, strategy='naive'):
-        """ Oversamples data and returns updated
-        data X(samples*features) and target labels y
-
-        Args:
-            X: samples * features
-            y: target labels y
-        """
-        if strategy == 'naive':
-            return self.resample_naive(X, y)
-        else:
-            raise NotImplementedError
 
 
 if __name__ == "__main__":
