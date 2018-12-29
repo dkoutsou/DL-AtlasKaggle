@@ -138,7 +138,8 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         print(self.rf)
         print("Training random forest...")
         sys.stdout.flush()
-        return self.rf.fit(X, y, sample_weight=sample_weight)
+        self.rf.fit(X, y, sample_weight=sample_weight)
+        return self
 
     def predict_proba(self, X):
         probas = self.rf.predict_proba(X)
