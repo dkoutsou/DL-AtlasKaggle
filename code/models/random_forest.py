@@ -1,5 +1,5 @@
 import time
-
+import sys
 import numpy as np
 import parmap
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -17,8 +17,7 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
                  n_jobs=None,
                  random_state=None,
                  class_weight=None,
-                 resample_algo=None,
-                 resample_strategy='naive'):
+                 resample_algo=None):
         self.n_estimators = n_estimators
         self.n_jobs = n_jobs
         self.random_state = random_state
@@ -27,7 +26,6 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         # Resampling needs to be done in fit() otherwise
         # generated samples will leak to CV
         self.resample_algo = resample_algo
-        self.resample_strategy = resample_strategy
 
         self.rf = None
 
@@ -132,12 +130,14 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
             n_jobs=self.n_jobs,
             random_state=self.random_state,
             class_weight=self.class_weight)
-        print(self.rf)
         if self.resample_algo is not None:
             print("Before oversampling: ", X.shape, y.shape)
             sampler = Oversampler(type=self.resample_algo)
-            X, y = sampler.resample(X, y, self.resample_strategy)
+            X, y = sampler.resample(X, y)
             print("After oversampling: ", X.shape, y.shape)
+        print(self.rf)
+        print("Training random forest...")
+        sys.stdout.flush()
         return self.rf.fit(X, y, sample_weight=sample_weight)
 
     def predict_proba(self, X):
