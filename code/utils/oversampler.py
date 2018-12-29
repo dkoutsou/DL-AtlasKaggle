@@ -36,14 +36,16 @@ class Oversampler:
 
         # in a single column there are two classes: 0 and 1
         # generate samples for class 1
-        sampler = self._init_sampler({1: num_of_samples})
+        current_samples = np.sum(y_temp)
+        sampler = self._init_sampler({1: current_samples + num_of_samples})
         Xnew, _ = sampler.fit_resample(X, y_temp)
+        added_samples = Xnew.shape[0] - X.shape[0]
 
-        # new samples are always added to the end so pick last num_of_samples
-        Xnew = Xnew[-num_of_samples:, :]
+        # new samples are always added to the end so pick last added_samples
+        Xnew = Xnew[-added_samples:, :]
 
         # create labels for generated samples
-        y_new = np.zeros((num_of_samples, y.shape[1]))
+        y_new = np.zeros((added_samples, y.shape[1]))
         y_new[:, class_id] = 1
 
         return Xnew, y_new
@@ -59,6 +61,7 @@ class Oversampler:
             imb_ratio: majority/minority. The algorithm stops
               once this ratio is reached.
         """
+        print("Initial label counts: ", np.sum(y, axis=0).tolist())
         Xresampled = X.copy()
         yresampled = y.copy()
         counts = np.sum(y, axis=0)
@@ -76,6 +79,7 @@ class Oversampler:
             # calculate imbalance ratio using resampled matrices
             counts = np.sum(yresampled, axis=0)
             ratio = np.max(counts) / np.min(counts)
+        print("New label counts: ", np.sum(yresampled, axis=0).tolist())
         print("Imbalance ratio:", ratio)
         return Xresampled, yresampled
 
