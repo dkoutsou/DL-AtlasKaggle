@@ -5,6 +5,6 @@
     "exp_name": "Inception_batch8_5epochs_weighted",
     "val_split": 0.1, 
     "num_epochs": 5,
-    "batch_size": 2,
+    "batch_size": 8,
     "use_weighted_loss": true
 }
