@@ -36,7 +36,6 @@ class NetworkTrainer(BaseTrain):
                 # nearly never happens leading to a meaningful f1-score.
                 train_f1 = f1_score(train_true, train_preds, average='macro')
                 losses = []
-                f1s = []
                 print('Step {}: training_loss:{}, training_f1:{}'.format(
                     cur_it, train_loss, train_f1))
                 train_summaries_dict = {
@@ -46,7 +45,7 @@ class NetworkTrainer(BaseTrain):
                 self.logger.summarize(
                     cur_it, summaries_dict=train_summaries_dict)
 
-            if (cur_it % 20 == 0) and (cur_it > 0):
+            if (cur_it % 100 == 0) and (cur_it > 0):
                 # Evaluate on val every epoch
                 val_loss, val_f1 = self.val_step()
                 print('Step {}: val_loss:{}, val_f1:{}'.format(
@@ -55,26 +54,9 @@ class NetworkTrainer(BaseTrain):
                 self.logger.summarize(
                     cur_it, summaries_dict=val_summaries_dict,
                     summarizer='test')
-                self.model.save(self.sess)
 
-        train_loss = np.mean(losses)
-        train_f1 = np.mean(f1s)
-        cur_it = self.model.global_step_tensor.eval(self.sess)
-        print('Step {}: training_loss:{}, training_f1:{}'.format(
-            cur_it, train_loss, train_f1))
-        train_summaries_dict = {
-            'loss': train_loss,
-            'f1': train_f1
-        }
-        # Evaluate on val every epoch
-        val_loss, val_f1 = self.val_step()
-        print('Step {}: val_loss:{}, val_f1:{}'.format(
-            cur_it, val_loss, val_f1))
-        val_summaries_dict = {'loss': val_loss, 'f1': val_f1}
-        self.logger.summarize(cur_it, summaries_dict=train_summaries_dict)
-        self.logger.summarize(
-            cur_it, summaries_dict=val_summaries_dict, summarizer='test')
-        self.model.save(self.sess)
+            if (cur_it % 200 == 0) and (cur_it > 0):
+                self.model.save(self.sess)
 
     def train_step(self):
         batch_x, batch_y = next(self.data.train_iterator)

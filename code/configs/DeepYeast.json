@@ -1,8 +1,9 @@
 {
+    "model": "DeepYeast",
     "learning_rate": 0.001,
     "max_to_keep": 2,
-    "exp_name": "DeepYeast_batch8_20epochs",
+    "exp_name": "DeepYeast_batch8_5epochs",
     "val_split": 0.1, 
-    "num_epochs": 20,
+    "num_epochs": 5,
   "batch_size": 8
 }
