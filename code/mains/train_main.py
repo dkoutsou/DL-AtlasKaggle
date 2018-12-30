@@ -7,6 +7,7 @@ from models.CP4_model import CP4Model
 from models.CDP4_model import CDP4Model
 from models.CBDP4_model import CBDP4Model
 from models.CDP2_model import CDP2Model
+from models.CDP2D_model import CDP2DModel
 from models.CBDP2_model import CBDP2Model
 from models.SimpleCNN_model import SimpleCNNModel
 from models.inception_model import InceptionModel
@@ -53,6 +54,8 @@ def main():
             model = CBDP4Model(config)
         elif config.model == "CDP2":
             model = CDP2Model(config)
+        elif config.model == "CDP2D":
+            model = CDP2DModel(config)
         elif config.model == "CBDP2":
             model = CBDP2Model(config)
         elif config.model == "Inception":
