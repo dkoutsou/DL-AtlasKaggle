@@ -31,7 +31,7 @@ class InceptionModel(BaseModel):
 
         # All tf functions work better with channel first
         # otherwise some fail on CPU (known issue)
-        x = tf.transpose(self.input, perm=[0, 2, 3, 1])
+        x = tf.transpose(self.input, perm=[0, 3, 1, 2])
 
         logits, _ = inception_resnet_v2(x, num_classes=28,
                                         is_training=self.is_training,
