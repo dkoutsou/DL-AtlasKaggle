@@ -24,7 +24,7 @@ class CP2Model(BaseModel):
 
         # All tf functions work better with channel first
         # otherwise some fail on CPU (known issue)
-        x = tf.transpose(self.input, perm=[0, 3, 1, 2])
+        x = tf.transpose(self.input, perm=[0, 2, 3, 1])
         # Block 1
         x = tf.layers.conv2d(x, 64, 3, padding='same', name='conv1_1')
         x = tf.nn.relu(x, name='act1_1')
