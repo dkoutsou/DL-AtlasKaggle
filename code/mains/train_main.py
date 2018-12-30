@@ -8,6 +8,7 @@ from models.CDP4_model import CDP4Model
 from models.CBDP4_model import CBDP4Model
 from models.SimpleCNN_model import SimpleCNNModel
 from models.inception_model import InceptionModel
+from models.resNet_model import ResNetModel
 from trainers.Network_trainer import NetworkTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
@@ -50,6 +51,8 @@ def main():
             model = CBDP4Model(config)
         elif config.model == "Inception":
             model = InceptionModel(config)
+        elif config.model == "ResNet":
+            model = ResNetModel(config)
     except AttributeError:
         print("The model to use is not specified in the config file")
         exit(1)
