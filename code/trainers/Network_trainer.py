@@ -36,7 +36,6 @@ class NetworkTrainer(BaseTrain):
                 # nearly never happens leading to a meaningful f1-score.
                 train_f1 = f1_score(train_true, train_preds, average='macro')
                 losses = []
-                f1s = []
                 print('Step {}: training_loss:{}, training_f1:{}'.format(
                     cur_it, train_loss, train_f1))
                 train_summaries_dict = {

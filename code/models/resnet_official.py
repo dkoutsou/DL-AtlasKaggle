@@ -38,9 +38,9 @@ CASTABLE_TYPES = (tf.float16,)
 ALLOWED_TYPES = (DEFAULT_DTYPE,) + CASTABLE_TYPES
 
 
-################################################################################
+############################################################################
 # Convenience functions for building the ResNet model.
-################################################################################
+############################################################################
 def batch_norm(inputs, training, data_format):
     """Performs a batch normalization using a standard set of parameters."""
     # We set fused=True for a significant performance boost. See
@@ -69,7 +69,8 @@ def fixed_padding(inputs, kernel_size, data_format):
 
     if data_format == 'channels_first':
         padded_inputs = tf.pad(inputs, [[0, 0], [0, 0],
-                                        [pad_beg, pad_end], [pad_beg, pad_end]])
+                                        [pad_beg, pad_end],
+                                        [pad_beg, pad_end]])
     else:
         padded_inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end],
                                         [pad_beg, pad_end], [0, 0]])
@@ -84,15 +85,16 @@ def conv2d_fixed_padding(inputs, filters, kernel_size, strides, data_format):
         inputs = fixed_padding(inputs, kernel_size, data_format)
 
     return tf.layers.conv2d(
-        inputs=inputs, filters=filters, kernel_size=kernel_size, strides=strides,
+        inputs=inputs, filters=filters,
+        kernel_size=kernel_size, strides=strides,
         padding=('SAME' if strides == 1 else 'VALID'), use_bias=False,
         kernel_initializer=tf.variance_scaling_initializer(),
         data_format=data_format)
 
 
-################################################################################
+#############################################################################
 # ResNet block definitions.
-################################################################################
+#############################################################################
 def _building_block_v1(inputs, filters, training, projection_shortcut, strides,
                        data_format):
     """A single block for ResNet v1, without a bottleneck.
@@ -108,8 +110,8 @@ def _building_block_v1(inputs, filters, training, projection_shortcut, strides,
         mode. Needed for batch normalization.
       projection_shortcut: The function to use for projection shortcuts
         (typically a 1x1 convolution when downsampling the input).
-      strides: The block's stride. If greater than 1, this block will ultimately
-        downsample the input.
+      strides: The block's stride. If greater than 1, this block will
+        ultimately downsample the input.
       data_format: The input format ('channels_last' or 'channels_first').
     Returns:
       The output tensor of the block; shape should match inputs.
@@ -152,8 +154,8 @@ def _building_block_v2(inputs, filters, training, projection_shortcut, strides,
         mode. Needed for batch normalization.
       projection_shortcut: The function to use for projection shortcuts
         (typically a 1x1 convolution when downsampling the input).
-      strides: The block's stride. If greater than 1, this block will ultimately
-        downsample the input.
+      strides: The block's stride. If greater than 1, this block will
+        ultimately downsample the input.
       data_format: The input format ('channels_last' or 'channels_first').
     Returns:
       The output tensor of the block; shape should match inputs.
@@ -197,8 +199,8 @@ def _bottleneck_block_v1(inputs, filters, training, projection_shortcut,
         mode. Needed for batch normalization.
       projection_shortcut: The function to use for projection shortcuts
         (typically a 1x1 convolution when downsampling the input).
-      strides: The block's stride. If greater than 1, this block will ultimately
-        downsample the input.
+      strides: The block's stride. If greater than 1, this block will
+        ultimately downsample the input.
       data_format: The input format ('channels_last' or 'channels_first').
     Returns:
       The output tensor of the block; shape should match inputs.
@@ -254,7 +256,7 @@ def _bottleneck_block_v2(inputs, filters, training, projection_shortcut,
         mode. Needed for batch normalization.
       projection_shortcut: The function to use for projection shortcuts
         (typically a 1x1 convolution when downsampling the input).
-      strides: The block's stride. If greater than 1, this block will 
+      strides: The block's stride. If greater than 1, this block will
       ultimately downsample the input.
       data_format: The input format ('channels_last' or 'channels_first').
     Returns:
@@ -348,19 +350,23 @@ class Model(object):
           conv_stride: stride size for the initial convolutional layer
           first_pool_size: Pool size to be used for the first pooling layer.
             If none, the first pooling layer is skipped.
-          first_pool_stride: stride size for the first pooling layer. Not used
-            if first_pool_size is None.
-          block_sizes: A list containing n values, where n is the number of sets of
-            block layers desired. Each value should be the number of blocks in the
-            i-th set.
-          block_strides: List of integers representing the desired stride size for
-            each of the sets of block layers. Should be same length as block_sizes.
-          resnet_version: Integer representing which version of the ResNet network
+          first_pool_stride: stride size for the first pooling layer.
+                Not used if first_pool_size is None.
+          block_sizes: A list containing n values, where n is the number
+            of sets of block layers desired.
+            Each value should be the number of blocks in the i-th set.
+          block_strides: List of integers representing the desired
+            stride size for each of the sets of block layers.
+            Should be same length as block_sizes.
+          resnet_version: Integer representing which version of the ResNet
+          network
             to use. See README for details. Valid values: [1, 2]
-          data_format: Input format ('channels_last', 'channels_first', or None).
-            If set to None, the format is dependent on whether a GPU is available.
-          dtype: The TensorFlow dtype to use for calculations. If not specified
-            tf.float32 is used.
+          data_format: Input format ('channels_last', 'channels_first',
+          or None).
+            If set to None, the format is dependent on whether
+            a GPU is available.
+          dtype: The TensorFlow dtype to use for calculations.
+            If not specified tf.float32 is used.
         Raises:
           ValueError: if invalid version is selected.
         """
@@ -368,7 +374,8 @@ class Model(object):
 
         if not data_format:
             data_format = (
-                'channels_first' if tf.test.is_built_with_cuda() else 'channels_last')
+                'channels_first' if tf.test.is_built_with_cuda()
+                else 'channels_last')
 
         self.resnet_version = resnet_version
         if resnet_version not in (1, 2):
@@ -402,31 +409,34 @@ class Model(object):
         self.dtype = dtype
         self.pre_activation = resnet_version == 2
 
-    def _custom_dtype_getter(self, getter, name, shape=None, dtype=DEFAULT_DTYPE,
+    def _custom_dtype_getter(self, getter, name, shape=None,
+                             dtype=DEFAULT_DTYPE,
                              *args, **kwargs):
         """Creates variables in fp32, then casts to fp16 if necessary.
-        This function is a custom getter. A custom getter is a function with the
-        same signature as tf.get_variable, except it has an additional getter
-        parameter. Custom getters can be passed as the `custom_getter` parameter of
-        tf.variable_scope. Then, tf.get_variable will call the custom getter,
-        instead of directly getting a variable itself. This can be used to change
-        the types of variables that are retrieved with tf.get_variable.
-        The `getter` parameter is the underlying variable getter, that would have
-        been called if no custom getter was used. Custom getters typically get a
-        variable with `getter`, then modify it in some way.
+        This function is a custom getter. A custom getter is a function with
+        the same signature as tf.get_variable, except it has an additional
+        getter parameter. Custom getters can be passed as the
+        `custom_getter` parameter of tf.variable_scope. Then,
+        tf.get_variable will call the custom getter,
+        instead of directly getting a variable itself. This can be used to
+        change the types of variables that are retrieved with
+        tf.get_variable.
+        The `getter` parameter is the underlying variable getter, that would
+        have been called if no custom getter was used. Custom getters
+        typically get a variable with `getter`, then modify it in some way.
         This custom getter will create an fp32 variable. If a low precision
-        (e.g. float16) variable was requested it will then cast the variable to the
-        requested dtype. The reason we do not directly create variables in low
-        precision dtypes is that applying small gradients to such variables may
-        cause the variable not to change.
+        (e.g. float16) variable was requested it will then cast the variable
+        to the requested dtype. The reason we do not directly create variables
+        in low precision dtypes is that applying small gradients to such
+        variables may cause the variable not to change.
         Args:
-          getter: The underlying variable getter, that has the same signature as
-            tf.get_variable and returns a variable.
+          getter: The underlying variable getter, that has the same signature
+          as tf.get_variable and returns a variable.
           name: The name of the variable to get.
           shape: The shape of the variable to get.
           dtype: The dtype of the variable to get. Note that if this is a low
-            precision dtype, the variable will be created as a tf.float32 variable,
-            then cast to the appropriate dtype
+            precision dtype, the variable will be created as a tf.float32
+            variable,then cast to the appropriate dtype
           *args: Additional arguments to pass unmodified to getter.
           **kwargs: Additional keyword arguments to pass unmodified to getter.
         Returns:
@@ -441,8 +451,8 @@ class Model(object):
 
     def _model_variable_scope(self):
         """Returns a variable scope that the model should be created under.
-        If self.dtype is a castable type, model variable will be created in fp32
-        then cast to self.dtype before being used.
+        If self.dtype is a castable type, model variable will be created
+        in fp32  then cast to self.dtype before being used.
         Returns:
           A variable scope for the model.
         """
@@ -525,7 +535,7 @@ class Model(object):
 def _get_block_sizes(resnet_size):
     """Retrieve the size of each block_layer in the ResNet model.
     The number of block layers used for the Resnet model varies according
-    to the size of the model. This helper grabs the layer set we want, 
+    to the size of the model. This helper grabs the layer set we want,
     throwing an error if a non-standard size has been selected.
     Args:
       resnet_size: The number of convolutional layers needed in the model.
