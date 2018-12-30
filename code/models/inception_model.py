@@ -2,6 +2,11 @@ import tensorflow as tf
 from base.base_model import BaseModel
 from models.inception_res_v2 import inception_resnet_v2
 
+""" This file implements InceptionNet as a child
+of our base model class. The function that actually
+builds the model comes from the original Github of 
+Google (cf. models.inception_res_v2)
+"""
 
 class InceptionModel(BaseModel):
     def __init__(self, config):
