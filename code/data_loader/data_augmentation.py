@@ -12,7 +12,7 @@ import png
 
 
 def processInput(image_name, train_labels, filter_list, num_augs, data_folder):
-    aug_data_folder = os.path.join(data_folder, 'train_aug')
+    aug_data_folder = os.path.join(data_folder, 'train_aug_par')
     for image_name in train_labels.Id:
         image_target = train_labels[train_labels.Id == image_name].Target.values[0]
         for colour in filter_list:
@@ -45,13 +45,7 @@ def processInput(image_name, train_labels, filter_list, num_augs, data_folder):
 def data_aug(data_folder, train_labels, label_names, parallelization_bool=False):
     print('Starting data augmentation')
 
-    # Create data/train_aug folder if it does not exist yet
-    if not os.path.exists(os.path.join(data_folder, 'train_aug')):
-        print('Creating train_aug data folder')
-        os.makedirs(os.path.join(data_folder, 'train_aug'))
-
     train_data_folder = os.path.join(data_folder, 'train')
-    aug_data_folder = os.path.join(data_folder, 'train_aug')
 
     # Adding 1 column per target in dataset, and setting value to 1 if it is in image's target label
     train_labels = train_labels.apply(fill_targets, axis=1)
@@ -63,16 +57,31 @@ def data_aug(data_folder, train_labels, label_names, parallelization_bool=False)
 
     # Parallelizing process
     if parallelization_bool:
+        print("Parallelizing...")
+
+        # Create data/train_aug folder if it does not exist yet
+        if not os.path.exists(os.path.join(data_folder, 'train_aug_par')):
+            print('Creating train_aug _par data folder')
+            os.makedirs(os.path.join(data_folder, 'train_aug_par'))
+
         num_cores = multiprocessing.cpu_count()
 
         rebalanced_images = Parallel(n_jobs=num_cores)(delayed(processInput)(image_name, train_labels, filter_list,
                                                                              num_augs, data_folder)
                                                        for image_name in train_labels.Id)
+        save_obj(rebalanced_images, os.path.join(data_folder, 'augmented_train_par.csv'))
 
 
 
-# If no parallelization
+    # If no parallelization
     else:
+
+        # Create data/train_aug folder if it does not exist yet
+        if not os.path.exists(os.path.join(data_folder, 'train_aug')):
+            print('Creating train_aug data folder')
+            os.makedirs(os.path.join(data_folder, 'train_aug'))
+
+        aug_data_folder = os.path.join(data_folder, 'train_aug')
         rebalanced_images = []
 
         counter = 0
@@ -82,6 +91,7 @@ def data_aug(data_folder, train_labels, label_names, parallelization_bool=False)
                 image_path = os.path.join(data_folder,'train', image_name + '_' + colour + '.png')
                 image_path = os.path.join(data_folder,'train', image_name + '_' + colour + '.png')
 
+                # Get minimum number of rotations/reversions needed (use value for most common target label)
                 max_num_rot = min(num_augs[label_names[int(num)]] for num in image_target.split(' '))
 
                 # Augmenting the image set
@@ -109,6 +119,7 @@ def data_aug(data_folder, train_labels, label_names, parallelization_bool=False)
             if counter % 10 == 0:
                 print('Processed {} images out of {}'.format(counter, len(train_labels)))
             counter += 1
+
     rebalanced_images = pd.DataFrame(rebalanced_images, columns=['Id', 'Target'])
     # Save dataframe
     rebalanced_images.to_csv('augmented_train.csv')
@@ -134,6 +145,17 @@ def fill_targets(row):
     for key in row.Target.split(" "):
         row.loc[label_names[int(key)]] = 1
     return row
+
+def save_obj(obj, name):
+    """
+    Shortcut function to save an object as pkl
+    Args:
+        obj: object to save
+        name: filename of the object
+    """
+    with open(name + '.pkl', 'wb') as f:
+        pkl.dump(obj, f, pkl.HIGHEST_PROTOCOL)
+
 
 
 if __name__=='__main__':
