@@ -49,6 +49,10 @@ def main():
             model = CDP4Model(config)
         elif config.model == "CBDP4":
             model = CBDP4Model(config)
+        elif config.model == "CDP2":
+            model = CDP4Model(config)
+        elif config.model == "CBDP2":
+            model = CBDP4Model(config)
         elif config.model == "Inception":
             model = InceptionModel(config)
         elif config.model == "ResNet":
