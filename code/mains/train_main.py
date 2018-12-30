@@ -6,6 +6,8 @@ from models.CP2_model import CP2Model
 from models.CP4_model import CP4Model
 from models.CDP4_model import CDP4Model
 from models.CBDP4_model import CBDP4Model
+from models.CDP2_model import CDP2Model
+from models.CBDP2_model import CBDP2Model
 from models.SimpleCNN_model import SimpleCNNModel
 from models.inception_model import InceptionModel
 from models.resNet_model import ResNetModel
@@ -50,9 +52,9 @@ def main():
         elif config.model == "CBDP4":
             model = CBDP4Model(config)
         elif config.model == "CDP2":
-            model = CDP4Model(config)
+            model = CDP2Model(config)
         elif config.model == "CBDP2":
-            model = CBDP4Model(config)
+            model = CBDP2Model(config)
         elif config.model == "Inception":
             model = InceptionModel(config)
         elif config.model == "ResNet":
