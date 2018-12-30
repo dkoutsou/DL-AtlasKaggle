@@ -22,7 +22,7 @@ class CBDP4Model(BaseModel):
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
         x = tf.transpose(self.input, perm=[0, 2, 3, 1])
-        
+
         # Block 1
         x = tf.layers.conv2d(x, 64, 3, padding='same', name='conv1')
         x = tf.layers.batch_normalization(
@@ -60,7 +60,7 @@ class CBDP4Model(BaseModel):
         x = tf.nn.relu(x, name='act5')
         logits = tf.layers.dense(x, units=28, name='logits')
         out = tf.nn.sigmoid(logits, name='out')
-        
+
         with tf.name_scope("loss"):
             if self.config.use_weighted_loss:
                 tf.stop_gradient(self.class_weights, name="stop_gradient")
