@@ -31,13 +31,16 @@ class Oversampler:
         return sampler
 
     def _generate_by_class(self, X, y, class_id, num_of_samples):
+        num_of_samples = int(num_of_samples)
         # pick only column class_id
         y_temp = y[:, class_id]
 
         # in a single column there are two classes: 0 and 1
         # generate samples for class 1
-        current_samples = np.sum(y_temp)
-        sampler = self._init_sampler({1: current_samples + num_of_samples})
+        current_samples = int(np.sum(y_temp))
+        sampler = self._init_sampler({
+            1: int(current_samples + num_of_samples)
+        })
         Xnew, _ = sampler.fit_resample(X, y_temp)
         added_samples = Xnew.shape[0] - X.shape[0]
 
@@ -59,16 +62,16 @@ class Oversampler:
             imb_ratio: majority/minority. The algorithm stops
               once this ratio is reached.
         """
-        print("Initial label counts: ", np.sum(y, axis=0).tolist())
+        counts = np.sum(y, axis=0).astype(int)
+        print("Initial label counts: ", counts.tolist())
         Xresampled = X.copy()
         yresampled = y.copy()
-        counts = np.sum(y, axis=0)
         for i in range(y.shape[1]):
             ratio = np.max(counts) / counts[i]
             if ratio < imb_ratio:
                 continue
             print("Class {} imbalance ratio: {}".format(i, ratio))
-            samples_needed = int(np.rint(np.max(counts) / imb_ratio))
+            samples_needed = int(round(np.max(counts) / imb_ratio))
             # input original X and y (not resampled ones)
             X_tmp, y_tmp = self._generate_by_class(X, y, i,
                                                    samples_needed - counts[i])
@@ -78,9 +81,9 @@ class Oversampler:
             yresampled = np.vstack((yresampled, y_tmp))
 
             # calculate imbalance ratio using resampled matrices
-            counts = np.sum(yresampled, axis=0)
+            counts = np.sum(yresampled, axis=0).astype(int)
 
-        print("New label counts: ", np.sum(yresampled, axis=0).tolist())
+        print("New label counts: ", counts.tolist())
         print("Imbalance ratio:", np.max(counts) / np.min(counts))
         return Xresampled, yresampled
 
