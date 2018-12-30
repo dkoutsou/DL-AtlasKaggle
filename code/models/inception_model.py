@@ -1,10 +1,17 @@
 import tensorflow as tf
 from base.base_model import BaseModel
+from models.inception_res_v2 import inception_resnet_v2
+
+""" This file implements InceptionNet as a child
+of our base model class. The function that actually
+builds the model comes from the original Github of
+Google (cf. models.inception_res_v2)
+"""
 
 
-class SimpleCNNModel(BaseModel):
+class InceptionModel(BaseModel):
     def __init__(self, config):
-        super(SimpleCNNModel, self).__init__(config)
+        super(InceptionModel, self).__init__(config)
         self.build_model()
         self.init_saver()
 
@@ -25,37 +32,15 @@ class SimpleCNNModel(BaseModel):
         # All tf functions work better with channel first
         # otherwise some fail on CPU (known issue)
         x = tf.transpose(self.input, perm=[0, 3, 1, 2])
-        # Block 1
-        x = tf.layers.conv2d(x, 64, 3, padding='same', name='conv1_1')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn1_1')
-        x = tf.nn.relu(x, name='act1_1')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        x = tf.layers.max_pooling2d(
-            x, pool_size=(2, 2), strides=(2, 2), name='pool1')
-        # Block 2
-        x = tf.layers.conv2d(x, 128, 3, padding='same', name='conv2_1')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn2_1')
-        x = tf.nn.relu(x, name='act2_1')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        x = tf.layers.max_pooling2d(
-            x, pool_size=(2, 2), strides=(2, 2), name='pool2')
-        # Block 3
-        x = tf.layers.conv2d(x, 256, 3, padding='same', name='conv3_1')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn3_1')
-        x = tf.nn.relu(x, name='act3_1')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        x = tf.layers.max_pooling2d(
-            x, pool_size=(2, 2), strides=(2, 2), name='pool3')
-        # Classification block
-        x = tf.layers.flatten(x, name='flatten')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn4')
-        x = tf.nn.relu(x, name='act4')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        logits = tf.layers.dense(x, units=28, name='logits')
+
+        logits, _ = inception_resnet_v2(x, num_classes=28,
+                                        is_training=self.is_training,
+                                        dropout_keep_prob=0.8,
+                                        reuse=None,
+                                        scope='InceptionResnetV2',
+                                        create_aux_logits=True,
+                                        activation_fn=tf.nn.relu)
+        logits = tf.identity(logits, name="logits")
         # we have to adapt their code cause their code does
         # one label prediction, we want multilabel
         # use sigmoid not softmax because multilabel

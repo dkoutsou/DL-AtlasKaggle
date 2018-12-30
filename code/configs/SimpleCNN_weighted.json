@@ -1,9 +1,10 @@
-{
+{   
+    "model": "SimpleCNN",
     "learning_rate": 0.001,
     "max_to_keep": 2,
-    "exp_name": "SimpleCNN_batch8_20epochs_weighted",
+    "exp_name": "SimpleCNN_batch8_5epochs_weighted",
     "val_split": 0.1, 
     "num_epochs": 5,
-  "batch_size": 8,
-  "use_weighted_loss": true
+    "batch_size": 8,
+    "use_weighted_loss": true
 }

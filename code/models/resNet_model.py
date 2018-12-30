@@ -1,10 +1,44 @@
 import tensorflow as tf
 from base.base_model import BaseModel
+from models.resnet_official import Model, _get_block_sizes
+
+""" This file implements InceptionNet as a child
+of our base model class. The function that actually
+builds the model comes from the original Github of
+Google (cf. models.inception_res_v2)
+"""
 
 
-class SimpleCNNModel(BaseModel):
+class ResNetModel(BaseModel):
     def __init__(self, config):
-        super(SimpleCNNModel, self).__init__(config)
+        BaseModel.__init__(self, config)
+        # For bigger models, we want to use "bottleneck" layers
+        try:
+            if self.config.resnet_size < 50:
+                bottleneck = False
+            else:
+                bottleneck = True
+        except AttributeError:
+            # sizes allowed: dict_keys([18, 34, 50, 101, 152, 200])
+            print('WARN: resnet_size not specified',
+                  'using 101')
+            self.config.resnet_size = 101
+            bottleneck = True
+        self.model = Model(resnet_size=self.config.resnet_size,
+                           bottleneck=bottleneck,
+                           num_classes=28,
+                           num_filters=64,
+                           kernel_size=7,
+                           conv_stride=2,
+                           first_pool_size=3,
+                           first_pool_stride=2,
+                           block_sizes=_get_block_sizes(
+                               self.config.resnet_size),
+                           block_strides=[1, 2, 2, 2],
+                           resnet_version=2,
+                           data_format=None,
+                           dtype=tf.float32)
+
         self.build_model()
         self.init_saver()
 
@@ -22,40 +56,8 @@ class SimpleCNNModel(BaseModel):
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
 
-        # All tf functions work better with channel first
-        # otherwise some fail on CPU (known issue)
-        x = tf.transpose(self.input, perm=[0, 3, 1, 2])
-        # Block 1
-        x = tf.layers.conv2d(x, 64, 3, padding='same', name='conv1_1')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn1_1')
-        x = tf.nn.relu(x, name='act1_1')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        x = tf.layers.max_pooling2d(
-            x, pool_size=(2, 2), strides=(2, 2), name='pool1')
-        # Block 2
-        x = tf.layers.conv2d(x, 128, 3, padding='same', name='conv2_1')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn2_1')
-        x = tf.nn.relu(x, name='act2_1')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        x = tf.layers.max_pooling2d(
-            x, pool_size=(2, 2), strides=(2, 2), name='pool2')
-        # Block 3
-        x = tf.layers.conv2d(x, 256, 3, padding='same', name='conv3_1')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn3_1')
-        x = tf.nn.relu(x, name='act3_1')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        x = tf.layers.max_pooling2d(
-            x, pool_size=(2, 2), strides=(2, 2), name='pool3')
-        # Classification block
-        x = tf.layers.flatten(x, name='flatten')
-        x = tf.layers.batch_normalization(
-            x, training=self.is_training, name='bn4')
-        x = tf.nn.relu(x, name='act4')
-        x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        logits = tf.layers.dense(x, units=28, name='logits')
+        logits = self.model(self.input, training=self.is_training)
+        logits = tf.identity(logits, name="logits")
         # we have to adapt their code cause their code does
         # one label prediction, we want multilabel
         # use sigmoid not softmax because multilabel
