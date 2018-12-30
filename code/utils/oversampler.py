@@ -73,8 +73,13 @@ class Oversampler:
             print("Class {} imbalance ratio: {}".format(i, ratio))
             samples_needed = int(round(np.max(counts) / imb_ratio))
             # input original X and y (not resampled ones)
-            X_tmp, y_tmp = self._generate_by_class(X, y, i,
-                                                   samples_needed - counts[i])
+            try:
+                X_tmp, y_tmp = self._generate_by_class(
+                    X, y, i, samples_needed - counts[i])
+            except ValueError:
+                print(("WARN: No samples will be generated with the"
+                       " provided settings for class {}").format(i))
+                continue
 
             # print(X_tmp, y_tmp)
             Xresampled = np.vstack((Xresampled, X_tmp))
