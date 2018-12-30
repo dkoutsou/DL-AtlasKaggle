@@ -50,14 +50,12 @@ class Oversampler:
 
         return Xnew, y_new
 
-    def resample(self, X, y, step=200, imb_ratio=20):
+    def resample(self, X, y, imb_ratio=10):
         """
-        Iteratively adds samples to the minority class until the
+        Iteratively adds samples to each class until the
         given imbalance ratio is reached. Imbalance ratio of 1
         means there is no imbalance.
         Args:
-            step: how many samples to add to the minority class
-              in each iteration
             imb_ratio: majority/minority. The algorithm stops
               once this ratio is reached.
         """
@@ -65,22 +63,25 @@ class Oversampler:
         Xresampled = X.copy()
         yresampled = y.copy()
         counts = np.sum(y, axis=0)
-        ratio = np.max(counts) / np.min(counts)
-        while ratio > imb_ratio:
-            print("Imbalance ratio:", ratio)
-            minority_class = np.argmin(counts)
-
+        for i in range(y.shape[1]):
+            ratio = np.max(counts) / counts[i]
+            if ratio < imb_ratio:
+                continue
+            print("Class {} imbalance ratio: {}".format(i, ratio))
+            samples_needed = int(np.rint(np.max(counts) / imb_ratio))
             # input original X and y (not resampled ones)
-            X_tmp, y_tmp = self._generate_by_class(X, y, minority_class, step)
+            X_tmp, y_tmp = self._generate_by_class(X, y, i,
+                                                   samples_needed - counts[i])
+
             # print(X_tmp, y_tmp)
             Xresampled = np.vstack((Xresampled, X_tmp))
             yresampled = np.vstack((yresampled, y_tmp))
 
             # calculate imbalance ratio using resampled matrices
             counts = np.sum(yresampled, axis=0)
-            ratio = np.max(counts) / np.min(counts)
+
         print("New label counts: ", np.sum(yresampled, axis=0).tolist())
-        print("Imbalance ratio:", ratio)
+        print("Imbalance ratio:", np.max(counts) / np.min(counts))
         return Xresampled, yresampled
 
 
