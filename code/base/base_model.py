@@ -22,8 +22,9 @@ class BaseModel:
     def load(self, sess):
         latest_checkpoint = tf.train.latest_checkpoint(
             self.config.checkpoint_dir)
-        #latest_checkpoint = self.config.checkpoint_dir + '-5600'
-        #self.saver = tf.train.import_meta_graph("{}.meta".format(latest_checkpoint))
+        # latest_checkpoint = self.config.checkpoint_dir + '-5600'
+        # self.saver = tf.train.import_meta_graph("{}.meta"
+        #                                         .format(latest_checkpoint))
         if latest_checkpoint:
             print(
                 "Loading model checkpoint {} ...\n".format(latest_checkpoint))

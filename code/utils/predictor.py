@@ -1,8 +1,8 @@
-import tensorflow as tf
 from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
 import pandas as pd
 from utils.utils import get_pred_from_probas
+
 
 class Predictor:
     """ This class defines a Predictor object.
@@ -20,7 +20,7 @@ class Predictor:
             config: a Bunch object
         """
         self.config = config
-        #self.lastcheckpoint = tf.train.latest_checkpoint(
+        # self.lastcheckpoint = tf.train.latest_checkpoint(
         #    self.config.checkpoint_dir)
         self.sess = sess
         self.model = model
@@ -57,7 +57,7 @@ class Predictor:
                 for sample_pred in batch_pred
             ])
             counter += 1
-            if counter % 10==0:
+            if counter % 10 == 0:
                 print(counter*self.config.batch_size)
         ids = testIterator.image_ids[0:len(predicted_labels)]
         # print(np.shape(ids))

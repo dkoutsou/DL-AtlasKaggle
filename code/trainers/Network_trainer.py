@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.metrics import f1_score
 from utils.utils import get_pred_from_probas
 
+
 class NetworkTrainer(BaseTrain):
     def __init__(self, sess, model, data, config, logger):
         super(NetworkTrainer, self).__init__(sess, model, data, config, logger)
@@ -34,9 +35,10 @@ class NetworkTrainer(BaseTrain):
                 # the metric is ill-defined and set to 0
                 # but on 10 training batch the ill-defined case
                 # nearly never happens leading to a meaningful f1-score.
-                train_true = np.reshape(train_true, (-1,28))
-                train_probas = np.reshape(train_probas, (-1,28))
-                train_f1 = f1_score(train_true, get_pred_from_probas(train_probas), average='macro')
+                train_true = np.reshape(train_true, (-1, 28))
+                train_probas = np.reshape(train_probas, (-1, 28))
+                train_f1 = f1_score(train_true, get_pred_from_probas(
+                    train_probas), average='macro')
                 losses = []
                 train_probas = []
                 train_true = []
@@ -96,11 +98,9 @@ class NetworkTrainer(BaseTrain):
             val_losses.append(loss)
             val_probas = np.append(val_probas, out)
             val_true = np.append(val_true, batch_y)
-        val_true = np.reshape(val_true, (-1,28))
-        val_probas = np.reshape(val_probas, (-1,28))
+        val_true = np.reshape(val_true, (-1, 28))
+        val_probas = np.reshape(val_probas, (-1, 28))
         val_preds = get_pred_from_probas(val_probas)
         val_f1 = f1_score(val_true, val_preds, average='macro')
         val_loss = np.mean(val_losses)
         return val_loss, val_f1
-
-
