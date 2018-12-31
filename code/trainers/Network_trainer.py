@@ -81,7 +81,7 @@ class NetworkTrainer(BaseTrain):
     def val_step(self):
         val_iterator = self.data.batch_iterator(type='val')
         val_losses = []
-        val_preds = []
+        val_probas = []
         val_true = []
         for batch_x, batch_y in val_iterator:
             feed_dict = {
@@ -94,7 +94,7 @@ class NetworkTrainer(BaseTrain):
                 [self.model.loss, self.model.out],
                 feed_dict=feed_dict)
             val_losses.append(loss)
-            val_probas = np.append(val_preds, out)
+            val_probas = np.append(val_probas, out)
             val_true = np.append(val_true, batch_y)
         val_true = np.reshape(val_true, (-1,28))
         val_probas = np.reshape(val_probas, (-1,28))
