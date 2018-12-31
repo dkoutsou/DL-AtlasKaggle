@@ -2,7 +2,7 @@ import tensorflow as tf
 from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
 import pandas as pd
-
+from utils.utils import get_pred_from_probas
 
 class Predictor:
     """ This class defines a Predictor object.
@@ -20,8 +20,8 @@ class Predictor:
             config: a Bunch object
         """
         self.config = config
-        self.lastcheckpoint = tf.train.latest_checkpoint(
-            self.config.checkpoint_dir)
+        #self.lastcheckpoint = tf.train.latest_checkpoint(
+        #    self.config.checkpoint_dir)
         self.sess = sess
         self.model = model
         # Defining the csv file name
@@ -42,22 +42,24 @@ class Predictor:
         predicted_labels = []
         # counter just for testing purpose
         # to stop the output after 8 predictions
-        # counter = 1
+        counter = 1
         for batch_imgs in testIterator.batch_iterator():
-            # if counter > 4:
-            #    break
-            one_hot_batch_pred = self.sess.run(self.model.prediction, {
+            if counter > 20:
+                break
+            batch_probas = self.sess.run(self.model.out, {
                 self.model.input: batch_imgs,
                 self.model.is_training: False
             })
+            one_hot_batch_pred = get_pred_from_probas(batch_probas)
             batch_pred = bin.inverse_transform(one_hot_batch_pred)
             predicted_labels = np.append(predicted_labels, [
                 ' '.join([str(p) for p in sample_pred])
                 for sample_pred in batch_pred
             ])
-            # counter += 1
-            # print(np.shape(predicted_labels))
-        ids = testIterator.image_ids[0:8]
+            counter += 1
+            if counter % 10==0:
+                print(counter*self.config.batch_size)
+        ids = testIterator.image_ids[0:len(predicted_labels)]
         # print(np.shape(ids))
         result = pd.DataFrame()
         print(np.shape(predicted_labels))
