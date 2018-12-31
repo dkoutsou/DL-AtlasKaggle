@@ -20,7 +20,10 @@ def get_pred_from_probas(probas):
         # i.e. no probas > 0.5
         # then choose the most probable one.
         if np.sum(tmp_pred[i]) == 0:
-            tmp_pred[i, np.argmax(probas[i])[0]] = 1
+            try: 
+                tmp_pred[i, np.argmax(probas[i])[0]] = 1
+            except IndexError:
+               tmp_pred[i, np.argmax(probas[i])] = 1 
         # more than 3 classes predicted take the 3 most
         # probable ones.
         elif np.sum(tmp_pred[i]) > 3:
