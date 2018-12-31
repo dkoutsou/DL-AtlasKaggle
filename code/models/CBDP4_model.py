@@ -21,7 +21,7 @@ class CBDP4Model(BaseModel):
         self.input = tf.placeholder(
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
-        x = tf.transpose(self.input, perm=[0, 3, 1, 2])
+        x = tf.transpose(self.input, perm=[0, 2, 3, 1])
 
         # Block 1
         x = tf.layers.conv2d(x, 64, 3, padding='same', name='conv1')

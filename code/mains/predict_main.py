@@ -2,6 +2,15 @@ import tensorflow as tf
 
 from data_loader.data_generator import DataTestLoader
 from models.DeepYeast_model import DeepYeastModel
+from models.CP2_model import CP2Model
+from models.CP4_model import CP4Model
+from models.CDP4_model import CDP4Model
+from models.CBDP4_model import CBDP4Model
+from models.CDP2_model import CDP2Model
+from models.CBDP2_model import CBDP2Model
+from models.SimpleCNN_model import SimpleCNNModel
+from models.inception_model import InceptionModel
+from models.resNet_model import ResNetModel
 from utils.config import process_config
 from utils.utils import get_args
 from utils.predictor import Predictor
@@ -28,7 +37,30 @@ def main():
     # create your data generator
     testIterator = DataTestLoader(config)
     # create an instance of the model you want
-    model = DeepYeastModel(config)
+    try:
+        if config.model == "DeepYeast":
+            model = DeepYeastModel(config)
+        elif config.model == "SimpleCNN":
+            model = SimpleCNNModel(config)
+        elif config.model == "CP2":
+            model = CP2Model(config)
+        elif config.model == "CP4":
+            model = CP4Model(config)
+        elif config.model == "CDP4":
+            model = CDP4Model(config)
+        elif config.model == "CBDP4":
+            model = CBDP4Model(config)
+        elif config.model == "CDP2":
+            model = CDP2Model(config)
+        elif config.model == "CBDP2":
+            model = CBDP2Model(config)
+        elif config.model == "Inception":
+            model = InceptionModel(config)
+        elif config.model == "ResNet":
+            model = ResNetModel(config)
+    except AttributeError:
+        print("The model to use is not specified in the config file")
+        exit(1)
     # load model if exists
     model.load(sess)
     # here you predict from your model
