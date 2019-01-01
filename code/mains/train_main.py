@@ -10,7 +10,7 @@ from models.CDP2_model import CDP2Model
 from models.CDP2D_model import CDP2DModel
 from models.CBDP2_model import CBDP2Model
 from models.SimpleCNN_model import SimpleCNNModel
-#from models.inception_model import InceptionModel
+from models.inception_model import InceptionModel
 from models.resNet_model import ResNetModel
 from trainers.Network_trainer import NetworkTrainer
 from utils.config import process_config
