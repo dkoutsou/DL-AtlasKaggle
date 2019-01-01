@@ -1,6 +1,7 @@
 import tensorflow as tf
 from utils.loss import focal_loss
 
+
 class BaseModel:
     def __init__(self, config):
         self.config = config
@@ -61,11 +62,13 @@ class BaseModel:
                 if self.config.use_weighted_loss:
                     print("weighted loss")
                     self.loss = tf.losses.compute_weighted_loss(
-                        focal_loss(labels=self.label, logits=self.logits, gamma=2),
+                        focal_loss(labels=self.label,
+                                   logits=self.logits, gamma=2),
                         weights=self.class_weights)
                 else:
                     print("not weighted loss")
-                    self.loss = focal_loss(labels=self.label, logits=self.logits,
+                    self.loss = focal_loss(labels=self.label,
+                                           logits=self.logits,
                                            gamma=2)
             elif self.config.use_weighted_loss:
                 self.loss = tf.losses.compute_weighted_loss(
@@ -80,5 +83,4 @@ class BaseModel:
                 self.config.learning_rate).minimize(
                     self.loss, global_step=self.global_step_tensor)
         with tf.name_scope("output"):
-            self.out = tf.nn.sigmoid(self.logits, name='out') 
-
+            self.out = tf.nn.sigmoid(self.logits, name='out')
