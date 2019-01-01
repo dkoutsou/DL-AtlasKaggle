@@ -46,8 +46,6 @@ class CBDP2Model(BaseModel):
         out = tf.nn.sigmoid(logits, name='out')
 
         with tf.name_scope("loss"):
-        #    if self.config.focalLoss:
-        #        self.loss = focalLoss(input=self.logits, target=self.label, gamma=2)
             if self.config.use_weighted_loss:
                 tf.stop_gradient(self.class_weights, name="stop_gradient")
                 self.loss = tf.losses.compute_weighted_loss(
@@ -68,39 +66,3 @@ class CBDP2Model(BaseModel):
         # here you initialize the tensorflow saver that will be used
         # in saving the checkpoints.
         self.saver = tf.train.Saver(max_to_keep=self.config.max_to_keep)
-
-
-# from https://www.kaggle.com/iafoss/pretrained-resnet34-with-rgby-0-460-public-lb
-def focalLoss(input, target, gamma=2):
-    if not (target.size() == input.size()):
-        raise ValueError("Target size ({}) must be the same as input size ({})"
-                         .format(target.size(), input.size()))
-
-    max_val = (-input).clamp(min=0)
-    loss = input - input * target + max_val + \
-           ((-max_val).exp() + (-input - max_val).exp()).log()
-
-    invprobs = tf.logsigmoid(-input * (target * 2.0 - 1.0))
-    loss = (invprobs * gamma).exp() * loss
-
-    return loss.sum(dim=1).mean()
-
-
-# class FocalLoss(nn.Module):
-#     def __init__(self, gamma=2):
-#         super().__init__()
-#         self.gamma = gamma
-#
-#     def forward(self, input, target):
-#         if not (target.size() == input.size()):
-#             raise ValueError("Target size ({}) must be the same as input size ({})"
-#                              .format(target.size(), input.size()))
-#
-#         max_val = (-input).clamp(min=0)
-#         loss = input - input * target + max_val + \
-#                ((-max_val).exp() + (-input - max_val).exp()).log()
-#
-#         invprobs = F.logsigmoid(-input * (target * 2.0 - 1.0))
-#         loss = (invprobs * self.gamma).exp() * loss
-#
-#         return loss.sum(dim=1).mean()
