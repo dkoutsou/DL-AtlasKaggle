@@ -46,23 +46,9 @@ class CDP2DModel(BaseModel):
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act5')
         x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        logits = tf.layers.dense(x, units=28, name='logits')
-        with tf.name_scope("loss"):
-            if self.config.use_weighted_loss:
-                self.loss = tf.losses.compute_weighted_loss(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits),
-                    weights=self.class_weights)
-            else:
-                self.loss = tf.reduce_mean(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits))
-            self.train_step = tf.train.AdamOptimizer(
-                self.config.learning_rate).minimize(
-                    self.loss, global_step=self.global_step_tensor)
-        with tf.name_scope("output"):
-            self.out = tf.nn.sigmoid(logits, name='out')
-            self.prediction = tf.round(self.out, name="prediction")
+        self.logits = tf.layers.dense(x, units=28, name='logits')
+        
+        super(CDP2DModel, self).build_loss_output()
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used

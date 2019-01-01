@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+from utils.loss import focal_loss
 
 class BaseModel:
     def __init__(self, config):
@@ -53,3 +53,32 @@ class BaseModel:
 
     def build_model(self):
         raise NotImplementedError
+
+    def build_loss_output(self):
+        with tf.name_scope("loss"):
+            if self.config.focalLoss:
+                print("Using focal loss")
+                if self.config.use_weighted_loss:
+                    print("weighted loss")
+                    self.loss = tf.losses.compute_weighted_loss(
+                        focal_loss(labels=self.label, logits=self.logits, gamma=2),
+                        weights=self.class_weights)
+                else:
+                    print("not weighted loss")
+                    self.loss = focal_loss(labels=self.label, logits=self.logits,
+                                           gamma=2)
+            elif self.config.use_weighted_loss:
+                self.loss = tf.losses.compute_weighted_loss(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=self.logits),
+                    weights=self.class_weights)
+            else:
+                self.loss = tf.reduce_mean(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=self.logits))
+            self.train_step = tf.train.AdamOptimizer(
+                self.config.learning_rate).minimize(
+                    self.loss, global_step=self.global_step_tensor)
+        with tf.name_scope("output"):
+            self.out = tf.nn.sigmoid(self.logits, name='out') 
+

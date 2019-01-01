@@ -51,34 +51,9 @@ class CP4Model(BaseModel):
         # Classification block
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act5')
-        logits = tf.layers.dense(x, units=28, name='logits')
-        with tf.name_scope("loss"):
-            if self.config.focalLoss:
-                print("Using focal loss")
-                if self.config.use_weighted_loss:
-                    print("weighted loss")
-                    self.loss = tf.losses.compute_weighted_loss(
-                        focal_loss(labels=self.label, logits=logits, gamma=2),
-                        weights=self.class_weights)
-                else:
-                    print("not weighted loss")
-                    self.loss = focal_loss(labels=self.label, logits=logits,
-                                           gamma=2)
-            elif self.config.use_weighted_loss:
-                self.loss = tf.losses.compute_weighted_loss(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits),
-                    weights=self.class_weights)
-            else:
-                self.loss = tf.reduce_mean(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits))
-            self.train_step = tf.train.AdamOptimizer(
-                self.config.learning_rate).minimize(
-                    self.loss, global_step=self.global_step_tensor)
-        with tf.name_scope("output"):
-            self.out = tf.nn.sigmoid(logits, name='out')
-            self.prediction = tf.round(self.out, name="prediction")
+        self.logits = tf.layers.dense(x, units=28, name='logits')
+        
+        super(CP4Model, self).build_loss_output()
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used
