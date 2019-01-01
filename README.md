@@ -14,16 +14,16 @@ If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH
 
 ## Models (in 'code/models' folder)
 ### Simple CNN with increasing complexity
-- *CP2_model* : Simple *2-layer* CNN (with ReLU activation and max pooling)
-- *CP4_model*: *4-layer* CNN
-- *CDP4_model*: 4-layer CNN (each followed by *dropout* of rate 0.5 before max pooling)
-- *CBDP4_model*: 4-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling)
-- *SimpleCNN_model*: 3-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling)
+- **CP2_model** : Simple *2-layer* CNN (with ReLU activation and max pooling)
+- **CP4_model**: *4-layer* CNN
+- **CDP4_model**: 4-layer CNN (each followed by *dropout* of rate 0.5 before max pooling)
+- **CBDP4_model**: 4-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling)
+- **SimpleCNN_model**: 3-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling)
 
 ### Existing state-of-the-art models
-- *DeepYeast_model*: DeepYeast (11-layer CNN, with 8 convolutional layers and 3 fully connected layers)
-- *inception_model*: InceptionNets
-- *resNet_model*: ResNets
+- **DeepYeast_model**: DeepYeast (11-layer CNN, with 8 convolutional layers and 3 fully connected layers)
+- **inception_model**: InceptionNets
+- **resNet_model**: ResNets
 - DenseNets
 
 Parameters for each model can be modified in the corresponding file of the 'code/configs' folder.
