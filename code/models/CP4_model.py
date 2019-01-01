@@ -19,8 +19,8 @@ class CP4Model(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
         self.class_weights = tf.placeholder(
             tf.float32, shape=[1, 28], name="weights")
-        self.class_weights = = tf.stop_gradient(self.class_weights, 
-                                                name="stop_gradient")
+        self.class_weights = tf.stop_gradient(self.class_weights,
+                                              name="stop_gradient")
         self.input = tf.placeholder(
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
@@ -52,7 +52,6 @@ class CP4Model(BaseModel):
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act5')
         logits = tf.layers.dense(x, units=28, name='logits')
-        out = tf.nn.sigmoid(logits, name='out')
         with tf.name_scope("loss"):
             if self.config.focalLoss:
                 print("Using focal loss")
@@ -78,7 +77,8 @@ class CP4Model(BaseModel):
                 self.config.learning_rate).minimize(
                     self.loss, global_step=self.global_step_tensor)
         with tf.name_scope("output"):
-            self.prediction = tf.round(out, name="prediction")
+            self.out = tf.nn.sigmoid(logits, name='out')
+            self.prediction = tf.round(self.out, name="prediction")
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used
