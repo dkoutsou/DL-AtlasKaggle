@@ -1,9 +1,6 @@
 import tensorflow as tf
 from base.base_model import BaseModel
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import array_ops
-from loss import focal_loss
-from tensorflow.python.ops import math_ops
+from utils.loss import focal_loss
 
 
 
@@ -84,84 +81,3 @@ class CP4Model(BaseModel):
         # here you initialize the tensorflow saver that will be used
         # in saving the checkpoints.
         self.saver = tf.train.Saver(max_to_keep=self.config.max_to_keep)
-
-# adapted from https://github.com/zhezh/focalloss
-def focalLoss(labels, logits, gamma=2, alpha=4, name=None):
-    print(tf.__version__)
-
-    #with ops.name_scope(name, "logistic_loss", [logits, labels]) as name:
-    #    logits = ops.convert_to_tensor(logits, name="logits")
-    #    labels = ops.convert_to_tensor(tf.to_int64(labels), name="labels")
-    #    try:
-    #        labels.get_shape().merge_with(logits.get_shape())
-    #    except ValueError:
-    #        raise ValueError("logits and labels must have the same shape (%s vs %s)" %
-    #                         (logits.get_shape(), labels.get_shape()))
-
-    #zeros = array_ops.zeros_like(logits, dtype=logits.dtype)
-    #cond = (logits >= zeros)
-    #relu_logits = array_ops.where(cond, logits, zeros)
-    #neg_abs_logits = array_ops.where(cond, -logits, logits)
-
-
-    print('logist: {}'.format(logits.dtype))
-    print('labels: {}'.format(labels.dtype))
-    print(labels)
-    labels = tf.convert_to_tensor(tf.to_int64(labels), name="labels")
-    logits = tf.convert_to_tensor(logits, tf.float32, name="logits")
-    num_class = logits.shape[1]
-    print('num_cls: {}'.format(num_class))
-
-    onehot_labels = tf.one_hot(labels, num_class)
-    print("one hot shape: {}".format(tf.shape(onehot_labels)))
-    ce = tf.multiply(onehot_labels, -tf.log(logits))  # -log(p)
-    weight = tf.multiply(onehot_labels, tf.pow(tf.subtract(1., logits), gamma))  # (1-p)^gamma
-    print('ce: {}'.format(ce.dtype))
-    print('weight: {}'.format(weight.dtype))
-    print('ce: {}'.format(tf.shape(ce)))
-    print('weight: {}'.format(tf.shape(weight)))
-    print('weight*ce: {}'.format(tf.shape(tf.multiply(weight, ce))))
-    ce = -tf.log(logits)
-    weight = tf.pow(tf.subtract(1., logits), gamma)
-    focal_loss = tf.multiply(tf.to_float(alpha), tf.multiply(ce, weight))
-    return tf.reduce_sum(focal_loss, axis=1)
-
-
-
-    #if not (target.size() == input.size()):
-    #    raise ValueError("Target size ({}) must be the same as input size ({})"
-    #                     .format(target.size(), input.size()))
-
-    #max_val = tf.clip_by_value((-input), clip_value_min=0, clip_value_max=(-input))
-    #loss = input - input * target + max_val + (tf.exp(-max_val) + tf.log(tf.exp((-input - max_val))))
-
-    #invprobs = tf.log_sigmoid(-input * (target * 2.0 - 1.0))
-    #loss = tf.exp((invprobs * gamma)) * loss
-    #print(loss)
-
-    #return tf.reduce_sum(loss)
-
-
-def focalLoss_tf(labels, logits, gamma=2, alpha=4, name=None):
-
-    print(type(input))
-    print(tf.__version__)
-
-    with ops.name_scope(name, "logistic_loss", [logits, labels]) as name:
-        logits = ops.convert_to_tensor(logits, name="logits")
-        labels = ops.convert_to_tensor(tf.to_int64(labels), name="labels")
-        try:
-            labels.get_shape().merge_with(logits.get_shape())
-        except ValueError:
-            raise ValueError("logits and labels must have the same shape (%s vs %s)" %
-                             (logits.get_shape(), labels.get_shape()))
-
-    zeros = array_ops.zeros_like(logits, dtype=logits.dtype)
-    cond = (logits >= zeros)
-    relu_logits = array_ops.where(cond, logits, zeros)
-    neg_abs_logits = array_ops.where(cond, -logits, logits)
-    return math_ops.add(
-        relu_logits - logits * labels,
-        math_ops.log1p(math_ops.exp(neg_abs_logits)),
-        name=name)
-
