@@ -54,9 +54,15 @@ class CP4Model(BaseModel):
         with tf.name_scope("loss"):
             if self.config.focalLoss:
                 print("Using focal loss")
-                self.loss = tf.losses.compute_weighted_loss(
-                    focal_loss(labels=self.label, logits=logits, gamma=2),
-                    weights=self.class_weights)
+                if self.config.use_weighted_loss:
+                    print("weighted loss")
+                    self.loss = tf.losses.compute_weighted_loss(
+                        focal_loss(labels=self.label, logits=logits, gamma=2),
+                        weights=self.class_weights)
+                else:
+                    print("not weighted loss")
+                    self.loss = focal_loss(labels=self.label, logits=logits,
+                                           gamma=2)
             elif self.config.use_weighted_loss_1:
                 tf.stop_gradient(self.class_weights, name="stop_gradient")
                 self.loss = tf.losses.compute_weighted_loss(

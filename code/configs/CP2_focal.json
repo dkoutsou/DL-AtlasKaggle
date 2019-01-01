@@ -2,7 +2,7 @@
     "model": "CP2",
     "learning_rate": 0.001,
     "max_to_keep": 2,
-    "exp_name": "CBDP2_batch8_5epochs_focal",
+    "exp_name": "CP2_batch8_5epochs_focal",
     "val_split": 0.1,
     "num_epochs": 5,
     "batch_size": 8,
