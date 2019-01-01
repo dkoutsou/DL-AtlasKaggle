@@ -5,6 +5,7 @@ import sys
 import matplotlib.image as mpimg
 from joblib import Parallel, delayed
 import multiprocessing
+import time
 
 
 from PIL import Image
@@ -42,7 +43,7 @@ def processInput(image_name, train_labels, filter_list, num_augs, data_folder):
     return {[image_name + '_rot' + str(i_rot+1), image_target], [image_name + '_rev' + str(i_rot+1), image_target]}
 
 
-def data_aug(data_folder, train_labels, label_names, parallelization_bool=False):
+def data_aug(data_folder, train_labels, label_names, parallelization_bool=True):
     print('Starting data augmentation')
 
     train_data_folder = os.path.join(data_folder, 'train')
@@ -85,17 +86,18 @@ def data_aug(data_folder, train_labels, label_names, parallelization_bool=False)
         rebalanced_images = []
 
         counter = 0
+        t_start = time.time()
+
         for image_name in train_labels.Id:
             image_target = train_labels[train_labels.Id == image_name].Target.values[0]
-            for colour in filter_list:
-                image_path = os.path.join(data_folder,'train', image_name + '_' + colour + '.png')
-                image_path = os.path.join(data_folder,'train', image_name + '_' + colour + '.png')
 
-                # Get minimum number of rotations/reversions needed (use value for most common target label)
-                max_num_rot = min(num_augs[label_names[int(num)]] for num in image_target.split(' '))
+            # Get minimum number of rotations/reversions needed (use value for most common target label)
+            max_num_rot = min(num_augs[label_names[int(num)]] for num in image_target.split(' '))
 
+            for i_rot in range(0, int(max_num_rot / 2)):
                 # Augmenting the image set
-                for i_rot in range(0, max_num_rot):
+                for colour in filter_list:
+                    image_path = os.path.join(data_folder, 'train', image_name + '_' + colour + '.png')
                     # Rotating the image
                     rot_image = np.rot90(mpimg.imread(image_path), i_rot+1)
                     # Convert array to image
@@ -113,16 +115,22 @@ def data_aug(data_folder, train_labels, label_names, parallelization_bool=False)
                     img.convert('RGB').save(
                         os.path.join(aug_data_folder, image_name + '_rev' + str(i_rot+1) + '_' + colour + '.png'))
 
-                    rebalanced_images.append([image_name + '_rot' + str(i_rot+1), image_target])
-                    rebalanced_images.append([image_name + '_rev' + str(i_rot+1), image_target])
+                rebalanced_images.append([image_name + '_rot' + str(i_rot+1), image_target])
+                rebalanced_images.append([image_name + '_rev' + str(i_rot+1), image_target])
 
-            if counter % 10 == 0:
+            if counter % 100 == 0:
                 print('Processed {} images out of {}'.format(counter, len(train_labels)))
+            if counter % 500 == 0:
+                print("{}s. elapsed".format(time.time() - t_start))
             counter += 1
+
+    t_end = time.time()
+    print("Data augmentation took {}s.".format(t_end - t_start))
 
     rebalanced_images = pd.DataFrame(rebalanced_images, columns=['Id', 'Target'])
     # Save dataframe
-    rebalanced_images.to_csv('augmented_train.csv')
+    rebalanced_images.to_csv(os.path.join(data_folder, 'augmented_train.csv'))
+    print("Saved dataframe as augmented_train.csv in data folder")
 
     return rebalanced_images
 
