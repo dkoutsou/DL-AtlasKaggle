@@ -1,5 +1,4 @@
 import tensorflow as tf
-import torch as t
 from base.base_model import BaseModel
 
 
@@ -42,9 +41,7 @@ class CP2Model(BaseModel):
         logits = tf.layers.dense(x, units=28, name='logits')
         out = tf.nn.sigmoid(logits, name='out')
         with tf.name_scope("loss"):
-            if self.config.focalLoss:
-                self.loss = tf.reduce_mean(focalLoss(input=logits, target=self.label, gamma=2))
-            elif self.config.use_weighted_loss:
+            if self.config.use_weighted_loss:
                 tf.stop_gradient(self.class_weights, name="stop_gradient")
                 self.loss = tf.losses.compute_weighted_loss(
                     tf.nn.sigmoid_cross_entropy_with_logits(
@@ -64,20 +61,3 @@ class CP2Model(BaseModel):
         # here you initialize the tensorflow saver that will be used
         # in saving the checkpoints.
         self.saver = tf.train.Saver(max_to_keep=self.config.max_to_keep)
-
-# from https://www.kaggle.com/iafoss/pretrained-resnet34-with-rgby-0-460-public-lb
-def focalLoss(input, target, gamma=2):
-    print(type(input))
-    print(tf.__version__)
-    #if not (target.size() == input.size()):
-    #    raise ValueError("Target size ({}) must be the same as input size ({})"
-    #                     .format(target.size(), input.size()))
-
-    max_val = tf.clip_by_value((-input), clip_value_min=0, clip_value_max=(-input))
-    loss = input - input * target + max_val + (tf.exp(-max_val) + tf.log(tf.exp((-input - max_val))))
-
-    invprobs = tf.log_sigmoid(-input * (target * 2.0 - 1.0))
-    loss = tf.exp((invprobs * gamma)) * loss
-    print(loss)
-
-    return tf.reduce_sum(loss)

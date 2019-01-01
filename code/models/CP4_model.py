@@ -3,7 +3,6 @@ from base.base_model import BaseModel
 from utils.loss import focal_loss
 
 
-
 class CP4Model(BaseModel):
     def __init__(self, config):
         super(CP4Model, self).__init__(config)
@@ -56,7 +55,8 @@ class CP4Model(BaseModel):
             if self.config.focalLoss:
                 print("Using focal loss")
                 self.loss = tf.losses.compute_weighted_loss(
-                    focal_loss(labels=self.label, logits=logits, gamma=2), weights=self.class_weights)
+                    focal_loss(labels=self.label, logits=logits, gamma=2),
+                    weights=self.class_weights)
             elif self.config.use_weighted_loss_1:
                 tf.stop_gradient(self.class_weights, name="stop_gradient")
                 self.loss = tf.losses.compute_weighted_loss(
@@ -65,8 +65,8 @@ class CP4Model(BaseModel):
                     weights=self.class_weights)
             elif self.config.use_weighted_loss_2:
                 self.loss = tf.nn.weighted_cross_entropy_with_logits(
-                     targets=self.label, logits=logits, pos_weight=self.class_weights
-                )
+                    targets=self.label, logits=logits,
+                    pos_weight=self.class_weights)
             else:
                 self.loss = tf.reduce_mean(
                     tf.nn.sigmoid_cross_entropy_with_logits(

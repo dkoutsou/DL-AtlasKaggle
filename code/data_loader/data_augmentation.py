@@ -6,49 +6,63 @@ import matplotlib.image as mpimg
 from joblib import Parallel, delayed
 import multiprocessing
 import time
-
+import pickle as pkl
 
 from PIL import Image
-import png
 
 
 def processInput(image_name, train_labels, filter_list, num_augs, data_folder):
     aug_data_folder = os.path.join(data_folder, 'train_aug_par')
     for image_name in train_labels.Id:
-        image_target = train_labels[train_labels.Id == image_name].Target.values[0]
+        image_target = train_labels[
+            train_labels.Id == image_name].Target.values[0]
         for colour in filter_list:
-            image_path = os.path.join(data_folder, 'train', image_name + '_' + colour + '.png')
+            image_path = os.path.join(data_folder, 'train',
+                                      image_name + '_' +
+                                      colour + '.png')
 
-            max_num_rot = min(num_augs[label_names[int(num)]] for num in image_target.split(' '))
+            max_num_rot = min(num_augs[label_names[int(num)]]
+                              for num in image_target.split(' '))
 
             # Augmenting the image set
             for i_rot in range(0, max_num_rot):
                 # Rotating the image
-                rot_image = np.rot90(mpimg.imread(image_path), i_rot+1)
+                rot_image = np.rot90(mpimg.imread(image_path),
+                                     i_rot+1)
                 # Convert array to image
-                img = Image.fromarray(rot_image * 255)  # Multiply by 255 because original values from 0 to 1
+                # Multiply by 255 because original values from 0 to 1
+                img = Image.fromarray(rot_image * 255)
                 # img.show()  # Uncomment to view image
+
                 # Save newly created images
-                # Convert image to RBG mode (because original - possible CMYK - not supported by PNG)
+                # Convert image to RBG mode
+                # (because original - possible CMYK - not supported by PNG)
                 img.convert('RGB').save(
-                    os.path.join(aug_data_folder, image_name + '_rot' + str(i_rot+1) + '_' + colour + '.png'))
+                    os.path.join(aug_data_folder, image_name +
+                                 '_rot' + str(i_rot+1) +
+                                 '_' + colour + '.png'))
 
                 # Same for reversed image
-                rev_image = np.fliplr(np.rot90(mpimg.imread(image_path), i_rot+1))
-                img = Image.fromarray(rev_image * 255)  # Multiply by 255 because original values from 0 to 1
+                rev_image = np.fliplr(np.rot90(mpimg.imread(image_path),
+                                               i_rot+1))
+                img = Image.fromarray(rev_image * 255)
                 # Save image
                 img.convert('RGB').save(
-                    os.path.join(aug_data_folder, image_name + '_rev' + str(i_rot+1) + '_' + colour + '.png'))
+                    os.path.join(aug_data_folder, image_name +
+                                 '_rev' + str(i_rot+1) + '_' +
+                                 colour + '.png'))
 
-    return {[image_name + '_rot' + str(i_rot+1), image_target], [image_name + '_rev' + str(i_rot+1), image_target]}
+    return {[image_name + '_rot' + str(i_rot+1), image_target],
+            [image_name + '_rev' + str(i_rot+1), image_target]}
 
 
-def data_aug(data_folder, train_labels, label_names, parallelization_bool=True):
+def data_aug(data_folder, train_labels, label_names,
+             parallelization_bool=True):
     print('Starting data augmentation')
 
-    train_data_folder = os.path.join(data_folder, 'train')
+    # train_data_folder = os.path.join(data_folder, 'train')
 
-    # Adding 1 column per target in dataset, and setting value to 1 if it is in image's target label
+    # Add 1 column/target: to 1 if in image's target label
     train_labels = train_labels.apply(fill_targets, axis=1)
 
     # Computing number of augmentations needed for each image
@@ -67,12 +81,12 @@ def data_aug(data_folder, train_labels, label_names, parallelization_bool=True):
 
         num_cores = multiprocessing.cpu_count()
 
-        rebalanced_images = Parallel(n_jobs=num_cores)(delayed(processInput)(image_name, train_labels, filter_list,
-                                                                             num_augs, data_folder)
-                                                       for image_name in train_labels.Id)
-        save_obj(rebalanced_images, os.path.join(data_folder, 'augmented_train_par.csv'))
-
-
+        rebalanced_images = Parallel(n_jobs=num_cores)(delayed(
+            processInput)(image_name, train_labels,
+                          filter_list, num_augs,
+                          data_folder) for image_name in train_labels.Id)
+        save_obj(rebalanced_images, os.path.join(data_folder,
+                                                 'augmented_train_par.csv'))
 
     # If no parallelization
     else:
@@ -89,70 +103,95 @@ def data_aug(data_folder, train_labels, label_names, parallelization_bool=True):
         t_start = time.time()
 
         for image_name in train_labels.Id:
-            image_target = train_labels[train_labels.Id == image_name].Target.values[0]
+            image_target = train_labels[train_labels.Id
+                                        == image_name].Target.values[0]
 
-            # Get minimum number of rotations/reversions needed (use value for most common target label)
-            max_num_rot = min(num_augs[label_names[int(num)]] for num in image_target.split(' '))
+            # Get minimum number of rotations/reversions needed
+            # (use value for most common target label)
+            max_num_rot = min(num_augs[label_names[int(num)]]
+                              for num in image_target.split(' '))
 
             for i_rot in range(0, int(max_num_rot / 2)):
                 # Augmenting the image set
                 for colour in filter_list:
-                    image_path = os.path.join(data_folder, 'train', image_name + '_' + colour + '.png')
+                    image_path = os.path.join(data_folder, 'train',
+                                              image_name + '_' +
+                                              colour + '.png')
                     # Rotating the image
-                    rot_image = np.rot90(mpimg.imread(image_path), i_rot+1)
+                    rot_image = np.rot90(mpimg.imread(image_path),
+                                         i_rot+1)
                     # Convert array to image
-                    img = Image.fromarray(rot_image * 255)  # Multiply by 255 because original values from 0 to 1
+                    # Multiply by 255 because original values from 0 to 1
+                    img = Image.fromarray(rot_image * 255)
                     # img.show()  # Uncomment to view image
                     # Save newly created images
-                    # Convert image to RBG mode (because original - possible CMYK - not supported by PNG)
+                    # Convert image to RBG mode
+                    # (because original not supported by PNG)
                     img.convert('RGB').save(
-                        os.path.join(aug_data_folder, image_name + '_rot' + str(i_rot+1) + '_' + colour + '.png'))
+                        os.path.join(aug_data_folder, image_name +
+                                     '_rot' + str(i_rot+1) + '_' +
+                                     colour + '.png'))
 
                     # Same for reversed image
-                    rev_image = np.fliplr(np.rot90(mpimg.imread(image_path), i_rot+1))
-                    img = Image.fromarray(rev_image * 255)  # Multiply by 255 because original values from 0 to 1
+                    rev_image = np.fliplr(np.rot90(mpimg.imread(image_path),
+                                                   i_rot+1))
+                    img = Image.fromarray(rev_image * 255)
                     # Save image
                     img.convert('RGB').save(
-                        os.path.join(aug_data_folder, image_name + '_rev' + str(i_rot+1) + '_' + colour + '.png'))
+                        os.path.join(aug_data_folder, image_name +
+                                     '_rev' + str(i_rot+1) +
+                                     '_' + colour + '.png'))
 
-                rebalanced_images.append([image_name + '_rot' + str(i_rot+1), image_target])
-                rebalanced_images.append([image_name + '_rev' + str(i_rot+1), image_target])
+                rebalanced_images.append([image_name + '_rot' +
+                                          str(i_rot+1), image_target])
+                rebalanced_images.append([image_name + '_rev' +
+                                          str(i_rot+1), image_target])
 
             if counter % 100 == 0:
-                print('Processed {} images out of {}'.format(counter, len(train_labels)))
+                print('Processed {} images out of {}'.format(
+                    counter, len(train_labels)))
             if counter % 500 == 0:
-                print("{}s. elapsed".format(time.time() - t_start))
+                print("{}s. elapsed".format(
+                    time.time() - t_start))
             counter += 1
 
     t_end = time.time()
     print("Data augmentation took {}s.".format(t_end - t_start))
 
-    rebalanced_images = pd.DataFrame(rebalanced_images, columns=['Id', 'Target'])
+    rebalanced_images = pd.DataFrame(rebalanced_images,
+                                     columns=['Id', 'Target'])
     # Save dataframe
-    rebalanced_images.to_csv(os.path.join(data_folder, 'augmented_train.csv'))
+    rebalanced_images.to_csv(os.path.join(data_folder,
+                                          'augmented_train.csv'))
     print("Saved dataframe as augmented_train.csv in data folder")
 
     return rebalanced_images
 
+
 def num_aug_perlabel(train_labels):
     # Find number of augmentations necessary
-    sorted_label_values = train_labels.drop(["Id", "Target"], axis=1).sum(axis=0).sort_values(ascending=False)
+    sorted_label_values = train_labels.drop(
+        ["Id", "Target"], axis=1).sum(axis=0).\
+        sort_values(ascending=False)
     print(sorted_label_values)
     aug = 0
     num_augs = {sorted_label_values.index[0]: 0}
 
-    for i in range(1, len(sorted_label_values )):
-        while (sorted_label_values[0] / sorted_label_values[i] > aug) & (aug < 8) & (
+    for i in range(1, len(sorted_label_values)):
+        while (sorted_label_values[0] / sorted_label_values[i] > aug) \
+                & (aug < 8) & (
                 sorted_label_values[i] * 2 < sorted_label_values[0]):
             aug += 2
         num_augs[sorted_label_values.index[i]] = aug
     return num_augs
 
-#Function to get target count for each image
+
+# Function to get target count for each image
 def fill_targets(row):
     for key in row.Target.split(" "):
         row.loc[label_names[int(key)]] = 1
     return row
+
 
 def save_obj(obj, name):
     """
@@ -165,8 +204,7 @@ def save_obj(obj, name):
         pkl.dump(obj, f, pkl.HIGHEST_PROTOCOL)
 
 
-
-if __name__=='__main__':
+if __name__ == '__main__':
     cwd = os.getenv("DATA_PATH")
     if cwd is None:
         print("Set your DATA_PATH env first")
@@ -184,7 +222,6 @@ if __name__=='__main__':
     ] for id in image_ids])
     # Labels
     labels = tmp["Target"].values
-
 
     label_names = {
         0: "Nucleoplasm",
