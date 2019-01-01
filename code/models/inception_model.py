@@ -43,7 +43,7 @@ class InceptionModel(BaseModel):
                                         create_aux_logits=True,
                                         activation_fn=tf.nn.relu)
         self.logits = tf.identity(logits, name="logits")
-        
+
         super(InceptionModel, self).build_loss_output()
 
     def init_saver(self):

@@ -47,7 +47,7 @@ class CDP2DModel(BaseModel):
         x = tf.nn.relu(x, name='act5')
         x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
         self.logits = tf.layers.dense(x, units=28, name='logits')
-        
+
         super(CDP2DModel, self).build_loss_output()
 
     def init_saver(self):

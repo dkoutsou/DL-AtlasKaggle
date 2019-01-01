@@ -60,7 +60,7 @@ class ResNetModel(BaseModel):
 
         logits = self.model(self.input, training=self.is_training)
         self.logits = tf.identity(logits, name="logits")
-        
+
         super(ResNetModel, self).build_loss_output()
 
     def init_saver(self):

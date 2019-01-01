@@ -59,7 +59,7 @@ class CDP4Model(BaseModel):
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act5')
         self.logits = tf.layers.dense(x, units=28, name='logits')
-        
+
         super(CDP4Model, self).build_loss_output()
 
     def init_saver(self):

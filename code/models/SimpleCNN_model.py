@@ -58,7 +58,7 @@ class SimpleCNNModel(BaseModel):
         x = tf.nn.relu(x, name='act4')
         x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
         self.logits = tf.layers.dense(x, units=28, name='logits')
-        
+
         super(SimpleCNNModel, self).build_loss_output()
 
     def init_saver(self):

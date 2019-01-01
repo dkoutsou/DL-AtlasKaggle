@@ -1,6 +1,5 @@
 import tensorflow as tf
 from base.base_model import BaseModel
-from utils.loss import focal_loss
 
 
 class CP2Model(BaseModel):
@@ -42,8 +41,8 @@ class CP2Model(BaseModel):
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act4')
         self.logits = tf.layers.dense(x, units=28, name='logits')
-        
-        super(CP2Model, self).build_loss_output()    
+
+        super(CP2Model, self).build_loss_output()
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used

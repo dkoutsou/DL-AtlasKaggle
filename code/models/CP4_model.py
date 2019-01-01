@@ -1,6 +1,5 @@
 import tensorflow as tf
 from base.base_model import BaseModel
-from utils.loss import focal_loss
 
 
 class CP4Model(BaseModel):
@@ -52,7 +51,7 @@ class CP4Model(BaseModel):
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act5')
         self.logits = tf.layers.dense(x, units=28, name='logits')
-        
+
         super(CP4Model, self).build_loss_output()
 
     def init_saver(self):
