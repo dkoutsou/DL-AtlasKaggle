@@ -1,5 +1,6 @@
 import tensorflow as tf
 from base.base_model import BaseModel
+from utils.loss import focal_loss
 
 
 class CP2Model(BaseModel):
@@ -42,7 +43,18 @@ class CP2Model(BaseModel):
         x = tf.nn.relu(x, name='act4')
         logits = tf.layers.dense(x, units=28, name='logits')
         with tf.name_scope("loss"):
-            if self.config.use_weighted_loss:
+            if self.config.focalLoss:
+                print("Using focal loss")
+                if self.config.use_weighted_loss:
+                    print("weighted loss")
+                    self.loss = tf.losses.compute_weighted_loss(
+                        focal_loss(labels=self.label, logits=logits, gamma=2),
+                        weights=self.class_weights)
+                else:
+                    print("not weighted loss")
+                    self.loss = focal_loss(labels=self.label, logits=logits,
+                                           gamma=2)
+            elif self.config.use_weighted_loss:
                 self.loss = tf.losses.compute_weighted_loss(
                     tf.nn.sigmoid_cross_entropy_with_logits(
                         labels=self.label, logits=logits),
