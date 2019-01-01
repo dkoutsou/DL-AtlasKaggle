@@ -19,6 +19,8 @@ class CP4Model(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
         self.class_weights = tf.placeholder(
             tf.float32, shape=[1, 28], name="weights")
+        self.class_weights = = tf.stop_gradient(self.class_weights, 
+                                                name="stop_gradient")
         self.input = tf.placeholder(
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
@@ -50,7 +52,7 @@ class CP4Model(BaseModel):
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act5')
         logits = tf.layers.dense(x, units=28, name='logits')
-        out = tf.nn.softmax(logits, name='out')
+        out = tf.nn.sigmoid(logits, name='out')
         with tf.name_scope("loss"):
             if self.config.focalLoss:
                 print("Using focal loss")
@@ -63,16 +65,11 @@ class CP4Model(BaseModel):
                     print("not weighted loss")
                     self.loss = focal_loss(labels=self.label, logits=logits,
                                            gamma=2)
-            elif self.config.use_weighted_loss_1:
-                tf.stop_gradient(self.class_weights, name="stop_gradient")
+            elif self.config.use_weighted_loss:
                 self.loss = tf.losses.compute_weighted_loss(
                     tf.nn.sigmoid_cross_entropy_with_logits(
                         labels=self.label, logits=logits),
                     weights=self.class_weights)
-            elif self.config.use_weighted_loss_2:
-                self.loss = tf.nn.weighted_cross_entropy_with_logits(
-                    targets=self.label, logits=logits,
-                    pos_weight=self.class_weights)
             else:
                 self.loss = tf.reduce_mean(
                     tf.nn.sigmoid_cross_entropy_with_logits(
