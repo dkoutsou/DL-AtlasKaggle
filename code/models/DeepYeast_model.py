@@ -18,6 +18,8 @@ class DeepYeastModel(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
         self.class_weights = tf.placeholder(
             tf.float32, shape=[1, 28], name="weights")
+        self.class_weights = tf.stop_gradient(self.class_weights,
+                                              name="stop_gradient")
         self.input = tf.placeholder(
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
@@ -74,29 +76,9 @@ class DeepYeastModel(BaseModel):
             x, training=self.is_training, name='bn4')
         x = tf.nn.relu(x, name='act4')
         x = tf.layers.dropout(x, rate=0.5, training=self.is_training)
-        logits = tf.layers.dense(x, units=28, name='logits')
-        # we have to adapt their code cause their code does
-        # one label prediction, we want multilabel
-        # use sigmoid not softmax because multilabel
-        # then each out node is the proba the corresponding
-        # label being true. I.e. if > 0.5 output the prediction.
-        out = tf.nn.sigmoid(logits, name='out')
-        with tf.name_scope("loss"):
-            if self.config.use_weighted_loss:
-                tf.stop_gradient(self.class_weights, name="stop_gradient")
-                self.loss = tf.losses.compute_weighted_loss(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits),
-                    weights=self.class_weights)
-            else:
-                self.loss = tf.reduce_mean(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits))
-            self.train_step = tf.train.AdamOptimizer(
-                self.config.learning_rate).minimize(
-                    self.loss, global_step=self.global_step_tensor)
-        with tf.name_scope("output"):
-            self.prediction = tf.round(out, name="prediction")
+        self.logits = tf.layers.dense(x, units=28, name='logits')
+
+        super(DeepYeastModel, self).build_loss_output()
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used

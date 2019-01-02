@@ -18,6 +18,8 @@ class CBDP2Model(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
         self.class_weights = tf.placeholder(
             tf.float32, shape=[1, 28], name="weights")
+        self.class_weights = tf.stop_gradient(self.class_weights,
+                                              name="stop_gradient")
         self.input = tf.placeholder(
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
@@ -42,25 +44,9 @@ class CBDP2Model(BaseModel):
         # Classification block
         x = tf.layers.flatten(x, name='flatten')
         x = tf.nn.relu(x, name='act5')
-        logits = tf.layers.dense(x, units=28, name='logits')
-        out = tf.nn.sigmoid(logits, name='out')
+        self.logits = tf.layers.dense(x, units=28, name='logits')
 
-        with tf.name_scope("loss"):
-            if self.config.use_weighted_loss:
-                tf.stop_gradient(self.class_weights, name="stop_gradient")
-                self.loss = tf.losses.compute_weighted_loss(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits),
-                    weights=self.class_weights)
-            else:
-                self.loss = tf.reduce_mean(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=logits))
-            self.train_step = tf.train.AdamOptimizer(
-                self.config.learning_rate).minimize(
-                    self.loss, global_step=self.global_step_tensor)
-        with tf.name_scope("output"):
-            self.prediction = tf.round(out, name="prediction")
+        super(CBDP2Model, self).build_loss_output()
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used
