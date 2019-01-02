@@ -67,9 +67,10 @@ class BaseModel:
                         weights=self.class_weights)
                 else:
                     print("not weighted loss")
-                    self.loss = focal_loss(labels=self.label,
-                                           logits=self.logits,
-                                           gamma=2)
+                    self.loss = tf.reduce_mean(
+                        focal_loss(labels=self.label,
+                                   logits=self.logits,
+                                   gamma=2))
             elif self.config.use_weighted_loss:
                 try:
                     self.loss = tf.losses.compute_weighted_loss(
