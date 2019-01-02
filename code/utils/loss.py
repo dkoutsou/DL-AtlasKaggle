@@ -19,22 +19,15 @@ def focal_loss(labels, logits, gamma=2.0, alpha=4.0):
     # so add a small value epsilon to softmax to stabilize the CE
     epsilon = 1.e-9
 
-    labels = tf.to_int64(labels)
-    labels = tf.convert_to_tensor(labels, tf.int64)
+    #labels = tf.convert_to_tensor(labels, tf.int64)
     logits = tf.convert_to_tensor(logits, tf.float32)
-    num_classes = logits.shape[1]
 
-    # softmax = tf.nn.softmax(logits)
     sigmoid = tf.nn.sigmoid(logits)
-    # model_out = tf.add(softmax, epsilon)
     model_out = tf.add(sigmoid, epsilon)
-    # construct one-hot label array
-    label_flat = tf.reshape(labels, (-1, 1))
-    onehot_labels = tf.one_hot(label_flat, num_classes)
 
-    ce = tf.multiply(onehot_labels, -tf.log(model_out),
+    ce = tf.multiply(labels, -tf.log(model_out),
                      name='cross_entropy')
-    weight = tf.multiply(onehot_labels,
+    weight = tf.multiply(labels,
                          tf.pow(tf.subtract(1., model_out),
                                 gamma), name='fl_weight')
     fl = tf.multiply(alpha, tf.multiply(weight, ce))
