@@ -1,9 +1,13 @@
 # DL-AtlasKaggle
+## Deep Learning - Fall 2018 - ETH Zurich
+### Mélanie Bernhardt - Mélanie Gaillochet - Andreas Georgiou - Dimitrios Koutsoukos
 
+## Main goal
 Based on the "Human Protein Atlas Image Classication" [Kaggle competition] (https://www.kaggle.com/c/human-protein-atlas-image-classification)
 Revolving around medical image analysis, the main goal of this project is to classify mixed patterns of proteins in microscope images using computer vision.
 
-## Setup
+
+### Setup
 - Set your PYTHONPATH variable to where your code folder is (ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`)
 - Set path EXP_PATH to where run results should be saved (ie: `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
 - Set your DATA_PATH variable to where the data is (ie: `export EXP_PATH="${HOME}/DL-AtlasKaggle/result/"`)
@@ -30,12 +34,4 @@ Parameters for each model can be modified in the corresponding file of the 'code
 
 ## Running the Models
 `python code/mains/train_main.py -c code/configs/<json file to be used>`
-
-
-
-
-
-
-
-
 
