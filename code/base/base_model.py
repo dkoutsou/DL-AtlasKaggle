@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils.loss import focal_loss
+from utils.loss import focal_loss, f1_loss
 
 
 class BaseModel:
@@ -56,6 +56,8 @@ class BaseModel:
         raise NotImplementedError
 
     def build_loss_output(self):
+        with tf.name_scope("output"):
+            self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
             if self.config.focalLoss:
                 print("Using focal loss")
@@ -71,6 +73,9 @@ class BaseModel:
                         focal_loss(labels=self.label,
                                    logits=self.logits,
                                    gamma=2))
+            elif self.config.use_f1_loss:
+                    self.loss = tf.reduce_mean(
+                        f1_loss(y_true = self.label, y_pred = self.out))
             elif self.config.use_weighted_loss:
                 try:
                     self.loss = tf.losses.compute_weighted_loss(
@@ -84,7 +89,7 @@ class BaseModel:
                         tf.nn.weighted_cross_entropy_with_logits(
                             targets=self.label, logits=self.logits,
                             pos_weight=1),
-                        weights=self.class_weights)
+                        weights=self.class_weights)               
             else:
                 try:
                     self.loss = tf.reduce_mean(
@@ -100,5 +105,3 @@ class BaseModel:
             self.train_step = tf.train.AdamOptimizer(
                 self.config.learning_rate).minimize(
                     self.loss, global_step=self.global_step_tensor)
-        with tf.name_scope("output"):
-            self.out = tf.nn.sigmoid(self.logits, name='out')
