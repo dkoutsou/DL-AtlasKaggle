@@ -6,7 +6,7 @@
     "val_split": 0.05,
     "num_epochs": 5,
     "batch_size": 32,
-    "use_weighted_loss": true,
+    "use_weighted_loss": false,
     "focalLoss": true,
     "input_size": 128
 }
