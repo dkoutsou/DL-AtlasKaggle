@@ -19,7 +19,6 @@ def focal_loss(labels, logits, gamma=2.0, alpha=4.0):
     # so add a small value epsilon to softmax to stabilize the CE
     epsilon = 1.e-9
 
-    #labels = tf.convert_to_tensor(labels, tf.int64)
     logits = tf.convert_to_tensor(logits, tf.float32)
 
     sigmoid = tf.nn.sigmoid(logits)
