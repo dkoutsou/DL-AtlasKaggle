@@ -35,5 +35,3 @@ Parameters for each model can be modified in the corresponding file of the 'code
 ## Running the Models
 `python code/mains/train_main.py -c code/configs/<json file to be used>`
 
-
-
