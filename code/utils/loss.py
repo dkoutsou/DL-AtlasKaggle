@@ -30,5 +30,4 @@ def focal_loss(labels, logits, gamma=2.0, alpha=4.0):
                          tf.pow(tf.subtract(1., model_out),
                                 gamma), name='fl_weight')
     fl = tf.multiply(alpha, tf.multiply(weight, ce))
-    reduced_fl = tf.reduce_sum(fl, axis=1)
-    return reduced_fl
+    return fl
