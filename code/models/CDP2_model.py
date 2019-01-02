@@ -27,6 +27,7 @@ class CDP2Model(BaseModel):
         # All tf functions work better with channel first
         # otherwise some fail on CPU (known issue)
         x = tf.transpose(self.input, perm=[0, 2, 3, 1])
+        x = tf.image.resize_images(x, size = (self.config.input_size, self.config.input_size))
         print(x.get_shape())
         # Block 1
         x = tf.layers.conv2d(x, 64, 3, padding='same', name='conv1')
