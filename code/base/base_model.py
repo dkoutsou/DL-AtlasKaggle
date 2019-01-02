@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils.loss import focal_loss, f1_loss
+from utils.loss import focal_loss
 
 
 class BaseModel:
@@ -73,9 +73,6 @@ class BaseModel:
                         focal_loss(labels=self.label,
                                    logits=self.logits,
                                    gamma=2))
-            elif self.config.use_f1_loss:
-                    self.loss = tf.reduce_mean(
-                        f1_loss(y_true = self.label, y_pred = self.out))
             elif self.config.use_weighted_loss:
                 try:
                     self.loss = tf.losses.compute_weighted_loss(
