@@ -71,16 +71,31 @@ class BaseModel:
                                            logits=self.logits,
                                            gamma=2)
             elif self.config.use_weighted_loss:
-                self.loss = tf.losses.compute_weighted_loss(
-                    tf.nn.weighted_cross_entropy_with_logits(
-                        targets=self.label, logits=self.logits,
-                        pos_weight=self.config.pos_label_coeff),
-                    weights=self.class_weights)
+                try:
+                    self.loss = tf.losses.compute_weighted_loss(
+                        tf.nn.weighted_cross_entropy_with_logits(
+                            targets=self.label, logits=self.logits,
+                            pos_weight=self.config.pos_label_coeff),
+                        weights=self.class_weights)
+                except AttributeError:
+                    print('WARN: pos_label_coeff not set using 1')
+                    self.loss = tf.losses.compute_weighted_loss(
+                        tf.nn.weighted_cross_entropy_with_logits(
+                            targets=self.label, logits=self.logits,
+                            pos_weight=1),
+                        weights=self.class_weights)
             else:
-                self.loss = tf.reduce_mean(
-                    tf.nn.weighted_cross_entropy_with_logits(
-                        targets=self.label, logits=self.logits,
-                        pos_weight=self.config.pos_label_coeff))
+                try:
+                    self.loss = tf.reduce_mean(
+                        tf.nn.weighted_cross_entropy_with_logits(
+                            targets=self.label, logits=self.logits,
+                            pos_weight=self.config.pos_label_coeff))
+                except AttributeError:
+                    print('WARN: pos_label_coeff not set using 1')
+                    self.loss = tf.reduce_mean(
+                        tf.nn.weighted_cross_entropy_with_logits(
+                            targets=self.label, logits=self.logits,
+                            pos_weight=1))
             self.train_step = tf.train.AdamOptimizer(
                 self.config.learning_rate).minimize(
                     self.loss, global_step=self.global_step_tensor)
