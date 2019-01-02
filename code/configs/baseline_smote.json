@@ -1,8 +1,0 @@
-{
-  "exp_name": "baseline_smote",
-  "batch_size": 1024,
-  "patch_size": 64,
-  "n_estimators": 1000,
-  "sampling_algo": "smote",
-  "val_split": 0.0
-}
