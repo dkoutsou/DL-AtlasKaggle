@@ -24,10 +24,10 @@ def focal_loss(labels, logits, gamma=2.0, alpha=4.0):
     logits = tf.convert_to_tensor(logits, tf.float32)
     num_classes = logits.shape[1]
 
-    softmax = tf.nn.softmax(logits)
-
-    model_out = tf.add(softmax, epsilon)
-
+    # softmax = tf.nn.softmax(logits)
+    sigmoid = tf.nn.sigmoid(logits)
+    # model_out = tf.add(softmax, epsilon)
+    model_out = tf.add(sigmoid, epsilon)
     # construct one-hot label array
     label_flat = tf.reshape(labels, (-1, 1))
     onehot_labels = tf.one_hot(label_flat, num_classes)
