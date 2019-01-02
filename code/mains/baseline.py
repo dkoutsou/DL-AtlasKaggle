@@ -76,15 +76,7 @@ def main():
     all_batches = TrainingSet.batch_iterator()
 
     # init model
-    try:
-        if config.sampling_algo:
-            pass
-    except AttributeError:
-        config.sampling_algo = None
-    try:
-        if config.class_weight:
-            pass
-    except AttributeError:
+    if not hasattr(config, 'class_weight'):
         config.class_weight = None
     estimator = RandomForestBaseline(
         n_estimators=config.n_estimators,
