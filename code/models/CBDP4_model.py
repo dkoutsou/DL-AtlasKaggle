@@ -24,7 +24,8 @@ class CBDP4Model(BaseModel):
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
         x = tf.transpose(self.input, perm=[0, 2, 3, 1])
-
+        x = tf.image.resize_images(x, (self.config.input_size,
+                                       self.config.input_size))
         # Block 1
         x = tf.layers.conv2d(x, 64, 3, padding='same', name='conv1')
         x = tf.layers.batch_normalization(
