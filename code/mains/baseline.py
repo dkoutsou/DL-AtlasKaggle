@@ -82,8 +82,7 @@ def main():
         n_estimators=config.n_estimators,
         n_jobs=-1,
         random_state=42,
-        class_weight=config.class_weight,
-        resample_algo=config.sampling_algo)
+        class_weight=config.class_weight)
 
     # extract features
     train_feats, train_labels = estimator._extract_features(

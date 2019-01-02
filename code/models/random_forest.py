@@ -4,7 +4,7 @@ import numpy as np
 import parmap
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
-from utils.oversampler import Oversampler
+from utils.utils import get_pred_from_probas
 
 
 class RandomForestBaseline(BaseEstimator, TransformerMixin):
@@ -98,26 +98,6 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         else:
             return feats
 
-    def _proba_2_one_hot(self, proba):
-        tmp = proba > 0.5
-        all_false = np.all(~tmp)
-        # If no class has higher than 0.5 probability
-        if all_false:
-            max_prob = np.max(proba)
-
-            # Pick top 3 classes
-            prediction = np.zeros(proba.shape, dtype=np.int)
-            inds = np.argpartition(proba, -3)[-3:]
-            prediction[inds] = 1
-
-            # From the top 3 discard those that do not reach the threshold
-            inds = proba < (0.90 * max_prob)
-            prediction[inds] = 0
-            return prediction
-        else:
-            # encode classes that have higher than 0.5
-            return tmp.astype(int)
-
     def fit(self, X, y, sample_weight=None):
         self.rf = RandomForestClassifier(
             n_estimators=self.n_estimators,
@@ -140,8 +120,5 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         probas = [class_probs[:, 1].reshape(-1, 1) for class_probs in probas]
         probas = np.hstack(probas)
 
-        for i in range(probas.shape[0]):
-            probas[i, :] = self._proba_2_one_hot(probas[i, :])
-
-        probas = probas.astype(np.int)
-        return probas
+        preds = get_pred_from_probas(probas)
+        return preds
