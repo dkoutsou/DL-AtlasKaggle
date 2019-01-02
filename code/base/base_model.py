@@ -72,13 +72,15 @@ class BaseModel:
                                            gamma=2)
             elif self.config.use_weighted_loss:
                 self.loss = tf.losses.compute_weighted_loss(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=self.logits),
+                    tf.nn.weighted_cross_entropy_with_logits(
+                        targets=self.label, logits=self.logits,
+                        pos_weight=self.config.pos_label_coeff),
                     weights=self.class_weights)
             else:
                 self.loss = tf.reduce_mean(
-                    tf.nn.sigmoid_cross_entropy_with_logits(
-                        labels=self.label, logits=self.logits))
+                    tf.nn.weighted_cross_entropy_with_logits(
+                        targets=self.label, logits=self.logits,
+                        pos_weight=self.config.pos_label_coeff))
             self.train_step = tf.train.AdamOptimizer(
                 self.config.learning_rate).minimize(
                     self.loss, global_step=self.global_step_tensor)
