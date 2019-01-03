@@ -56,6 +56,8 @@ class BaseModel:
         raise NotImplementedError
 
     def build_loss_output(self):
+        with tf.name_scope("output"):
+            self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
             if self.config.focalLoss:
                 print("Using focal loss")
@@ -84,7 +86,7 @@ class BaseModel:
                         tf.nn.weighted_cross_entropy_with_logits(
                             targets=self.label, logits=self.logits,
                             pos_weight=1),
-                        weights=self.class_weights)
+                        weights=self.class_weights)               
             else:
                 try:
                     self.loss = tf.reduce_mean(
@@ -100,5 +102,3 @@ class BaseModel:
             self.train_step = tf.train.AdamOptimizer(
                 self.config.learning_rate).minimize(
                     self.loss, global_step=self.global_step_tensor)
-        with tf.name_scope("output"):
-            self.out = tf.nn.sigmoid(self.logits, name='out')

@@ -20,8 +20,6 @@ class Predictor:
             config: a Bunch object
         """
         self.config = config
-        # self.lastcheckpoint = tf.train.latest_checkpoint(
-        #    self.config.checkpoint_dir)
         self.sess = sess
         self.model = model
         # Defining the csv file name
@@ -44,7 +42,7 @@ class Predictor:
         # to stop the output after 8 predictions
         counter = 1
         for batch_imgs in testIterator.batch_iterator():
-            if counter > 20:
+            if counter > 20: #TODO remove
                 break
             batch_probas = self.sess.run(self.model.out, {
                 self.model.input: batch_imgs,
@@ -57,7 +55,7 @@ class Predictor:
                 for sample_pred in batch_pred
             ])
             counter += 1
-            if counter % 10 == 0:
+            if counter % 1 == 0:
                 print(counter*self.config.batch_size)
         ids = testIterator.image_ids[0:len(predicted_labels)]
         # print(np.shape(ids))
