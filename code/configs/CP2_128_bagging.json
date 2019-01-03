@@ -1,0 +1,14 @@
+{
+    "model": "CP2",
+    "learning_rate": 0.0001,
+    "max_to_keep": 2,
+    "exp_name": "CP2_batch32_5epochs_128_bagging",
+    "val_split": 0.1,
+    "bootstrap_size": 1.0,
+    "n_estimators": 10,
+    "num_epochs": 5,
+    "batch_size": 32,
+    "use_weighted_loss": false,
+    "focalLoss": false,
+    "input_size": 128
+}
