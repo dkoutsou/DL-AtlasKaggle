@@ -9,10 +9,11 @@ class CP2Model(BaseModel):
         self.init_saver()
 
     def build_model(self):
-        
+
         super(CP2Model, self).init_build_model()
         # Block 1
-        x = tf.layers.conv2d(self.input_layer, 64, 3, padding='same', name='conv1_1')
+        x = tf.layers.conv2d(self.input_layer, 64, 3,
+                             padding='same', name='conv1_1')
         x = tf.nn.relu(x, name='act1_1')
         x = tf.layers.max_pooling2d(
             x, pool_size=(2, 2), strides=(2, 2), name='pool1')

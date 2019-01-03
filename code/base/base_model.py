@@ -72,8 +72,8 @@ class BaseModel:
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
         x = tf.transpose(self.input, perm=[0, 2, 3, 1])
         self.input_layer = tf.image.resize_images(x, (self.config.input_size,
-                                       self.config.input_size))
-    
+                                                      self.config.input_size))
+
     def build_loss_output(self):
         try:
             if self.config.use_weighted_loss:
@@ -117,7 +117,7 @@ class BaseModel:
                         tf.nn.weighted_cross_entropy_with_logits(
                             targets=self.label, logits=self.logits,
                             pos_weight=1),
-                        weights=self.class_weights)               
+                        weights=self.class_weights)
             else:
                 try:
                     self.loss = tf.reduce_mean(

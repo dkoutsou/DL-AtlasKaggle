@@ -6,7 +6,6 @@ from PIL import Image
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
 import re
-import tensorflow as tf
 
 
 class DataGenerator:
@@ -52,8 +51,8 @@ class DataGenerator:
         self.labels = [[int(c) for c in l.split(' ')] for l in self.labels]
         self.labels = binarizer.fit_transform(self.labels)
         # Compute class weigths
-        self.class_weights = (self.n)*np.reshape(1 /
-                                                 np.sum(self.labels, axis=0), (1, -1))
+        self.class_weights = (self.n)*np.reshape(
+            1 / np.sum(self.labels, axis=0), (1, -1))
         # Build a validation set
         try:
             self.train_filenames, self.val_filenames,\
