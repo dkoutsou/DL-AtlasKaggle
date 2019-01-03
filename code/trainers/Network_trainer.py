@@ -28,6 +28,9 @@ class NetworkTrainer(BaseTrain):
             train_true = np.append(train_true, true_label)
             cur_it = self.model.global_step_tensor.eval(self.sess)
             if cur_it % 20 == 0:
+                print(train_true[0:28])
+                print(train_probas[0:28])
+                print(loss)
                 # Save the training values every 10 steps
                 train_loss = np.mean(losses)
                 # i am not calculating f1 each steps in train_step()
