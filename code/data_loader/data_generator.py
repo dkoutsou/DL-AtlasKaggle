@@ -31,8 +31,10 @@ class DataGenerator:
             sys.exit(1)
         self.config = config
         # Read csv file
-        tmp = pd.read_csv(os.path.abspath(os.path.join(cwd, 'train.csv')),
-                          delimiter=',', engine='python')
+        tmp = pd.read_csv(
+            os.path.abspath(os.path.join(cwd, 'train.csv')),
+            delimiter=',',
+            engine='python')
         # A vector of images id.
         image_ids = tmp["Id"]
         self.n = len(image_ids)
@@ -146,7 +148,7 @@ class DataTestLoader:
             print("Set your DATA_PATH env first")
             sys.exit(1)
         self.config = config
-        list_files = [f for f in os.listdir(cwd + '/test/')]
+        list_files = [f for f in os.listdir(os.path.join(cwd, 'test/'))]
         self.image_ids = list(
             set([
                 re.search(r'(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
@@ -155,7 +157,7 @@ class DataTestLoader:
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[
-            cwd + 'test/' + id + '_' + c + '.png'
+            os.path.join(cwd, 'test/', id + '_' + c + '.png')
             for c in ['red', 'green', 'yellow', 'blue']
         ] for id in self.image_ids])
 
