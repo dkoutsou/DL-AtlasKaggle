@@ -31,8 +31,10 @@ class DataGenerator:
             sys.exit(1)
         self.config = config
         # Read csv file
-        tmp = pd.read_csv(os.path.abspath(os.path.join(cwd, 'train.csv')),
-                          delimiter=',', engine='python')
+        tmp = pd.read_csv(
+            os.path.abspath(os.path.join(cwd, 'train.csv')),
+            delimiter=',',
+            engine='python')
         # A vector of images id.
         image_ids = tmp["Id"]
         self.n = len(image_ids)
@@ -51,7 +53,8 @@ class DataGenerator:
         self.labels = [[int(c) for c in l.split(' ')] for l in self.labels]
         self.labels = binarizer.fit_transform(self.labels)
         # Compute class weigths
-        self.class_weights = np.reshape(1/np.sum(self.labels, axis=0), (1, -1))
+        self.class_weights = (self.n)*np.reshape(
+            1 / np.sum(self.labels, axis=0), (1, -1))
         # Build a validation set
         try:
             self.train_filenames, self.val_filenames,\
@@ -116,7 +119,8 @@ class DataGenerator:
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
             batchimages = np.asarray(
-                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
+                [[np.asarray(Image.open(x))
+                  for x in y] for y in batchfile])
             yield batchimages, batchlabel
 
     def set_batch_iterator(self, type='all'):
@@ -144,7 +148,7 @@ class DataTestLoader:
             print("Set your DATA_PATH env first")
             sys.exit(1)
         self.config = config
-        list_files = [f for f in os.listdir(cwd + '/test/')]
+        list_files = [f for f in os.listdir(os.path.join(cwd, 'test/'))]
         self.image_ids = list(
             set([
                 re.search(r'(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
@@ -153,7 +157,7 @@ class DataTestLoader:
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[
-            cwd + 'test/' + id + '_' + c + '.png'
+            os.path.join(cwd, 'test/', id + '_' + c + '.png')
             for c in ['red', 'green', 'yellow', 'blue']
         ] for id in self.image_ids])
 

@@ -42,7 +42,7 @@ class Predictor:
         # to stop the output after 8 predictions
         counter = 1
         for batch_imgs in testIterator.batch_iterator():
-            if counter > 20: #TODO remove
+            if counter > 20:  # TODO remove
                 break
             batch_probas = self.sess.run(self.model.out, {
                 self.model.input: batch_imgs,

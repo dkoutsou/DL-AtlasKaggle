@@ -43,22 +43,10 @@ class ResNetModel(BaseModel):
         self.init_saver()
 
     def build_model(self):
-        try:
-            if self.config.use_weighted_loss:
-                pass
-        except AttributeError:
-            print('WARN: use_weighted_loss not set - using False')
-            self.config.use_weighted_loss = False
-        self.is_training = tf.placeholder(tf.bool)
-        self.class_weights = tf.placeholder(
-            tf.float32, shape=[1, 28], name="weights")
-        self.class_weights = tf.stop_gradient(self.class_weights,
-                                              name="stop_gradient")
-        self.input = tf.placeholder(
-            tf.float32, shape=[None, 4, 512, 512], name="input")
-        self.label = tf.placeholder(tf.float32, shape=[None, 28])
+        super(ResNetModel, self).init_build_model()
 
-        logits = self.model(self.input, training=self.is_training)
+        logits = self.model(self.input_layer,
+                            training=self.is_training)
         self.logits = tf.identity(logits, name="logits")
 
         super(ResNetModel, self).build_loss_output()
