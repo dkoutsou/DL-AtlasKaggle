@@ -55,7 +55,38 @@ class BaseModel:
     def build_model(self):
         raise NotImplementedError
 
+    def init_build_model(self):
+        try:
+            if self.config.input_size:
+                pass
+        except AttributeError:
+            print('WARN: input_size not set - using 512')
+            self.config.input_size = 512
+        self.is_training = tf.placeholder(tf.bool)
+        self.class_weights = tf.placeholder(
+            tf.float32, shape=[1, 28], name="weights")
+        self.class_weights = tf.stop_gradient(self.class_weights,
+                                              name="stop_gradient")
+        self.input = tf.placeholder(
+            tf.float32, shape=[None, 4, 512, 512], name="input")
+        self.label = tf.placeholder(tf.float32, shape=[None, 28])
+        x = tf.transpose(self.input, perm=[0, 2, 3, 1])
+        self.input_layer = tf.image.resize_images(x, (self.config.input_size,
+                                       self.config.input_size))
+    
     def build_loss_output(self):
+        try:
+            if self.config.use_weighted_loss:
+                pass
+        except AttributeError:
+            print('WARN: use_weighted_loss not set - using False')
+            self.config.use_weighted_loss = False
+        try:
+            if self.config.focalLoss:
+                pass
+        except AttributeError:
+            print('WARN: focalLoss not set - using False')
+            self.config.focalLoss = False
         with tf.name_scope("output"):
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
