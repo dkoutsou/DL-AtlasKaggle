@@ -1,9 +1,9 @@
 {
-    "model": "CP2",
+    "model": "DeepYeast",
     "learning_rate": 0.0001,
     "max_to_keep": 2,
-    "exp_name": "CP2_batch16_5epochs_focal_",
-    "val_split": 0.05,
+    "exp_name": "DeepYeast_batch8_5epochs_focal_w_128",
+    "val_split": 0.1, 
     "num_epochs": 5,
     "batch_size": 32,
     "use_weighted_loss": true,

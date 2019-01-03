@@ -63,8 +63,7 @@ def main():
         elif config.model == "ResNet":
             model = ResNetModel(config)
     except AttributeError:
-        print("The model to use is not specified in the config file")
-        exit(1)
+        raise
     # create tensorboard logger
     logger = Logger(sess, config)
     # create trainer and pass all the previous components to it
@@ -77,5 +76,5 @@ def main():
 
 if __name__ == '__main__':
     print('the gpu is avaiable {}'.format(
-        tf.test.is_gpu_available()), flush=True)
+        tf.test.is_gpu_available()))
     main()
