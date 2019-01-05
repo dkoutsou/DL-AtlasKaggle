@@ -191,10 +191,6 @@ if __name__ == '__main__':
     config_dict = {'batch_size': 32, 'bootstrap_size': 0.001}
     config = Bunch(config_dict)
     TrainingSet = DataGenerator(config, random_state=42)
-    TrainingSet2 = DataGenerator(config, random_state=43)
-    print(TrainingSet.train_filenames)
-    print()
-    print(TrainingSet2.train_filenames)
     """
     all_batches = TrainingSet.batch_iterator()
     for batch_x, batch_y in all_batches:

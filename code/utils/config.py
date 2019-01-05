@@ -38,8 +38,8 @@ def generate_bagging_configs(config, num_of_configs):
     for i in range(num_of_configs):
         new_conf = Bunch(config.copy())
         new_conf.summary_dir = os.path.join(new_conf.summary_dir,
-                                            'model{}'.format(i))
+                                            'model{}/'.format(i))
         new_conf.checkpoint_dir = os.path.join(new_conf.checkpoint_dir,
-                                               'model{}'.format(i))
+                                               'model{}/'.format(i))
         configs.append(new_conf)
     return configs
