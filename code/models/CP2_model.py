@@ -11,8 +11,7 @@ class CP2Model(BaseModel):
     def build_model(self):
 
         super(CP2Model, self).init_build_model()
-        # Block 1
-        #64
+        # Block 1 - 64
         x = tf.layers.conv2d(self.input_layer, 8, 3,
                              padding='same', name='conv1_1')
         x = tf.nn.relu(x, name='act1_1')
