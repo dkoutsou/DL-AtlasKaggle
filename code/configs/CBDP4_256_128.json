@@ -1,11 +1,11 @@
 {   
-    "model": "CDP4",
-    "learning_rate": 0.0001,
+    "model": "CBDP4",
+    "learning_rate": 0.001,
     "max_to_keep": 2,
-    "exp_name": "CDP4_batch32_10epochs_256",
+    "exp_name": "CBDP4_batch128_10epochs_256",
     "val_split": 0.1, 
     "num_epochs": 10,
-    "batch_size": 32,
+    "batch_size": 128,
     "use_weighted_loss": false,
     "focalLoss": false,
     "input_size": 256

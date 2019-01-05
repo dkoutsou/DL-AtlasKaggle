@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils.loss import focal_loss
+from utils.loss import focal_loss, f1_loss
 
 
 class BaseModel:
@@ -87,6 +87,12 @@ class BaseModel:
         except AttributeError:
             print('WARN: focalLoss not set - using False')
             self.config.focalLoss = False
+        try:
+            if self.config.f1_loss:
+                pass
+        except AttributeError:
+            print('WARN: f1_loss not set - using False')
+            self.config.f1_loss = False
         with tf.name_scope("output"):
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
@@ -104,6 +110,9 @@ class BaseModel:
                         focal_loss(labels=self.label,
                                    logits=self.logits,
                                    gamma=2))
+            elif self.config.f1_loss:
+                self.loss = f1_loss(y_true=self.label,
+                                    y_pred=self.out)
             elif self.config.use_weighted_loss:
                 try:
                     self.loss = tf.losses.compute_weighted_loss(

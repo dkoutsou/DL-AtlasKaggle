@@ -3,7 +3,7 @@ from tqdm import tqdm
 import numpy as np
 from sklearn.metrics import f1_score
 from utils.utils import get_pred_from_probas
-
+import tensorflow as tf
 
 class NetworkTrainer(BaseTrain):
     def __init__(self, sess, model, data, config, logger):
@@ -27,6 +27,7 @@ class NetworkTrainer(BaseTrain):
             train_probas = np.append(train_probas, pred)
             train_true = np.append(train_true, true_label)
             cur_it = self.model.global_step_tensor.eval(self.sess)
+            print(loss)
             if cur_it % 20 == 0:
                 print(train_true[0:28])
                 print(train_probas[0:28])
@@ -42,24 +43,28 @@ class NetworkTrainer(BaseTrain):
                 train_probas = np.reshape(train_probas, (-1, 28))
                 train_f1 = f1_score(train_true, get_pred_from_probas(
                     train_probas), average='macro')
+                train_f1_2 = f1_score(train_true, np.greater(train_probas, 0.05), average='macro')
                 losses = []
                 train_probas = []
                 train_true = []
-                print('Step {}: training_loss:{}, training_f1:{}'.format(
-                    cur_it, train_loss, train_f1))
+                print('Step {}: training_loss:{}, training_f1:{}, training_f1_2:{}'.format(
+                    cur_it, train_loss, train_f1, train_f1_2))
                 train_summaries_dict = {
                     'loss': train_loss,
-                    'f1': train_f1
+                    'f1': train_f1,
+                    'f1_005_thres': train_f1_2
                 }
                 self.logger.summarize(
                     cur_it, summaries_dict=train_summaries_dict)
 
             if (cur_it % 100 == 0) and (cur_it > 0):
                 # Evaluate on val every epoch
-                val_loss, val_f1 = self.val_step()
-                print('Step {}: val_loss:{}, val_f1:{}'.format(
-                    cur_it, val_loss, val_f1))
-                val_summaries_dict = {'loss': val_loss, 'f1': val_f1}
+                val_loss, val_f1, val_f1_2 = self.val_step()
+                print('Step {}: val_loss:{}, val_f1:{}, val_f1_2:{}'.format(
+                    cur_it, val_loss, val_f1, val_f1_2))
+                val_summaries_dict = {'loss': val_loss,
+                                      'f1': val_f1,
+                                      'f1_005_thres': val_f1_2}
                 self.logger.summarize(
                     cur_it, summaries_dict=val_summaries_dict,
                     summarizer='test')
@@ -105,5 +110,6 @@ class NetworkTrainer(BaseTrain):
         val_probas = np.reshape(val_probas, (-1, 28))
         val_preds = get_pred_from_probas(val_probas)
         val_f1 = f1_score(val_true, val_preds, average='macro')
+        val_f1_2 = f1_score(val_true, np.greater(val_probas, 0.05), average='macro')
         val_loss = np.mean(val_losses)
-        return val_loss, val_f1
+        return val_loss, val_f1, val_f1_2
