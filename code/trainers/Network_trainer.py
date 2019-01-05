@@ -3,7 +3,7 @@ from tqdm import tqdm
 import numpy as np
 from sklearn.metrics import f1_score
 from utils.utils import get_pred_from_probas
-import tensorflow as tf
+
 
 class NetworkTrainer(BaseTrain):
     def __init__(self, sess, model, data, config, logger):
@@ -43,12 +43,15 @@ class NetworkTrainer(BaseTrain):
                 train_probas = np.reshape(train_probas, (-1, 28))
                 train_f1 = f1_score(train_true, get_pred_from_probas(
                     train_probas), average='macro')
-                train_f1_2 = f1_score(train_true, np.greater(train_probas, 0.05), average='macro')
+                train_f1_2 = f1_score(train_true, np.greater(
+                    train_probas, 0.05), average='macro')
                 losses = []
                 train_probas = []
                 train_true = []
-                print('Step {}: training_loss:{}, training_f1:{}, training_f1_2:{}'.format(
-                    cur_it, train_loss, train_f1, train_f1_2))
+                print(
+                    'Step {}: training_loss:{}, training_f1:{}, train_f1_2:{}'
+                    .format(
+                        cur_it, train_loss, train_f1, train_f1_2))
                 train_summaries_dict = {
                     'loss': train_loss,
                     'f1': train_f1,
@@ -110,6 +113,7 @@ class NetworkTrainer(BaseTrain):
         val_probas = np.reshape(val_probas, (-1, 28))
         val_preds = get_pred_from_probas(val_probas)
         val_f1 = f1_score(val_true, val_preds, average='macro')
-        val_f1_2 = f1_score(val_true, np.greater(val_probas, 0.05), average='macro')
+        val_f1_2 = f1_score(val_true, np.greater(
+            val_probas, 0.05), average='macro')
         val_loss = np.mean(val_losses)
         return val_loss, val_f1, val_f1_2

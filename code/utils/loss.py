@@ -9,7 +9,6 @@ Focal Loss from : Lin et al (2017).
 
 
 def focal_loss(labels, logits, gamma=2.0, alpha=4.0):
-
     """
     Focal loss for multi-classification
     FL(p)=alpha(1-p)^{gamma}*(-ln(p))
@@ -32,10 +31,11 @@ def focal_loss(labels, logits, gamma=2.0, alpha=4.0):
     fl = tf.multiply(alpha, tf.multiply(weight, ce))
     return fl
 
+
 def f1_loss(y_true, y_pred):
-    #y_pred should be the proba to make it differentiable
+    # y_pred should be the proba to make it differentiable
     tp = tf.reduce_sum(tf.cast(y_true*y_pred, 'float'), axis=0)
-    tn = tf.reduce_sum(tf.cast((1-y_true)*(1-y_pred), 'float'), axis=0)
+    # tn = tf.reduce_sum(tf.cast((1-y_true)*(1-y_pred), 'float'), axis=0)
     fp = tf.reduce_sum(tf.cast((1-y_true)*y_pred, 'float'), axis=0)
     fn = tf.reduce_sum(tf.cast(y_true*(1-y_pred), 'float'), axis=0)
 
