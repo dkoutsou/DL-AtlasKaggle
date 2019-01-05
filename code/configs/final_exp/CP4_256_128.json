@@ -1,11 +1,12 @@
 {   
-    "model": "ResNet",
+    "model": "CP4",
     "learning_rate": 0.0001,
     "max_to_keep": 2,
-    "exp_name": "ResNet_batch32_6epochs_256",
+    "exp_name": "CP4_batch128_50epochs_256",
     "val_split": 0.1, 
-    "num_epochs": 6,
-    "batch_size": 32,
+    "num_epochs": 50,
+    "batch_size": 128,
     "use_weighted_loss": false,
+    "focalLoss": false,
     "input_size": 256
 }
