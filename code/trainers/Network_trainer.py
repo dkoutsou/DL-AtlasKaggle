@@ -110,8 +110,6 @@ class NetworkTrainer(BaseTrain):
         val_probas = np.reshape(val_probas, (-1, 28))
         val_preds = get_pred_from_probas(val_probas)
         val_f1 = f1_score(val_true, val_preds, average='macro')
-        val_f1_2 = f1_score(val_true,
-                                tf.cast(tf.greater(tf.keras.backend.clip(val_probas, 0, 1), 0.05),
-                                        tf.float32), average='macro')
+        val_f1_2 = f1_score(train_true, np.greater(train_probas, 0.05), average='macro')
         val_loss = np.mean(val_losses)
         return val_loss, val_f1, val_f1_2
