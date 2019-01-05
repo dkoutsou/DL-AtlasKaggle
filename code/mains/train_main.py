@@ -7,7 +7,6 @@ from models.CP4_model import CP4Model
 from models.CDP4_model import CDP4Model
 from models.CBDP4_model import CBDP4Model
 from models.CDP2_model import CDP2Model
-from models.CDP2D_model import CDP2DModel
 from models.CBDP2_model import CBDP2Model
 from models.SimpleCNN_model import SimpleCNNModel
 from models.inception_model import InceptionModel
