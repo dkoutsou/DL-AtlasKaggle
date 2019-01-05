@@ -3,20 +3,27 @@
 ### Mélanie Bernhardt - Mélanie Gaillochet - Andreas Georgiou - Dimitrios Koutsoukos
 
 ## Main goal
-Based on the "Human Protein Atlas Image Classication" [Kaggle competition] (https://www.kaggle.com/c/human-protein-atlas-image-classification)
+Based on the "Human Protein Atlas Image Classication" Kaggle competition (https://www.kaggle.com/c/human-protein-atlas-image-classification) <br/>
 Revolving around medical image analysis, the main goal of this project is to classify mixed patterns of proteins in microscope images using computer vision.
 
 
 ### Setup
-- Set your PYTHONPATH variable to where your code folder is (ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`)
-- Set path EXP_PATH to where run results should be saved (ie: `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
-- Set your DATA_PATH variable to where the data is (ie: `export EXP_PATH="${HOME}/DL-AtlasKaggle/result/"`)
+- Set your PYTHONPATH variable to where your code folder is <br/>
+(ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`)
+- Set path EXP_PATH to where run results should be saved <br/>
+(ie: `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
+- Set your DATA_PATH variable to where the data is <br/>
+(ie: `export EXP_PATH="${HOME}/DL-AtlasKaggle/result/"`)<br/>
 If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH}/"`
 
 - Install the requirements:
 `pip install -r requirements.txt`
 
 ## Models (in 'code/models' folder)
+
+### Baseline
+- **Random Forest**
+
 ### Simple CNN with increasing complexity
 - **CP2_model** : Simple *2-layer* CNN (with ReLU activation and max pooling)
 - **CP4_model**: *4-layer* CNN
