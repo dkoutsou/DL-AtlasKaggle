@@ -44,11 +44,7 @@ class DataGenerator:
         image_ids = tmp["Id"]
         data_path = os.path.join(cwd, 'train')
         print(data_path)
-        #image_ids = list(set([f.rsplit('_', 1)[0] for f in listdir(data_path)
-        #                      if isfile(join(data_path, f)) and
-        #                      join(data_path, f).endswith('.png')]))
         self.n = len(image_ids)
-        #print(self.n)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[
             os.path.join(cwd, 'train', id + '_' + c + '.png')
@@ -56,23 +52,17 @@ class DataGenerator:
         ] for id in image_ids])
         # Labels
         self.labels = tmp["Target"].values
-        #print(self.labels)
         # To one-hot representation of labels
         # e.g. before e.g. ['22 0' '12 23 0']
         # after split [['22', '0'], ['12', '23', '0']]
         # after binarize it is one hot representation
         binarizer = MultiLabelBinarizer(classes=np.arange(28))
         self.labels = [[int(c) for c in l.split(' ')] for l in self.labels]
-        #print(self.labels)
         self.labels = binarizer.fit_transform(self.labels)
-        #print(self.labels)
-        print("label shape: {}".format(self.labels.shape))
         # Compute class weigths
         self.class_weights = (self.n)*np.reshape(
             1 / np.sum(self.labels, axis=0), (1, -1))
         # Build a validation set
-        print('labels: {}'.format(len(self.labels)))
-        print("filenames: {}".format(len(self.filenames)))
         try:
             self.train_filenames, self.val_filenames,\
                 self.train_labels, self.val_labels = train_test_split(
