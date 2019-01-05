@@ -27,6 +27,7 @@ class NetworkTrainer(BaseTrain):
             train_probas = np.append(train_probas, pred)
             train_true = np.append(train_true, true_label)
             cur_it = self.model.global_step_tensor.eval(self.sess)
+            print(loss)
             if cur_it % 20 == 0:
                 print(train_true[0:28])
                 print(train_probas[0:28])
