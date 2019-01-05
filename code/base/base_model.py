@@ -87,6 +87,12 @@ class BaseModel:
         except AttributeError:
             print('WARN: focalLoss not set - using False')
             self.config.focalLoss = False
+        try:
+            if self.config.f1_loss:
+                pass
+        except AttributeError:
+            print('WARN: f1_loss not set - using False')
+            self.config.f1_loss = False
         with tf.name_scope("output"):
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
