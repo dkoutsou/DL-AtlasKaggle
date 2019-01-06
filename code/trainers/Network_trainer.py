@@ -54,7 +54,7 @@ class NetworkTrainer(BaseTrain):
                 train_true = []
                 print(
                     'Step {}: training_loss:{}, f1:{}'
-                    + ', f1_005:{}, f1_01:{}, f1_02:{}'
+                    ', f1_005:{}, f1_01:{}, f1_02:{}'
                     .format(
                         cur_it, train_loss, train_f1, train_f1_2,
                         train_f1_3, train_f1_4))
@@ -68,12 +68,12 @@ class NetworkTrainer(BaseTrain):
                 self.logger.summarize(
                     cur_it, summaries_dict=train_summaries_dict)
 
-            if (cur_it % 100 == 0) and (cur_it > 0):
+            if (cur_it % 2 == 0) and (cur_it > 0):
                 # Evaluate on val every epoch
                 val_loss, val_f1, \
                     val_f1_2, val_f1_3, val_f1_4 = self.val_step()
                 print('Step {}: val_loss:{}, val_f1:{},'
-                      + ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
+                      ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
                       .format(
                           cur_it, val_loss, val_f1, val_f1_2,
                           val_f1_3, val_f1_4))
