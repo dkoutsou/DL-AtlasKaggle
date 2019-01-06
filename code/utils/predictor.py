@@ -1,7 +1,7 @@
 from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
 import pandas as pd
-from utils.utils import get_pred_from_probas
+from utils.utils import get_pred_from_probas, get_pred_from_probas_threshold
 
 
 class Predictor:
@@ -48,7 +48,8 @@ class Predictor:
                 self.model.input: batch_imgs,
                 self.model.is_training: False
             })
-            one_hot_batch_pred = get_pred_from_probas(batch_probas)
+            #one_hot_batch_pred = get_pred_from_probas(batch_probas)
+            one_hot_batch_pred = get_pred_from_probas_threshold(batch_probas)
             batch_pred = bin.inverse_transform(one_hot_batch_pred)
             predicted_labels = np.append(predicted_labels, [
                 ' '.join([str(p) for p in sample_pred])
