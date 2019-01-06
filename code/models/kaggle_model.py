@@ -15,18 +15,19 @@ class KaggleModel(BaseModel):
         # Block 1
         x = tf.layers.batch_normalization(
             self.input_layer, training=self.is_training)
+        print(x.get_shape())
         x = tf.layers.conv2d(self.input_layer, 8, 3,
-                             padding='same')
+                             padding='valid')
         x = tf.nn.relu(x)
         x = tf.layers.batch_normalization(
             x, training=self.is_training)
         x = tf.layers.conv2d(x, 8, 3,
-                             padding='same')
+                             padding='valid')
         x = tf.nn.relu(x)
         x = tf.layers.batch_normalization(
             x, training=self.is_training)
         x = tf.layers.conv2d(x, 16, 3,
-                             padding='same')
+                             padding='valid')
         x = tf.nn.relu(x)
         x = tf.layers.batch_normalization(
             x, training=self.is_training)
@@ -46,7 +47,7 @@ class KaggleModel(BaseModel):
         c4 = tf.layers.conv2d(x, 16, 1,
                               padding='same')
         c4 = tf.nn.relu(c4)
-        x = tf.concat([c1, c2, c3, c4], 0)
+        x = tf.concat([c1, c2, c3, c4], axis=-1)
         x = tf.layers.batch_normalization(
             x, training=self.is_training)
         x = tf.layers.max_pooling2d(
@@ -54,7 +55,7 @@ class KaggleModel(BaseModel):
         x = tf.layers.dropout(x, rate=0.25,
                               training=self.is_training)
         x = tf.layers.conv2d(x, 32, 3,
-                             padding='same')
+                             padding='valid')
         x = tf.nn.relu(x)
         x = tf.layers.batch_normalization(
             x, training=self.is_training)
@@ -63,7 +64,7 @@ class KaggleModel(BaseModel):
         x = tf.layers.dropout(x, rate=0.25,
                               training=self.is_training)
         x = tf.layers.conv2d(x, 128, 3,
-                             padding='same')
+                             padding='valid')
         x = tf.nn.relu(x)
         x = tf.layers.batch_normalization(
             x, training=self.is_training)
