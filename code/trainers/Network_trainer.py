@@ -68,7 +68,7 @@ class NetworkTrainer(BaseTrain):
                 self.logger.summarize(
                     cur_it, summaries_dict=train_summaries_dict)
 
-            if (cur_it % 2 == 0) and (cur_it > 0):
+            if (cur_it % 100 == 0) and (cur_it > 0):
                 # Evaluate on val every epoch
                 val_loss, val_f1, \
                     val_f1_2, val_f1_3, val_f1_4 = self.val_step()
