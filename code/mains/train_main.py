@@ -12,6 +12,7 @@ from models.SimpleCNN_model import SimpleCNNModel
 from models.inception_model import InceptionModel
 from models.resNet_model import ResNetModel
 from models.kaggle_model import KaggleModel
+from models.DeepSimple_model import DeepSimpleModel
 from trainers.Network_trainer import NetworkTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
@@ -54,8 +55,6 @@ def main():
             model = CBDP4Model(config)
         elif config.model == "CDP2":
             model = CDP2Model(config)
-        elif config.model == "CDP2D":
-            model = CDP2DModel(config)
         elif config.model == "CBDP2":
             model = CBDP2Model(config)
         elif config.model == "Inception":
@@ -64,6 +63,8 @@ def main():
             model = ResNetModel(config)
         elif config.model == "Kaggle":
             model = KaggleModel(config)
+        elif config.model == "DeepSimple":
+            model = DeepSimpleModel(config)
     except AttributeError:
         raise
     # create tensorboard logger

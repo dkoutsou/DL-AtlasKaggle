@@ -98,47 +98,25 @@ class BaseModel:
         with tf.name_scope("loss"):
             if self.config.focalLoss:
                 print("Using focal loss")
-                if self.config.use_weighted_loss:
-                    print("weighted loss")
-                    self.loss = tf.losses.compute_weighted_loss(
-                        focal_loss(labels=self.label,
-                                   logits=self.logits, gamma=2),
-                        weights=self.class_weights)
-                else:
-                    print("not weighted loss")
-                    self.loss = tf.reduce_mean(
-                        focal_loss(labels=self.label,
-                                   logits=self.logits,
-                                   gamma=2))
+                self.loss = tf.reduce_mean(
+                    focal_loss(labels=self.label,
+                               logits=self.logits,
+                               gamma=2))
             elif self.config.f1_loss:
                 self.loss = f1_loss(y_true=self.label,
                                     y_pred=self.out)
             elif self.config.use_weighted_loss:
-                try:
-                    self.loss = tf.losses.compute_weighted_loss(
-                        tf.nn.weighted_cross_entropy_with_logits(
-                            targets=self.label, logits=self.logits,
-                            pos_weight=self.config.pos_label_coeff),
-                        weights=self.class_weights)
-                except AttributeError:
-                    print('WARN: pos_label_coeff not set using 1')
-                    self.loss = tf.losses.compute_weighted_loss(
-                        tf.nn.weighted_cross_entropy_with_logits(
-                            targets=self.label, logits=self.logits,
-                            pos_weight=1),
-                        weights=self.class_weights)
+                self.loss = tf.losses.compute_weighted_loss(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=self.logits),
+                    weights=self.class_weights)
             else:
-                try:
-                    self.loss = tf.reduce_mean(
-                        tf.nn.weighted_cross_entropy_with_logits(
-                            targets=self.label, logits=self.logits,
-                            pos_weight=self.config.pos_label_coeff))
-                except AttributeError:
-                    print('WARN: pos_label_coeff not set using 1')
-                    self.loss = tf.reduce_mean(
-                        tf.nn.weighted_cross_entropy_with_logits(
-                            targets=self.label, logits=self.logits,
-                            pos_weight=1))
-            self.train_step = tf.train.AdamOptimizer(
-                self.config.learning_rate).minimize(
-                    self.loss, global_step=self.global_step_tensor)
+                self.loss = tf.reduce_mean(
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=self.logits))
+
+            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            with tf.control_dependencies(update_ops):
+                self.train_step = tf.train.AdamOptimizer(
+                    self.config.learning_rate).minimize(
+                        self.loss, global_step=self.global_step_tensor)
