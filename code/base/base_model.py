@@ -97,11 +97,11 @@ class BaseModel:
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
             if self.config.focalLoss:
-                    print("Using focal loss")
-                    self.loss = tf.reduce_mean(
-                        focal_loss(labels=self.label,
-                                   logits=self.logits,
-                                   gamma=2))
+                print("Using focal loss")
+                self.loss = tf.reduce_mean(
+                    focal_loss(labels=self.label,
+                               logits=self.logits,
+                               gamma=2))
             elif self.config.f1_loss:
                 self.loss = f1_loss(y_true=self.label,
                                     y_pred=self.out)
@@ -112,9 +112,9 @@ class BaseModel:
                     weights=self.class_weights)
             else:
                 self.loss = tf.reduce_mean(
-                tf.nn.sigmoid_cross_entropy_with_logits(
-                    labels=self.label, logits=self.logits))
-            
+                    tf.nn.sigmoid_cross_entropy_with_logits(
+                        labels=self.label, logits=self.logits))
+
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
             with tf.control_dependencies(update_ops):
                 self.train_step = tf.train.AdamOptimizer(

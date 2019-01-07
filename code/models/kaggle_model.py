@@ -2,8 +2,11 @@ import tensorflow as tf
 from base.base_model import BaseModel
 
 '''
-model from https://www.kaggle.com/rejpalcz/cnn-128x128x4-keras-from-scratch-lb-0-328
+model from
+https://www.kaggle.com/rejpalcz/cnn-128x128x4-keras-from-scratch-lb-0-328
 '''
+
+
 class KaggleModel(BaseModel):
     def __init__(self, config):
         super(KaggleModel, self).__init__(config)
