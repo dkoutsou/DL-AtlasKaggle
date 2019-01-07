@@ -1,7 +1,38 @@
 from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
 import pandas as pd
-from utils.utils import get_pred_from_probas, get_pred_from_probas_threshold
+
+def get_pred_from_probas(probas):
+    tmp_pred = np.round(probas)
+    for i in range(len(probas)):
+        # if no classes predicted
+        # i.e. no probas > 0.5
+        # then choose the most probable one.
+        if np.sum(tmp_pred[i]) == 0:
+            try:
+                tmp_pred[i, np.argmax(probas[i])[0]] = 1
+            except IndexError:
+                tmp_pred[i, np.argmax(probas[i])] = 1
+        # more than 3 classes predicted take the 3 most
+        # probable ones.
+        elif np.sum(tmp_pred[i]) > 3:
+            ind = np.argsort(probas[i])[-3:]
+            tmp_pred[i] = np.zeros(28)
+            tmp_pred[i, ind] = 1
+    return(tmp_pred)
+
+def get_pred_from_probas_threshold(probas, threshold=0.05):
+    tmp_pred = np.greater(probas, threshold)
+    for i in range(len(probas)):
+        # if no classes predicted
+        # i.e. no probas > 0.5
+        # then choose the most probable one.
+        if np.sum(tmp_pred[i]) == 0:
+            try:
+                tmp_pred[i, np.argmax(probas[i])[0]] = 1
+            except IndexError:
+                tmp_pred[i, np.argmax(probas[i])] = 1
+    return(tmp_pred)
 
 
 class Predictor:
