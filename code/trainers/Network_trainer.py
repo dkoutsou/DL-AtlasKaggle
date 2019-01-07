@@ -2,7 +2,7 @@ from base.base_train import BaseTrain
 from tqdm import tqdm
 import numpy as np
 from sklearn.metrics import f1_score
-from utils.utils import get_pred_from_probas
+from utils.predictor import get_pred_from_probas
 
 
 class NetworkTrainer(BaseTrain):
