@@ -53,7 +53,7 @@ def fit_predict(train_feats,
     return predicted_labels
 
 
-def main():
+if __name__ == '__main__':
     """ Main procedure: extract features,
     get RF cross-validation performance,
     fit and predict baseline and save csv for Kaggle.
@@ -119,6 +119,3 @@ def main():
     create_dirs([config.summary_dir])
     result.to_csv(config.summary_dir + '/prediction.csv', index=False)
 
-
-if __name__ == '__main__':
-    main()
