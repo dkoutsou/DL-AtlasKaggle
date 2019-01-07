@@ -1,10 +1,10 @@
 {   
     "model": "ResNet",
-    "learning_rate": 0.001,
+    "learning_rate": 0.0001,
     "max_to_keep": 2,
-    "exp_name": "ResNet_batch8_5epochs_weighted",
+    "exp_name": "ResNet_batch8_5epochs",
     "val_split": 0.1, 
     "num_epochs": 5,
     "batch_size": 8,
-    "use_weighted_loss": true
+    "use_weighted_loss": false
 }
