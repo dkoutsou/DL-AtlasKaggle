@@ -63,11 +63,11 @@ class DataGenerator:
                     test_size=self.config.val_split,
                     random_state=42)
         except AttributeError:
-            print('WARN: val_split not set - using 0.2')
+            print('WARN: val_split not set - using 0.1')
             self.train_filenames, self.val_filenames,\
                 self.train_labels, self.val_labels = train_test_split(
                     self.filenames, self.labels,
-                    test_size=0.2, random_state=42)
+                    test_size=0.1, random_state=42)
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
         print('Size of training set is {}'.format(self.n_train))
