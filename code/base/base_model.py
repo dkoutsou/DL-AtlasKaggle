@@ -93,7 +93,7 @@ class BaseModel:
         with tf.name_scope("output"):
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
-            elif self.config.f1_loss:
+            if self.config.f1_loss:
                 self.loss = f1_loss(y_true=self.label,
                                     y_pred=self.out)
             elif self.config.use_weighted_loss:
