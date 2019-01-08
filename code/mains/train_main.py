@@ -1,18 +1,7 @@
 import tensorflow as tf
 
 from data_loader.data_generator import DataGenerator
-from models.DeepYeast_model import DeepYeastModel
-from models.CP2_model import CP2Model
-from models.CP4_model import CP4Model
-from models.CDP4_model import CDP4Model
-from models.CBDP4_model import CBDP4Model
-from models.CDP2_model import CDP2Model
-from models.CBDP2_model import CBDP2Model
-from models.SimpleCNN_model import SimpleCNNModel
-from models.inception_model import InceptionModel
-from models.resNet_model import ResNetModel
-from models.kaggle_model import KaggleModel
-from models.DeepSimple_model import DeepSimpleModel
+from models.models import all_models
 from trainers.Network_trainer import NetworkTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
@@ -33,38 +22,16 @@ def main():
     # create the experiments dirs
     create_dirs([config.summary_dir, config.checkpoint_dir])
     # create tensorflow session
-    configSess = tf.ConfigProto(allow_soft_placement=True,
-                                log_device_placement=False)
+    configSess = tf.ConfigProto(
+        allow_soft_placement=True, log_device_placement=False)
     configSess.gpu_options.allow_growth = True
     sess = tf.Session(config=configSess)
     # create your data generator
     data = DataGenerator(config)
     # create an instance of the model you want
     try:
-        if config.model == "DeepYeast":
-            model = DeepYeastModel(config)
-        elif config.model == "SimpleCNN":
-            model = SimpleCNNModel(config)
-        elif config.model == "CP2":
-            model = CP2Model(config)
-        elif config.model == "CP4":
-            model = CP4Model(config)
-        elif config.model == "CDP4":
-            model = CDP4Model(config)
-        elif config.model == "CBDP4":
-            model = CBDP4Model(config)
-        elif config.model == "CDP2":
-            model = CDP2Model(config)
-        elif config.model == "CBDP2":
-            model = CBDP2Model(config)
-        elif config.model == "Inception":
-            model = InceptionModel(config)
-        elif config.model == "ResNet":
-            model = ResNetModel(config)
-        elif config.model == "Kaggle":
-            model = KaggleModel(config)
-        elif config.model == "DeepSimple":
-            model = DeepSimpleModel(config)
+        ModelInit = all_models[config.model]
+        model = ModelInit(config)
     except AttributeError:
         raise
     # create tensorboard logger
@@ -78,6 +45,5 @@ def main():
 
 
 if __name__ == '__main__':
-    print('the gpu is avaiable {}'.format(
-        tf.test.is_gpu_available()))
+    print('the gpu is avaiable {}'.format(tf.test.is_gpu_available()))
     main()
