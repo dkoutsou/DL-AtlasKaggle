@@ -2,9 +2,9 @@
     "model": "DeepYeast",
     "learning_rate": 0.0001,
     "max_to_keep": 2,
-    "exp_name": "DeepYeast_batch128_50epochs_256",
+    "exp_name": "DeepYeast_batch32_15epochs_256",
     "val_split": 0.1, 
-    "num_epochs": 50,
-    "batch_size": 128,
+    "num_epochs": 15,
+    "batch_size": 32,
     "input_size": 256
 }
