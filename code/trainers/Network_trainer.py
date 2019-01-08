@@ -69,33 +69,33 @@ class NetworkTrainer(BaseTrain):
                 val_loss, val_f1, \
                     val_f1_2, val_f1_3, val_f1_4 = self.val_step()
                 print('Step {}: val_loss:{}, val_f1:{},'
-                        ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
-                        .format(
-                            cur_it, val_loss, val_f1, val_f1_2,
-                            val_f1_3, val_f1_4))
+                      ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
+                      .format(
+                          cur_it, val_loss, val_f1, val_f1_2,
+                          val_f1_3, val_f1_4))
                 val_summaries_dict = {'loss': val_loss,
-                                        'f1': val_f1,
-                                        'f1_005_thres': val_f1_2,
-                                        'f1_01_thres': val_f1_3,
-                                        'f1_02_thres': val_f1_4}
+                                      'f1': val_f1,
+                                      'f1_005_thres': val_f1_2,
+                                      'f1_01_thres': val_f1_3,
+                                      'f1_02_thres': val_f1_4}
                 self.logger.summarize(
                     cur_it, summaries_dict=val_summaries_dict,
-                    summarizer='test') 
+                    summarizer='test')
         # Saving every epoch
         self.model.save(self.sess)
         # Evaluate on validation at the end of every epoch
         val_loss, val_f1, \
             val_f1_2, val_f1_3, val_f1_4 = self.val_step()
         print('Step {}: val_loss:{}, val_f1:{},'
-                ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
-                .format(
-                    cur_it, val_loss, val_f1, val_f1_2,
-                    val_f1_3, val_f1_4))
+              ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
+              .format(
+                  cur_it, val_loss, val_f1, val_f1_2,
+                  val_f1_3, val_f1_4))
         val_summaries_dict = {'loss': val_loss,
-                                'f1': val_f1,
-                                'f1_005_thres': val_f1_2,
-                                'f1_01_thres': val_f1_3,
-                                'f1_02_thres': val_f1_4}
+                              'f1': val_f1,
+                              'f1_005_thres': val_f1_2,
+                              'f1_01_thres': val_f1_3,
+                              'f1_02_thres': val_f1_4}
         self.logger.summarize(
             cur_it, summaries_dict=val_summaries_dict,
             summarizer='test')
