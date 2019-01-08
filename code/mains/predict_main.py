@@ -34,7 +34,6 @@ def main():
         print("missing or invalid arguments")
         raise
 
-
     # create tensorflow session
     sess = tf.Session()
     # create your data generator
@@ -42,7 +41,7 @@ def main():
     # create an instance of the model you want
     try:
         if config.model == "DeepYeast":
-             model = DeepYeastModel(config)
+            model = DeepYeastModel(config)
         elif config.model == "SimpleCNN":
             model = SimpleCNNModel(config)
         elif config.model == "CP2":
@@ -68,7 +67,7 @@ def main():
     except AttributeError:
         print("The model to use is not specified in the config file")
         exit(1)
-    
+
     # load model if exists
     model.load(sess, args.checkpoint_nb)
     # here you predict from your model

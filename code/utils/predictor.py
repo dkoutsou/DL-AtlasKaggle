@@ -92,7 +92,7 @@ class Predictor:
                 print('processed {} imgs'
                       .format(counter*self.config.batch_size))
             counter += 1
-        
+
         # this line is for when you don't predict all the test labels
         ids = testIterator.image_ids[0:len(predicted_labels)]
 
