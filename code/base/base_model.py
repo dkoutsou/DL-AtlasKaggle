@@ -40,6 +40,7 @@ class BaseModel:
                 + '-{}'.format(checkpoint_nb)
             self.saver = tf.train.import_meta_graph("{}.meta"
                                                     .format(latest_checkpoint))
+            self.saver.restore(sess, latest_checkpoint)
             print("Model loaded")
 
     # just initialize a tensorflow variable to use it as epoch counter
