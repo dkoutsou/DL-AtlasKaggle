@@ -45,5 +45,5 @@ def main():
 
 
 if __name__ == '__main__':
-    print('the gpu is avaiable {}'.format(tf.test.is_gpu_available()))
+    print('the gpu is available {}'.format(tf.test.is_gpu_available()))
     main()
