@@ -20,12 +20,15 @@ class BaseModel:
 
     # load latest checkpoint from the experiment path defined
     # in the config file
-    def load(self, sess):
-        latest_checkpoint = tf.train.latest_checkpoint(
-            self.config.checkpoint_dir)
-        # latest_checkpoint = self.config.checkpoint_dir + '-5600'
-        # self.saver = tf.train.import_meta_graph("{}.meta"
-        #                                         .format(latest_checkpoint))
+    def load(self, sess, checkpoint_nb=None):
+        if checkpoint_nb is None:
+            latest_checkpoint = tf.train.latest_checkpoint(
+                self.config.checkpoint_dir)
+        else:
+            latest_checkpoint = self.config.checkpoint_dir \
+                + '-{}'.format(checkpoint_nb)
+            self.saver = tf.train.import_meta_graph("{}.meta"
+                                                    .format(latest_checkpoint))
         if latest_checkpoint:
             print(
                 "Loading model checkpoint {} ...\n".format(latest_checkpoint))

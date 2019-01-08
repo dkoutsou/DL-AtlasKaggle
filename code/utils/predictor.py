@@ -72,11 +72,11 @@ class Predictor:
         bin.fit([[1]])  # needed for instantiation of the object
         predicted_labels = []
         # counter just for testing purpose
-        # to stop the output after 8 predictions
+        # to stop the output after xxx predictions
         counter = 1
         for batch_imgs in testIterator.batch_iterator():
-            if counter > 20:  # TODO remove
-                break
+            # if counter > 3:
+            #     break
             batch_probas = self.sess.run(self.model.out, {
                 self.model.input: batch_imgs,
                 self.model.is_training: False
@@ -88,11 +88,14 @@ class Predictor:
                 ' '.join([str(p) for p in sample_pred])
                 for sample_pred in batch_pred
             ])
-            counter += 1
             if counter % 1 == 0:
-                print(counter*self.config.batch_size)
+                print('processed {} imgs'
+                      .format(counter*self.config.batch_size))
+            counter += 1
+
+        # this line is for when you don't predict all the test labels
         ids = testIterator.image_ids[0:len(predicted_labels)]
-        # print(np.shape(ids))
+
         result = pd.DataFrame()
         print(np.shape(predicted_labels))
         result['Id'] = ids
