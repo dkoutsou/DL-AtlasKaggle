@@ -24,15 +24,22 @@ class BaseModel:
         if checkpoint_nb is None:
             latest_checkpoint = tf.train.latest_checkpoint(
                 self.config.checkpoint_dir)
+            if latest_checkpoint:
+                try:
+                    print(
+                        "Loading model checkpoint {} ...\n"
+                        .format(latest_checkpoint))
+                    self.saver.restore(sess, latest_checkpoint)
+                except tf.python.framework.errors_impl.NotFoundError:
+                    print("WARN: Found exiting checkpoint but you are not" +
+                          " on the same machine as for training "
+                          + "specify manually the checkpoint to load")
+                    print("Model not loaded - starting training from scratch.")
         else:
             latest_checkpoint = self.config.checkpoint_dir \
                 + '-{}'.format(checkpoint_nb)
             self.saver = tf.train.import_meta_graph("{}.meta"
                                                     .format(latest_checkpoint))
-        if latest_checkpoint:
-            print(
-                "Loading model checkpoint {} ...\n".format(latest_checkpoint))
-            self.saver.restore(sess, latest_checkpoint)
             print("Model loaded")
 
     # just initialize a tensorflow variable to use it as epoch counter
