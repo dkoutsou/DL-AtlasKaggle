@@ -1,6 +1,5 @@
 from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
-import pandas as pd
 
 
 def get_pred_from_probas(probas):
