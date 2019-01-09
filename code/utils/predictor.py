@@ -59,6 +59,34 @@ class Predictor:
         self.out_file = self.config.checkpoint_dir + 'prediction.csv'
         print("Writing to {}\n".format(self.out_file))
 
+    def predict_probas(self, testIterator):
+        """ Uses a build model to
+        predict probas on the test set,
+        these one_hot are then converted as required by
+        Kaggle submission file.
+
+        Args:
+            testIterator: object of class DataTestLoader.
+        """
+        counter = 1
+        probas = []
+        for batch_imgs in testIterator.batch_iterator():
+            # if counter > 3:
+            #     break
+            batch_probas = self.sess.run(self.model.out, {
+                self.model.input: batch_imgs,
+                self.model.is_training: False
+            })
+            # one_hot_batch_pred = get_pred_from_probas(batch_probas)
+            one_hot_batch_pred = get_pred_from_probas_threshold(batch_probas)
+            probas = np.append(probas, one_hot_batch_pred)
+            if counter % 1 == 0:
+                print('Processed {} out of {} imgs'
+                      .format(len(probas)/28, testIterator.n))
+            counter += 1
+        probas = np.reshape(probas, (-1, 28))
+        return probas
+
     def predict(self, testIterator):
         """ Uses a build model to
         predict one_hot_labels on the test set,
@@ -95,5 +123,5 @@ class Predictor:
 
         print(np.shape(predicted_labels))
         testIterator.result['Predicted'] = predicted_labels
-        testIterator.result = testIterator.result.sort_values(by = 'Id')
+        testIterator.result = testIterator.result.sort_values(by='Id')
         testIterator.result.to_csv(self.out_file, index=False)

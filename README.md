@@ -61,4 +61,10 @@ To output a csv prediction file for the images in the Kaggle test set use `predi
 Example of command to launch prediction
 `python code/mains/predict_main.py -c "path/to/config/<json file to be used>" -check_nb 11900`
 
+## Averaging probabilities from several models
+If you have several trained models and you wish to combine all predicted probabilities (averaging them) in order to predict the labels you can use `predict_from_several_main.py`. It takes a list of config files (one per model to load) and a corresponding list of check_nb for the corresponding checkpoint numbers to load. 
+The result are saved in a csv file called `/mean_pred.csv` in your `EXP_PATH` folder.
+Example of command: 
+`python code/mains/predict_from_several_main.py -c "path/to/config1 path/to/config2" -check_nb "checknb1 checknb2"`
+
 

@@ -5,7 +5,6 @@ import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
-import re
 
 
 class DataGenerator:
@@ -148,7 +147,7 @@ class DataTestLoader:
             print("Set your DATA_PATH env first")
             sys.exit(1)
         self.config = config
-        self.result = pd.read_csv(cwd + '/sample_submission.csv') 
+        self.result = pd.read_csv(cwd + '/sample_submission.csv')
         self.image_ids = self.result["Id"]
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
