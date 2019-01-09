@@ -148,12 +148,8 @@ class DataTestLoader:
             print("Set your DATA_PATH env first")
             sys.exit(1)
         self.config = config
-        list_files = [f for f in os.listdir(os.path.join(cwd, 'test/'))]
-        self.image_ids = list(
-            set([
-                re.search(r'(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
-                for s in list_files
-            ]))
+        self.result = pd.read_csv(cwd + '/sample_submission.csv') 
+        self.image_ids = self.result["Id"]
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[

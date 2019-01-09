@@ -14,10 +14,10 @@ def get_pred_from_probas(probas):
                 tmp_pred[i, np.argmax(probas[i])[0]] = 1
             except IndexError:
                 tmp_pred[i, np.argmax(probas[i])] = 1
-        # more than 3 classes predicted take the 3 most
+        # more than 4 classes predicted take the 3 most
         # probable ones.
-        elif np.sum(tmp_pred[i]) > 3:
-            ind = np.argsort(probas[i])[-3:]
+        elif np.sum(tmp_pred[i]) > 4:
+            ind = np.argsort(probas[i])[-4:]
             tmp_pred[i] = np.zeros(28)
             tmp_pred[i, ind] = 1
     return(tmp_pred)
@@ -89,15 +89,11 @@ class Predictor:
                 for sample_pred in batch_pred
             ])
             if counter % 1 == 0:
-                print('processed {} imgs'
-                      .format(counter*self.config.batch_size))
+                print('Processed {} out of {} imgs'
+                      .format(len(predicted_labels), testIterator.n))
             counter += 1
 
-        # this line is for when you don't predict all the test labels
-        ids = testIterator.image_ids[0:len(predicted_labels)]
-
-        result = pd.DataFrame()
         print(np.shape(predicted_labels))
-        result['Id'] = ids
-        result['Predict'] = predicted_labels
-        result.to_csv(self.out_file, index=False)
+        testIterator.result['Predicted'] = predicted_labels
+        testIterator.result = testIterator.result.sort_values(by = 'Id')
+        testIterator.result.to_csv(self.out_file, index=False)
