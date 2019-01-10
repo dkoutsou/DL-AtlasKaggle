@@ -1,6 +1,5 @@
 from sklearn.preprocessing import MultiLabelBinarizer
 import numpy as np
-import pandas as pd
 
 
 def get_pred_from_probas(probas):
@@ -14,10 +13,10 @@ def get_pred_from_probas(probas):
                 tmp_pred[i, np.argmax(probas[i])[0]] = 1
             except IndexError:
                 tmp_pred[i, np.argmax(probas[i])] = 1
-        # more than 3 classes predicted take the 3 most
+        # more than 4 classes predicted take the 3 most
         # probable ones.
-        elif np.sum(tmp_pred[i]) > 3:
-            ind = np.argsort(probas[i])[-3:]
+        elif np.sum(tmp_pred[i]) > 4:
+            ind = np.argsort(probas[i])[-4:]
             tmp_pred[i] = np.zeros(28)
             tmp_pred[i, ind] = 1
     return(tmp_pred)
@@ -59,6 +58,34 @@ class Predictor:
         self.out_file = self.config.checkpoint_dir + 'prediction.csv'
         print("Writing to {}\n".format(self.out_file))
 
+    def predict_probas(self, testIterator):
+        """ Uses a build model to
+        predict probas on the test set,
+        these one_hot are then converted as required by
+        Kaggle submission file.
+
+        Args:
+            testIterator: object of class DataTestLoader.
+        """
+        counter = 1
+        probas = []
+        for batch_imgs in testIterator.batch_iterator():
+            # if counter > 3:
+            #     break
+            batch_probas = self.sess.run(self.model.out, {
+                self.model.input: batch_imgs,
+                self.model.is_training: False
+            })
+            # one_hot_batch_pred = get_pred_from_probas(batch_probas)
+            one_hot_batch_pred = get_pred_from_probas_threshold(batch_probas)
+            probas = np.append(probas, one_hot_batch_pred)
+            if counter % 1 == 0:
+                print('Processed {} out of {} imgs'
+                      .format(len(probas)/28, testIterator.n))
+            counter += 1
+        probas = np.reshape(probas, (-1, 28))
+        return probas
+
     def predict(self, testIterator):
         """ Uses a build model to
         predict one_hot_labels on the test set,
@@ -89,15 +116,11 @@ class Predictor:
                 for sample_pred in batch_pred
             ])
             if counter % 1 == 0:
-                print('processed {} imgs'
-                      .format(counter*self.config.batch_size))
+                print('Processed {} out of {} imgs'
+                      .format(len(predicted_labels), testIterator.n))
             counter += 1
 
-        # this line is for when you don't predict all the test labels
-        ids = testIterator.image_ids[0:len(predicted_labels)]
-
-        result = pd.DataFrame()
         print(np.shape(predicted_labels))
-        result['Id'] = ids
-        result['Predict'] = predicted_labels
-        result.to_csv(self.out_file, index=False)
+        testIterator.result['Predicted'] = predicted_labels
+        testIterator.result = testIterator.result.sort_values(by='Id')
+        testIterator.result.to_csv(self.out_file, index=False)

@@ -5,7 +5,6 @@ import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
-import re
 
 
 class DataGenerator:
@@ -63,11 +62,11 @@ class DataGenerator:
                     test_size=self.config.val_split,
                     random_state=42)
         except AttributeError:
-            print('WARN: val_split not set - using 0.2')
+            print('WARN: val_split not set - using 0.1')
             self.train_filenames, self.val_filenames,\
                 self.train_labels, self.val_labels = train_test_split(
                     self.filenames, self.labels,
-                    test_size=0.2, random_state=42)
+                    test_size=0.1, random_state=42)
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
         print('Size of training set is {}'.format(self.n_train))
@@ -148,12 +147,8 @@ class DataTestLoader:
             print("Set your DATA_PATH env first")
             sys.exit(1)
         self.config = config
-        list_files = [f for f in os.listdir(os.path.join(cwd, 'test/'))]
-        self.image_ids = list(
-            set([
-                re.search(r'(?P<word>[\w|-]+)\_[a-z]+.png', s).group('word')
-                for s in list_files
-            ]))
+        self.result = pd.read_csv(cwd + '/sample_submission.csv')
+        self.image_ids = self.result["Id"]
         self.n = len(self.image_ids)
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[

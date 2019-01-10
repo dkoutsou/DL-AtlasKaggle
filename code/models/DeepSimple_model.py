@@ -11,7 +11,7 @@ class DeepSimpleModel(BaseModel):
     def build_model(self):
         super(DeepSimpleModel, self).init_build_model()
         print(self.input_layer.get_shape())
-        # Block 1 - 64
+        # Block 1
         x = tf.layers.dropout(self.input_layer, rate=0.1,
                               training=self.is_training)
         x = tf.layers.conv2d(x, 8, 3,
@@ -29,7 +29,7 @@ class DeepSimpleModel(BaseModel):
         x = tf.layers.max_pooling2d(
             x, pool_size=(2, 2), strides=(2, 2))
         print(x.get_shape())
-        # Block 3 - 256
+        # Block 2
         x = tf.layers.conv2d(x, 32, 3, padding='same')
         x = tf.layers.batch_normalization(
             x, training=self.is_training)
@@ -43,7 +43,7 @@ class DeepSimpleModel(BaseModel):
         x = tf.layers.max_pooling2d(
             x, pool_size=(2, 2), strides=(2, 2))
         print(x.get_shape())
-        # Block 4 - 256
+        # Block 3
         x = tf.layers.conv2d(x, 64, 3, padding='same')
         x = tf.layers.batch_normalization(
             x, training=self.is_training)

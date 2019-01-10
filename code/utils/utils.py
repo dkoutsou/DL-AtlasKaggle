@@ -10,7 +10,7 @@ def get_args():
         help='The Configuration file')
     argparser.add_argument(
         '-check_nb', '--checkpoint_nb',
-        default='None',
+        default=None,
         help='The number of the checkpoint to use in predict'
     )
     args = argparser.parse_args()

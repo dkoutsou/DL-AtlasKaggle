@@ -39,7 +39,7 @@ def main():
     # create trainer and pass all the previous components to it
     trainer = NetworkTrainer(sess, model, data, config, logger)
     # load model if exists
-    model.load(sess)
+    model.load(sess, args.checkpoint_nb)
     # here you train your model
     trainer.train()
 
