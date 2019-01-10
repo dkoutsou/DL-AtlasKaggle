@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import os
+import _pickle as cPickle
 from data_loader.data_generator import DataGenerator, DataTestLoader
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -7,6 +9,9 @@ from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.utils import get_args
 from models.random_forest import RandomForestBaseline
+import warnings
+
+warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
 
 def get_baseline_CV_score(feats, labels, estimator, scores=['f1_macro']):
@@ -78,6 +83,7 @@ if __name__ == '__main__':
     # init model
     if not hasattr(config, 'class_weight'):
         config.class_weight = None
+    print(config.n_estimators)
     estimator = RandomForestBaseline(
         n_estimators=config.n_estimators,
         n_jobs=-1,
@@ -114,8 +120,17 @@ if __name__ == '__main__':
     ]
     print(np.shape(string_pred))
     result['Id'] = ids
-    result['Predict'] = string_pred
+    result['Predicted'] = string_pred
     print(result)
-    create_dirs([config.summary_dir])
-    result.to_csv(config.summary_dir + '/prediction.csv', index=False)
+
+    # Create data/train_aug folder if it does not exist yet
+    result_folder = os.path.join(os.path.dirname(os.path.dirname(os.getcwd())), 'prediction', config.exp_name)
+    if not os.path.exists(result_folder):
+        print('Creating train_aug data folder')
+        os.makedirs(result_folder)
+
+    pred_dir = os.path.join(result_folder, 'prediction.csv')
+    print('Saving fit to: {}'.format(pred_dir))
+    result.to_csv(pred_dir, index=False)
+
 
