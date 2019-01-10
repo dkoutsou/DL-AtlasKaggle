@@ -15,7 +15,6 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self,
-                 config,
                  n_estimators=1000,
                  n_jobs=None,
                  random_state=None,
@@ -26,7 +25,6 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         self.random_state = random_state
         self.class_weight = class_weight
         self.rf = None
-        self.config=config
 
     def _get_features_from_batch_images(self, img, r, p):
         """ Get the features from one image.
@@ -128,6 +126,8 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         probas = self.predict_proba(X)
         # Create (n_sample * n_classes) matrix with probabilities
         #print(probas[0][:, 1].reshape(-1, 1))
+        print(probas[0])
+        print(len(probas))
         probas = [class_probs[:, 1].reshape(-1, 1) for class_probs in probas]
         probas = np.hstack(probas)
 
