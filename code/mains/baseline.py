@@ -110,21 +110,26 @@ if __name__ == '__main__':
     test_feats = estimator._extract_features(
         test_batches, config.patch_size, train=False)
     print("Test dataset shape:", np.shape(test_feats))
-    prediction = fit_predict(train_feats, train_labels, test_feats, estimator)
+    prediction = fit_predict(train_feats, train_labels,
+                             test_feats, estimator)
     ids = TestSet.image_ids
     print(np.shape(ids))
     result = pd.DataFrame()
 
     string_pred = [
-        ' '.join([str(p) for p in sample_pred]) for sample_pred in prediction
+        ' '.join([str(p) for p in sample_pred])
+        for sample_pred in prediction
     ]
     print(np.shape(string_pred))
     result['Id'] = ids
     result['Predicted'] = string_pred
+    # Order predictions
+    result = result.sort_values(by=['Id'])
     print(result)
 
     # Create data/train_aug folder if it does not exist yet
-    result_folder = os.path.join(os.path.dirname(os.path.dirname(os.getcwd())), 'prediction', config.exp_name)
+    result_folder = os.path.join(os.path.dirname(
+        os.path.dirname(os.getcwd())), 'prediction', config.exp_name)
     if not os.path.exists(result_folder):
         print('Creating train_aug data folder')
         os.makedirs(result_folder)
