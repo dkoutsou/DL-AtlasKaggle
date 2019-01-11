@@ -5,7 +5,7 @@
     "exp_name": "CBDP2_batch128_15epochs_256",
     "val_split": 0.1, 
     "num_epochs": 15,
-    "batch_size": 128,
+    "batch_size": 64,
     "use_weighted_loss": false,
     "input_size": 256
 }
