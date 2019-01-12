@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 import os
-from os import listdir
-from os.path import isfile, join
 import sys
 import matplotlib.image as mpimg
 from joblib import Parallel, delayed

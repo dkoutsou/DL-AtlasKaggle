@@ -1,16 +1,12 @@
 import numpy as np
 import os
 import sys
-import io
 import pandas as pd
+from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.model_selection import train_test_split
 from PIL import Image
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.model_selection import train_test_split
-import re
-from os import listdir
-from os.path import isfile, join
 
 
 class DataGenerator:
@@ -132,8 +128,8 @@ class DataGenerator:
                     [[np.asarray(Image.open(x).convert('1'))
                       for x in y] for y in batchfile])
                 yield batchimages, batchlabel
-            except:
-                None
+            except UnboundLocalError:
+                print("Batch unused")
 
     def set_batch_iterator(self, type='all'):
         train_iterator = self.batch_iterator(type=type)

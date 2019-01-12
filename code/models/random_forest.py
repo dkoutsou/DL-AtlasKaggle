@@ -2,11 +2,10 @@ import time
 import sys
 import numpy as np
 import parmap
-import os
-import _pickle as cPickle
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
 from utils.predictor import get_pred_from_probas
+# import os
 
 
 class RandomForestBaseline(BaseEstimator, TransformerMixin):
@@ -112,8 +111,11 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         sys.stdout.flush()
         self.rf.fit(X, y, sample_weight=sample_weight)
         # saving fit model
-        #print('Saving fit to: {}'.format(os.path.join(os.getenv("EXP_PATH"), self.config.exp_name)))
-        #with open(os.path.join(os.getenv("EXP_PATH"), self.config.exp_name), 'wb') as f:
+        # print('Saving fit to: {}'.format(
+        #    os.path.join(os.getenv("EXP_PATH"),
+        #                 self.config.exp_name)))
+        # with open(os.path.join(os.getenv("EXP_PATH"),
+        #                       self.config.exp_name), 'wb') as f:
         #    cPickle.dump(self.rf, f)
         return self
 
@@ -125,7 +127,7 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         print("Predicting")
         probas = self.predict_proba(X)
         # Create (n_sample * n_classes) matrix with probabilities
-        #print(probas[0][:, 1].reshape(-1, 1))
+        # print(probas[0][:, 1].reshape(-1, 1))
         print(probas[0])
         print(len(probas))
         probas = [class_probs[:, 1].reshape(-1, 1) for class_probs in probas]

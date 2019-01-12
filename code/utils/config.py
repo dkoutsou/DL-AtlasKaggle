@@ -32,7 +32,8 @@ def process_config(json_file):
                                       config.exp_name + '_' + str(timestamp),
                                       "summary/")
     config.checkpoint_dir = os.path.join(experiment_dir,
-                                         config.exp_name + '_' + str(timestamp),
+                                         config.exp_name + '_' +
+                                         str(timestamp),
                                          "checkpoint/")
     print('Writing to : {}'.format(os.path.join(experiment_dir,
                                    config.exp_name + '_' + str(timestamp))))

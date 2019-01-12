@@ -1,12 +1,10 @@
 import numpy as np
 import pandas as pd
 import os
-import _pickle as cPickle
 from data_loader.data_generator import DataGenerator, DataTestLoader
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import MultiLabelBinarizer
 from utils.config import process_config
-from utils.dirs import create_dirs
 from utils.utils import get_args
 from models.random_forest import RandomForestBaseline
 import warnings
@@ -137,5 +135,3 @@ if __name__ == '__main__':
     pred_dir = os.path.join(result_folder, 'prediction.csv')
     print('Saving fit to: {}'.format(pred_dir))
     result.to_csv(pred_dir, index=False)
-
-
