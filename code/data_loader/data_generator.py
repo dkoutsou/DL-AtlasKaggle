@@ -2,10 +2,12 @@ import numpy as np
 import os
 import sys
 import pandas as pd
-from PIL import Image
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
+from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class DataGenerator:
@@ -37,6 +39,8 @@ class DataGenerator:
             engine='python')
         # A vector of images id.
         image_ids = tmp["Id"]
+        data_path = os.path.join(cwd, 'train')
+        print(data_path)
         self.n = len(image_ids)
 
         # for each id sublist of the 4 filenames [batch_size, 4]
@@ -132,9 +136,15 @@ class DataGenerator:
             end_index = min((batch_num + 1) * self.config.batch_size, n)
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
-            batchimages = np.asarray(
-                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
-            yield batchimages, batchlabel
+            try:
+                # try
+                # Convert image to grayscale (if not already)
+                batchimages = np.asarray(
+                    [[np.asarray(Image.open(x).convert('1'))
+                      for x in y] for y in batchfile])
+                yield batchimages, batchlabel
+            except UnboundLocalError:
+                print("Batch unused")
 
     def set_batch_iterator(self, type='all'):
         train_iterator = self.batch_iterator(type=type)

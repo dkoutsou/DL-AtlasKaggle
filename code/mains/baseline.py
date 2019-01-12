@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
+import os
 from data_loader.data_generator import DataGenerator, DataTestLoader
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import MultiLabelBinarizer
 from utils.config import process_config
-from utils.dirs import create_dirs
 from utils.utils import get_args
 from models.random_forest import RandomForestBaseline
+import warnings
+
+warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
 
 def get_baseline_CV_score(feats, labels, estimator, scores=['f1_macro']):
@@ -53,7 +56,7 @@ def fit_predict(train_feats,
     return predicted_labels
 
 
-def main():
+if __name__ == '__main__':
     """ Main procedure: extract features,
     get RF cross-validation performance,
     fit and predict baseline and save csv for Kaggle.
@@ -78,6 +81,7 @@ def main():
     # init model
     if not hasattr(config, 'class_weight'):
         config.class_weight = None
+    print(config.n_estimators)
     estimator = RandomForestBaseline(
         n_estimators=config.n_estimators,
         n_jobs=-1,
@@ -104,21 +108,30 @@ def main():
     test_feats = estimator._extract_features(
         test_batches, config.patch_size, train=False)
     print("Test dataset shape:", np.shape(test_feats))
-    prediction = fit_predict(train_feats, train_labels, test_feats, estimator)
+    prediction = fit_predict(train_feats, train_labels,
+                             test_feats, estimator)
     ids = TestSet.image_ids
     print(np.shape(ids))
     result = pd.DataFrame()
 
     string_pred = [
-        ' '.join([str(p) for p in sample_pred]) for sample_pred in prediction
+        ' '.join([str(p) for p in sample_pred])
+        for sample_pred in prediction
     ]
     print(np.shape(string_pred))
     result['Id'] = ids
-    result['Predict'] = string_pred
+    result['Predicted'] = string_pred
+    # Order predictions
+    result = result.sort_values(by=['Id'])
     print(result)
-    create_dirs([config.summary_dir])
-    result.to_csv(config.summary_dir + '/prediction.csv', index=False)
 
+    # Create data/train_aug folder if it does not exist yet
+    result_folder = os.path.join(os.path.dirname(
+        os.path.dirname(os.getcwd())), 'prediction', config.exp_name)
+    if not os.path.exists(result_folder):
+        print('Creating train_aug data folder')
+        os.makedirs(result_folder)
 
-if __name__ == '__main__':
-    main()
+    pred_dir = os.path.join(result_folder, 'prediction.csv')
+    print('Saving fit to: {}'.format(pred_dir))
+    result.to_csv(pred_dir, index=False)
