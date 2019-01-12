@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
+from sklearn.utils import resample
 from PIL import Image
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -15,7 +16,7 @@ class DataGenerator:
     (labels and images) and starts loading the data
     """
 
-    def __init__(self, config):
+    def __init__(self, config, random_state=42):
         """The constructor of the DataGenerator class. It loads the training
         labels and the images.
 
@@ -25,12 +26,12 @@ class DataGenerator:
                 a dictionary with necessary information for the dataloader
                 (e.g batch size)
         """
-        np.random.seed(42)
         cwd = os.getenv("DATA_PATH")
         if cwd is None:
             print("Set your DATA_PATH env first")
             sys.exit(1)
         self.config = config
+
         # Read csv file
         tmp = pd.read_csv(
             os.path.abspath(os.path.join(cwd, 'train.csv')),
@@ -41,6 +42,7 @@ class DataGenerator:
         data_path = os.path.join(cwd, 'train')
         print(data_path)
         self.n = len(image_ids)
+
         # for each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[
             os.path.join(cwd, 'train', id + '_' + c + '.png')
@@ -55,9 +57,7 @@ class DataGenerator:
         binarizer = MultiLabelBinarizer(classes=np.arange(28))
         self.labels = [[int(c) for c in l.split(' ')] for l in self.labels]
         self.labels = binarizer.fit_transform(self.labels)
-        # Compute class weigths
-        self.class_weights = (self.n)*np.reshape(
-            1 / np.sum(self.labels, axis=0), (1, -1))
+
         # Build a validation set
         try:
             self.train_filenames, self.val_filenames,\
@@ -73,8 +73,23 @@ class DataGenerator:
                     test_size=0.1, random_state=42)
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
+
+        np.random.seed(random_state)
+        if hasattr(config, 'bootstrap_size'):
+            n_samples = int(config.bootstrap_size * self.n_train)
+            new_indices = resample(
+                np.arange(self.n_train),
+                n_samples=n_samples,
+                random_state=random_state)
+            self.train_filenames = self.train_filenames[new_indices]
+            self.train_labels = self.train_labels[new_indices]
+            self.n_train = len(self.train_labels)
+
         print('Size of training set is {}'.format(self.n_train))
         print('Size of validation set is {}'.format(self.n_val))
+        # Compute class weigths
+        self.class_weights = (self.n_train) * np.reshape(
+            1 / np.sum(self.labels, axis=0), (1, -1))
         # Number batches per epoch
         self.train_batches_per_epoch = int(
             (self.n_train - 1) / self.config.batch_size) + 1
@@ -182,9 +197,13 @@ class DataTestLoader:
 if __name__ == '__main__':
     # just for testing
     from bunch import Bunch
-    config_dict = {'batch_size': 32}
+    config_dict = {'batch_size': 32, 'bootstrap_size': 0.001}
     config = Bunch(config_dict)
-    TrainingSet = DataGenerator(config)
+    TrainingSet = DataGenerator(config, random_state=42)
+    TrainingSet2 = DataGenerator(config, random_state=43)
+    print(TrainingSet.train_filenames)
+    print()
+    print(TrainingSet2.train_filenames)
     """
     all_batches = TrainingSet.batch_iterator()
     for batch_x, batch_y in all_batches:

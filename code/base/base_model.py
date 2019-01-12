@@ -26,20 +26,19 @@ class BaseModel:
                 self.config.checkpoint_dir)
             if latest_checkpoint:
                 try:
-                    print(
-                        "Loading model checkpoint {} ...\n"
-                        .format(latest_checkpoint))
+                    print("Loading model checkpoint {} ...\n".format(
+                        latest_checkpoint))
                     self.saver.restore(sess, latest_checkpoint)
                 except tf.python.framework.errors_impl.NotFoundError:
                     print("WARN: Found exiting checkpoint but you are not" +
-                          " on the same machine as for training "
-                          + "specify manually the checkpoint to load")
+                          " on the same machine as for training " +
+                          "specify manually the checkpoint to load")
                     print("Model not loaded - starting training from scratch.")
         else:
             latest_checkpoint = self.config.checkpoint_dir \
                 + '-{}'.format(checkpoint_nb)
-            self.saver = tf.train.import_meta_graph("{}.meta"
-                                                    .format(latest_checkpoint))
+            self.saver = tf.train.import_meta_graph(
+                "{}.meta".format(latest_checkpoint))
             self.saver.restore(sess, latest_checkpoint)
             print("Model loaded")
 
@@ -76,14 +75,14 @@ class BaseModel:
         self.is_training = tf.placeholder(tf.bool)
         self.class_weights = tf.placeholder(
             tf.float32, shape=[1, 28], name="weights")
-        self.class_weights = tf.stop_gradient(self.class_weights,
-                                              name="stop_gradient")
+        self.class_weights = tf.stop_gradient(
+            self.class_weights, name="stop_gradient")
         self.input = tf.placeholder(
             tf.float32, shape=[None, 4, 512, 512], name="input")
         self.label = tf.placeholder(tf.float32, shape=[None, 28])
         x = tf.transpose(self.input, perm=[0, 2, 3, 1])
-        self.input_layer = tf.image.resize_images(x, (self.config.input_size,
-                                                      self.config.input_size))
+        self.input_layer = tf.image.resize_images(
+            x, (self.config.input_size, self.config.input_size))
 
     def build_loss_output(self):
         try:
@@ -102,8 +101,7 @@ class BaseModel:
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
             if self.config.f1_loss:
-                self.loss = f1_loss(y_true=self.label,
-                                    y_pred=self.out)
+                self.loss = f1_loss(y_true=self.label, y_pred=self.out)
             elif self.config.use_weighted_loss:
                 self.loss = tf.losses.compute_weighted_loss(
                     tf.nn.sigmoid_cross_entropy_with_logits(
