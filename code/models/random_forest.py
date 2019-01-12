@@ -4,7 +4,8 @@ import numpy as np
 import parmap
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
-from utils.utils import get_pred_from_probas
+from utils.predictor import get_pred_from_probas
+# import os
 
 
 class RandomForestBaseline(BaseEstimator, TransformerMixin):
@@ -16,7 +17,8 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
                  n_estimators=1000,
                  n_jobs=None,
                  random_state=None,
-                 class_weight=None):
+                 class_weight=None
+                 ):
         self.n_estimators = n_estimators
         self.n_jobs = n_jobs
         self.random_state = random_state
@@ -108,6 +110,13 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         print("Training random forest...")
         sys.stdout.flush()
         self.rf.fit(X, y, sample_weight=sample_weight)
+        # saving fit model
+        # print('Saving fit to: {}'.format(
+        #    os.path.join(os.getenv("EXP_PATH"),
+        #                 self.config.exp_name)))
+        # with open(os.path.join(os.getenv("EXP_PATH"),
+        #                       self.config.exp_name), 'wb') as f:
+        #    cPickle.dump(self.rf, f)
         return self
 
     def predict_proba(self, X):
@@ -115,8 +124,12 @@ class RandomForestBaseline(BaseEstimator, TransformerMixin):
         return probas
 
     def predict(self, X):
+        print("Predicting")
         probas = self.predict_proba(X)
-        # Create (n_sample * n_classes) matrix wtih probabilities
+        # Create (n_sample * n_classes) matrix with probabilities
+        # print(probas[0][:, 1].reshape(-1, 1))
+        print(probas[0])
+        print(len(probas))
         probas = [class_probs[:, 1].reshape(-1, 1) for class_probs in probas]
         probas = np.hstack(probas)
 
