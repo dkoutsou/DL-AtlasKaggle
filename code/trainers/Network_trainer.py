@@ -84,6 +84,7 @@ class NetworkTrainer(BaseTrain):
 
     def train_step(self):
         batch_x, batch_y = next(self.data.train_iterator)
+        print(np.shape(batch_y))
         feed_dict = {
             self.model.input: batch_x,
             self.model.label: batch_y,

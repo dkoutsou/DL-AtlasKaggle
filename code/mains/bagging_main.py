@@ -31,13 +31,9 @@ def main():
         create_dirs([c.summary_dir, c.checkpoint_dir])
     master_config = config
 
-    print(master_config.copy())
-    for c in model_configs:
-        print(c.copy())
-
     # create tensorflow sessions
     sessions = []
-    for i in range(master_config.n_estimators):
+    for i in range(config.n_estimators):
         configSess = tf.ConfigProto(
             allow_soft_placement=True, log_device_placement=False)
         configSess.gpu_options.allow_growth = True
@@ -50,23 +46,22 @@ def main():
 
     # create your data generator
     data_gens = []
-    for i in range(master_config.n_estimators):
+    for i in range(config.n_estimators):
         # Make sure they all use different random seed
-        data = DataGenerator(model_configs[i], random_state=42 + i)
+        data = DataGenerator(config, random_state=42 + i)
         data_gens.append(data)
 
     # create an instances of the model you want
     models = []
     try:
-        ModelConstructor = all_models[master_config.model]
-        for i in range(master_config.n_estimators):
-            with tf.variable_scope("model{}".format(i)):
-                model = ModelConstructor(model_configs[i])
+        ModelConstructor = all_models[config.model]
+        for i in range(config.n_estimators):
+            model = ModelConstructor(config)
             models.append(model)
     except AttributeError:
         print("The model to use is not specified in the config file")
         exit(1)
-    master_model = BaggingModel(master_config, models)
+    master_model = BaggingModel(config, models)
 
     # create tensorboard loggers for each model and session
     loggers = []

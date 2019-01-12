@@ -8,13 +8,6 @@ class BaggingModel(BaseModel):
         self.build_model()
         self.init_saver()
         self.models = models
-        with tf.variable_scope('cur_estimator'):
-            self.cur_estimator_tensor = tf.Variable(
-                0, trainable=False, name='cur_estimator')
-            self.increment_cur_estimator_tensor = tf.assign(
-                self.cur_estimator_tensor, self.cur_estimator_tensor + 1)
-            self.reset_cur_estimator_tensor = tf.assign(
-                self.cur_estimator_tensor, 0)
 
     def build_model(self):
         # The bagging model itself, does not build a graph
