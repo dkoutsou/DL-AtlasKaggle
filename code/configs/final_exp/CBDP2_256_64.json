@@ -1,11 +1,11 @@
 {   
-    "model": "ResNet",
+    "model": "CBDP2",
     "learning_rate": 0.0001,
     "max_to_keep": 2,
-    "exp_name": "ResNet_batch128_50epochs_256",
+    "exp_name": "CBDP2_batch128_15epochs_256",
     "val_split": 0.1, 
-    "num_epochs": 50,
-    "batch_size": 128,
+    "num_epochs": 15,
+    "batch_size": 64,
     "use_weighted_loss": false,
     "input_size": 256
 }

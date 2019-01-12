@@ -11,6 +11,8 @@ from models.CBDP2_model import CBDP2Model
 from models.SimpleCNN_model import SimpleCNNModel
 from models.inception_model import InceptionModel
 from models.resNet_model import ResNetModel
+from models.kaggle_model import KaggleModel
+from models.DeepSimple_model import DeepSimpleModel
 from utils.config import process_config
 from utils.utils import get_args
 from utils.predictor import Predictor
@@ -30,7 +32,7 @@ def main():
 
     except Exception:
         print("missing or invalid arguments")
-        exit(0)
+        raise
 
     # create tensorflow session
     sess = tf.Session()
@@ -58,15 +60,23 @@ def main():
             model = InceptionModel(config)
         elif config.model == "ResNet":
             model = ResNetModel(config)
+        elif config.model == "Kaggle":
+            model = KaggleModel(config)
+        elif config.model == "DeepSimple":
+            model = DeepSimpleModel(config)
     except AttributeError:
         print("The model to use is not specified in the config file")
         exit(1)
+
     # load model if exists
-    model.load(sess)
+    model.load(sess, args.checkpoint_nb)
     # here you predict from your model
     predictor = Predictor(sess, model, config)
     predictor.predict(testIterator)
 
 
 if __name__ == '__main__':
+    # if you want to specify the model number manually
+    # because on other machine than training machine
+    # get latest checkpoint does not work
     main()

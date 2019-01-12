@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils.loss import focal_loss, f1_loss
+from utils.loss import f1_loss
 
 
 class BaseModel:
@@ -20,15 +20,26 @@ class BaseModel:
 
     # load latest checkpoint from the experiment path defined
     # in the config file
-    def load(self, sess):
-        latest_checkpoint = tf.train.latest_checkpoint(
-            self.config.checkpoint_dir)
-        # latest_checkpoint = self.config.checkpoint_dir + '-5600'
-        # self.saver = tf.train.import_meta_graph("{}.meta"
-        #                                         .format(latest_checkpoint))
-        if latest_checkpoint:
-            print(
-                "Loading model checkpoint {} ...\n".format(latest_checkpoint))
+    def load(self, sess, checkpoint_nb=None):
+        if checkpoint_nb is None:
+            latest_checkpoint = tf.train.latest_checkpoint(
+                self.config.checkpoint_dir)
+            if latest_checkpoint:
+                try:
+                    print(
+                        "Loading model checkpoint {} ...\n"
+                        .format(latest_checkpoint))
+                    self.saver.restore(sess, latest_checkpoint)
+                except tf.python.framework.errors_impl.NotFoundError:
+                    print("WARN: Found exiting checkpoint but you are not" +
+                          " on the same machine as for training "
+                          + "specify manually the checkpoint to load")
+                    print("Model not loaded - starting training from scratch.")
+        else:
+            latest_checkpoint = self.config.checkpoint_dir \
+                + '-{}'.format(checkpoint_nb)
+            self.saver = tf.train.import_meta_graph("{}.meta"
+                                                    .format(latest_checkpoint))
             self.saver.restore(sess, latest_checkpoint)
             print("Model loaded")
 
@@ -82,12 +93,6 @@ class BaseModel:
             print('WARN: use_weighted_loss not set - using False')
             self.config.use_weighted_loss = False
         try:
-            if self.config.focalLoss:
-                pass
-        except AttributeError:
-            print('WARN: focalLoss not set - using False')
-            self.config.focalLoss = False
-        try:
             if self.config.f1_loss:
                 pass
         except AttributeError:
@@ -96,13 +101,7 @@ class BaseModel:
         with tf.name_scope("output"):
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
-            if self.config.focalLoss:
-                print("Using focal loss")
-                self.loss = tf.reduce_mean(
-                    focal_loss(labels=self.label,
-                               logits=self.logits,
-                               gamma=2))
-            elif self.config.f1_loss:
+            if self.config.f1_loss:
                 self.loss = f1_loss(y_true=self.label,
                                     y_pred=self.out)
             elif self.config.use_weighted_loss:

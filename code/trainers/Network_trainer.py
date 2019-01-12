@@ -28,17 +28,12 @@ class NetworkTrainer(BaseTrain):
             train_true = np.append(train_true, true_label)
             cur_it = self.model.global_step_tensor.eval(self.sess)
             print(loss)
-            if cur_it % 20 == 0:
+            if cur_it % (self.data.train_batches_per_epoch//5) == 0:
                 print(train_true[0:28])
                 print(train_probas[0:28])
                 print(loss)
                 # Save the training values every 10 steps
                 train_loss = np.mean(losses)
-                # i am not calculating f1 each steps in train_step()
-                # because if there are no true label of one class
-                # the metric is ill-defined and set to 0
-                # but on 10 training batch the ill-defined case
-                # nearly never happens leading to a meaningful f1-score.
                 train_true = np.reshape(train_true, (-1, 28))
                 train_probas = np.reshape(train_probas, (-1, 28))
                 train_f1 = f1_score(train_true, get_pred_from_probas(
@@ -67,27 +62,24 @@ class NetworkTrainer(BaseTrain):
                 }
                 self.logger.summarize(
                     cur_it, summaries_dict=train_summaries_dict)
-
-            if (cur_it % 100 == 0) and (cur_it > 0):
-                # Evaluate on val every epoch
-                val_loss, val_f1, \
-                    val_f1_2, val_f1_3, val_f1_4 = self.val_step()
-                print('Step {}: val_loss:{}, val_f1:{},'
-                      ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
-                      .format(
-                          cur_it, val_loss, val_f1, val_f1_2,
-                          val_f1_3, val_f1_4))
-                val_summaries_dict = {'loss': val_loss,
-                                      'f1': val_f1,
-                                      'f1_005_thres': val_f1_2,
-                                      'f1_01_thres': val_f1_3,
-                                      'f1_02_thres': val_f1_4}
-                self.logger.summarize(
-                    cur_it, summaries_dict=val_summaries_dict,
-                    summarizer='test')
-
-            if (cur_it % 100 == 0) and (cur_it > 0):
-                self.model.save(self.sess)
+        # Saving every epoch
+        self.model.save(self.sess)
+        # Evaluate on validation at the end of every epoch
+        val_loss, val_f1, \
+            val_f1_2, val_f1_3, val_f1_4 = self.val_step()
+        print('Step {}: val_loss:{}, val_f1:{},'
+              ' val_f1_005:{}, val_f1_01:{}, val_f1_02:{} '
+              .format(
+                  cur_it, val_loss, val_f1, val_f1_2,
+                  val_f1_3, val_f1_4))
+        val_summaries_dict = {'loss': val_loss,
+                              'f1': val_f1,
+                              'f1_005_thres': val_f1_2,
+                              'f1_01_thres': val_f1_3,
+                              'f1_02_thres': val_f1_4}
+        self.logger.summarize(
+            cur_it, summaries_dict=val_summaries_dict,
+            summarizer='test')
 
     def train_step(self):
         batch_x, batch_y = next(self.data.train_iterator)
