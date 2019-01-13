@@ -11,18 +11,28 @@ Revolving around medical image analysis, the main goal of this project is to cla
 
 ### Setup
 - Set your PYTHONPATH variable to where your code folder is <br/>
-(ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`)
-- Set path EXP_PATH to where run results should be saved <br/>
 (ie: `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
-- Set your DATA_PATH variable to where the data is <br/>
+- Set path EXP_PATH to where run results should be saved <br/>
 (ie: `export EXP_PATH="${HOME}/DL-AtlasKaggle/result/"`)<br/>
-If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH}/"`
+- Set your DATA_PATH variable to where the data is <br/>
+(ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`) <br/>
+If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH}/data/"`
 
 - Install the requirements:
 `pip install -r requirements.txt`
 
 ## Models (in 'code/models' folder)
 *BEFORE SUBMISSION DELETED THE UNUSUED MODELS*
+
+### Data Augmentation
+To augment data, run <br/>
+`python code/data_loader/data_aug.py`<br/>
+
+Arguments (optional) are: <br/>
+- `-n <output_folder>` where 'output_folder' the name of the folder where to save the augmented images (default is same as folder as original training data)
+- `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
+
+
 
 ### Baseline
 - **Random Forest**
