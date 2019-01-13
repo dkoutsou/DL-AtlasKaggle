@@ -117,7 +117,7 @@ def data_aug(data_folder, train_labels, label_names,
                 rebalanced_images.append([image_name + '_rev' +
                                           str(i_rot+1), image_target])
 
-            if counter % 1 == 0:
+            if counter % 100 == 0:
                 print('Processed {} images out of {}'.format(
                     counter, len(train_labels)))
             if counter % 500 == 0:
