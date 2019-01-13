@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils.loss import f1_loss
+from utils.loss import f1_loss, binary_focal_loss
 
 
 class BaseModel:
@@ -91,12 +91,21 @@ class BaseModel:
         except AttributeError:
             print('WARN: use_weighted_loss not set - using False')
             self.config.use_weighted_loss = False
+
         try:
             if self.config.f1_loss:
                 pass
         except AttributeError:
             print('WARN: f1_loss not set - using False')
             self.config.f1_loss = False
+
+        try:
+            if self.config.focal_loss:
+                pass
+        except AttributeError:
+            print('WARN: focal_loss not set - using False')
+            self.config.focal_loss = False
+
         with tf.name_scope("output"):
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
@@ -107,6 +116,9 @@ class BaseModel:
                     tf.nn.sigmoid_cross_entropy_with_logits(
                         labels=self.label, logits=self.logits),
                     weights=self.class_weights)
+            elif self.config.use_focal_loss:
+                self.loss = binary_focal_loss(y_true=self.label,
+                                              y_pred=self.out)
             else:
                 self.loss = tf.reduce_mean(
                     tf.nn.sigmoid_cross_entropy_with_logits(
