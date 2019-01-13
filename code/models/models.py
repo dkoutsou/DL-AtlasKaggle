@@ -8,6 +8,7 @@ from models.CBDP2_model import CBDP2Model
 from models.SimpleCNN_model import SimpleCNNModel
 from models.inception_model import InceptionModel
 from models.resNet_model import ResNetModel
+from models.densenet_model import DenseNetModel
 from models.kaggle_model import KaggleModel
 from models.DeepSimple_model import DeepSimpleModel
 
@@ -22,6 +23,7 @@ all_models = {
     "CBDP2": CBDP2Model,
     "Inception": InceptionModel,
     "ResNet": ResNetModel,
+    "DenseNet": DenseNetModel,
     "Kaggle": KaggleModel,
     "DeepSimple": DeepSimpleModel
 }
