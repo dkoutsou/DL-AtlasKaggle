@@ -90,7 +90,7 @@ class BaseModel:
 
         for loss_name in losses_names:
             try:
-                losses[loss_name] = self.config.use_weighted_loss
+                losses[loss_name] = eval("self.config." + loss_name)
             except AttributeError:
                 losses[loss_name] = None
 
