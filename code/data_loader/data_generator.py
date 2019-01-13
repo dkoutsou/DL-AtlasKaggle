@@ -2,6 +2,8 @@ import numpy as np
 import os
 import sys
 import pandas as pd
+from os import listdir
+from os.path import isfile, join
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
@@ -43,7 +45,7 @@ class DataGenerator:
         print(data_path)
         self.n = len(image_ids)
 
-        # for each id sublist of the 4 filenames [batch_size, 4]
+        # For each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[
             os.path.join(cwd, 'train', id + '_' + c + '.png')
             for c in ['red', 'green', 'yellow', 'blue']
@@ -71,6 +73,44 @@ class DataGenerator:
                 self.train_labels, self.val_labels = train_test_split(
                     self.filenames, self.labels,
                     test_size=0.1, random_state=42)
+
+        # Get list of all possible images (incl. augmented if exist)
+        data_train_folder = os.path.join(cwd, 'train')
+        all_file_names = [f.rsplit('_', 1)[0]
+                          for f in listdir(data_train_folder)
+                          if isfile(join(data_train_folder, f)) and
+                          join(data_train_folder, f).endswith('.png')]
+
+        # Augment training data
+        filter_list = ['yellow', 'red', 'blue', 'green']
+
+        aug_train_list = []
+        aug_train_labels = []
+
+        # If exists augmented images for this file, add to train data
+        for i in range(0, self.train_filenames.shape[0]):
+            filename = self.train_filenames[i][0]\
+                .rsplit('/')[-1].rsplit('_')[0]
+            # List of augmented images for given file
+            aug_list = list(set(filter(
+                lambda x: str(filename) in x.rsplit('_')[0],
+                all_file_names)))
+            # Remove original filename from list
+            aug_list = [i for i in aug_list if i != filename]
+
+            for aug_img in aug_list:
+                aug_train_list.append(
+                    [os.path.join(data_train_folder,
+                                  aug_img + '_' + f + '.png')
+                     for f in filter_list])
+                aug_train_labels.append(self.train_labels[i])
+
+        # Append list of all aug filenames to training set
+        self.train_filenames = np.vstack((self.train_filenames,
+                                          np.asarray(aug_train_list)))
+        self.train_labels = np.vstack((self.train_labels,
+                                       np.asarray(aug_train_labels)))
+
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
 
