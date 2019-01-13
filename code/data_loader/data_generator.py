@@ -16,7 +16,7 @@ class DataGenerator:
     (labels and images) and starts loading the data
     """
 
-    def __init__(self, config, random_state=42):
+    def __init__(self, config):
         """The constructor of the DataGenerator class. It loads the training
         labels and the images.
 
@@ -74,6 +74,10 @@ class DataGenerator:
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
 
+        if hasattr(config, 'random_state'):
+            random_state = config.random_state
+        else:
+            random_state = 42
         np.random.seed(random_state)
         if hasattr(config, 'bootstrap_size'):
             n_samples = int(config.bootstrap_size * self.n_train)
@@ -140,8 +144,8 @@ class DataGenerator:
                 # try
                 # Convert image to grayscale (if not already)
                 batchimages = np.asarray(
-                    [[np.asarray(Image.open(x).convert('1'))
-                      for x in y] for y in batchfile])
+                    [[np.asarray(Image.open(x).convert('1')) for x in y]
+                     for y in batchfile])
                 yield batchimages, batchlabel
             except UnboundLocalError:
                 print("Batch unused")
