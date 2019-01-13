@@ -40,6 +40,7 @@ def data_aug(data_folder, train_labels, label_names,
     if not os.path.exists(aug_data_folder):
         print('Creating {} folder'.format(str(aug_data_name)))
         os.makedirs(aug_data_folder)
+        os.makedirs(os.path.join(aug_data_folder, 'train'))
 
     # Add 1 column/target: to 1 if in image's target label
     train_labels_counts = train_labels.apply(fill_targets, axis=1)
