@@ -122,12 +122,6 @@ class DataGenerator:
         except ValueError:
             None
 
-        # Append list of all aug filenames to training set
-        self.train_filenames = np.vstack((self.train_filenames,
-                                          np.asarray(aug_train_list)))
-        self.train_labels = np.vstack((self.train_labels,
-                                       np.asarray(aug_train_labels)))
-
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
 
