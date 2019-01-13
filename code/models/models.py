@@ -1,4 +1,5 @@
 from models.DeepYeast_model import DeepYeastModel
+from models.DeepLoc_model import DeepLocModel
 from models.CP2_model import CP2Model
 from models.CP4_model import CP4Model
 from models.CDP4_model import CDP4Model
@@ -14,6 +15,7 @@ from models.DeepSimple_model import DeepSimpleModel
 
 all_models = {
     "DeepYeast": DeepYeastModel,
+    "DeepLoc": DeepLocModel,
     "SimpleCNN": SimpleCNNModel,
     "CP2": CP2Model,
     "CP4": CP4Model,
