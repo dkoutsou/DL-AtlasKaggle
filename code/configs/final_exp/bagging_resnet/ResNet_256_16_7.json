@@ -1,0 +1,13 @@
+{   
+    "model": "ResNet",
+    "learning_rate": 0.0001,
+    "max_to_keep": 10,
+    "exp_name": "ResNet_batch16_25epochs_256",
+    "val_split": 0.1, 
+    "num_epochs": 25,
+    "batch_size": 16,
+    "use_weighted_loss": false,
+    "input_size": 256,
+    "bootstrap_size": 1.0,
+    "random_state": 48
+}
