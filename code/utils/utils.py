@@ -13,5 +13,10 @@ def get_args():
         default=None,
         help='The number of the checkpoint to use in predict'
     )
+    argparser.add_argument(
+        '-om', '--outfile_multiple',
+        default=None,
+        help='The name/relative path to save the combined prediction csv file'
+    )
     args = argparser.parse_args()
     return args
