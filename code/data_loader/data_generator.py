@@ -74,7 +74,11 @@ class DataGenerator:
                     self.filenames, self.labels,
                     test_size=0.1, random_state=42)
 
+        print("Shape of training data: {}".format(self.train_filenames.shape))
+        print("Shape of training labels: {}".format(self.train_labels.shape))
+
         # Get list of all possible images (incl. augmented if exist)
+        print("Getting augmented dataset...")
         data_train_folder = os.path.join(cwd, 'train')
         all_file_names = [f.rsplit('_', 1)[0]
                           for f in listdir(data_train_folder)
@@ -87,21 +91,16 @@ class DataGenerator:
             aug_train_list = []
             aug_train_labels = []
 
-            print(self.train_filenames.shape)
-            print(self.train_labels.shape)
-
             for i in range(0, self.train_filenames.shape[0]):
                 filename = self.train_filenames[i][0] \
                     .rsplit('/')[-1].rsplit('_')[0]
-                print(filename)
                 # List of augmented images for given file
                 aug_list = list(set((filter(
                     lambda x: str(filename) in x, all_file_names))))
-                print(len(aug_list))
 
                 # If exists augmented images for this file, add to train data
                 if len(aug_list) != 1:
-                    aug_list = list(set([x.rsplit('_', 1)[0] for x in aug_list]))
+                    #aug_list = list(set([x.rsplit('_', 1)[0] for x in aug_list]))
                     # Remove original filename from list
                     aug_list = [i for i in aug_list if i != filename]
 
@@ -111,7 +110,7 @@ class DataGenerator:
                             [os.path.join(data_train_folder,
                                           aug_img + '_' + f + '.png')
                              for f in filter_list])
-                        aug_train_labels.append(self.train_filenames[i])
+                        aug_train_labels.append(self.train_labels[i])
 
             try:
                 # Append list of all aug filenames to training set
