@@ -141,7 +141,7 @@ def data_aug(data_folder, train_labels, label_names,
     rebalanced_images = pd.DataFrame(rebalanced_train_labels,
                                      columns=['Id', 'Target'])
     rebalanced_images.to_csv(os.path.join(aug_data_folder,
-                                          'train.csv'))
+                                          'train_aug.csv'))
 
     print("Saved dataframe as augmented_train.csv in data folder")
 
