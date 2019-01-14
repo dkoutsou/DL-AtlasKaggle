@@ -51,6 +51,7 @@ def main():
         probas[i, :, :] = predictor.predict_probas(testIterator)
         print('processed {} model'.format(model))
         i += 1
+        tf.reset_default_graph()
     probas = np.mean(probas, axis=0)
     print(np.shape(probas))
     one_hot_pred = get_pred_from_probas_threshold(probas)
