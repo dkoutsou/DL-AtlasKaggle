@@ -75,6 +75,7 @@ if __name__ == '__main__':
         print("missing or invalid arguments")
         exit(0)
     # create your data generator
+    print('Creating batch generator')
     TrainingSet = DataGenerator(config)
     all_batches = TrainingSet.batch_iterator()
 
@@ -123,11 +124,11 @@ if __name__ == '__main__':
     result['Predicted'] = string_pred
     # Order predictions
     result = result.sort_values(by=['Id'])
-    print(result)
+    print('Result: {}'.format(result))
 
     # Create data/train_aug folder if it does not exist yet
     result_folder = os.path.join(os.path.dirname(
-        os.path.dirname(os.getcwd())), 'prediction', config.exp_name)
+        os.getcwd()), 'prediction', config.exp_name)
     if not os.path.exists(result_folder):
         print('Creating train_aug data folder')
         os.makedirs(result_folder)
