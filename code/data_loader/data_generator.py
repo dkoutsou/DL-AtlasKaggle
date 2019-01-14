@@ -81,46 +81,47 @@ class DataGenerator:
                           if isfile(join(data_train_folder, f)) and
                           join(data_train_folder, f).endswith('.png')]
 
-        # Augment training data if possible
-        filter_list = ['yellow', 'red', 'blue', 'green']
-        aug_train_list = []
-        aug_train_labels = []
+        # Augment training data if specified in config file (and if possible)
+        if self.config.augment:
+            filter_list = ['yellow', 'red', 'blue', 'green']
+            aug_train_list = []
+            aug_train_labels = []
 
-        print(self.train_filenames.shape)
-        print(self.train_labels.shape)
+            print(self.train_filenames.shape)
+            print(self.train_labels.shape)
 
-        for i in range(0, self.train_filenames.shape[0]):
-            filename = self.train_filenames[i][0] \
-                .rsplit('/')[-1].rsplit('_')[0]
-            print(filename)
-            # List of augmented images for given file
-            aug_list = list(set((filter(
-                lambda x: str(filename) in x, all_file_names))))
-            print(len(aug_list))
+            for i in range(0, self.train_filenames.shape[0]):
+                filename = self.train_filenames[i][0] \
+                    .rsplit('/')[-1].rsplit('_')[0]
+                print(filename)
+                # List of augmented images for given file
+                aug_list = list(set((filter(
+                    lambda x: str(filename) in x, all_file_names))))
+                print(len(aug_list))
 
-            # If exists augmented images for this file, add to train data
-            if len(aug_list) != 1:
-                aug_list = list(set([x.rsplit('_', 1)[0] for x in aug_list]))
-                # Remove original filename from list
-                aug_list = [i for i in aug_list if i != filename]
+                # If exists augmented images for this file, add to train data
+                if len(aug_list) != 1:
+                    aug_list = list(set([x.rsplit('_', 1)[0] for x in aug_list]))
+                    # Remove original filename from list
+                    aug_list = [i for i in aug_list if i != filename]
 
-                # Append vector of size 4 (image for each colour filter)
-                for aug_img in aug_list:
-                    aug_train_list.append(
-                        [os.path.join(data_train_folder,
-                                      aug_img + '_' + f + '.png')
-                         for f in filter_list])
-                    aug_train_labels.append(self.train_filenames[i])
+                    # Append vector of size 4 (image for each colour filter)
+                    for aug_img in aug_list:
+                        aug_train_list.append(
+                            [os.path.join(data_train_folder,
+                                          aug_img + '_' + f + '.png')
+                             for f in filter_list])
+                        aug_train_labels.append(self.train_filenames[i])
 
-        try:
-            # Append list of all aug filenames to training set
-            self.train_filenames = np.vstack((self.train_filenames,
-                                              np.asarray(aug_train_list)))
-            self.train_labels = np.vstack((self.train_labels,
-                                           np.asarray(aug_train_labels)))
-        # aug_train_list is empty (no aug data available)
-        except ValueError:
-            None
+            try:
+                # Append list of all aug filenames to training set
+                self.train_filenames = np.vstack((self.train_filenames,
+                                                  np.asarray(aug_train_list)))
+                self.train_labels = np.vstack((self.train_labels,
+                                               np.asarray(aug_train_labels)))
+            # aug_train_list is empty (no aug data available)
+            except ValueError:
+                print('No augmented data found. Please augment first')
 
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
@@ -191,15 +192,13 @@ class DataGenerator:
             end_index = min((batch_num + 1) * self.config.batch_size, n)
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
-            try:
-                # try
-                # Convert image to grayscale (if not already)
-                batchimages = np.asarray(
-                    [[np.asarray(Image.open(x).convert('1')) for x in y]
-                     for y in batchfile])
-                yield batchimages, batchlabel
-            except UnboundLocalError:
-                print("Batch unused")
+
+            # Convert image to grayscale (if not already)
+            batchimages = np.asarray(
+                [[np.asarray(Image.open(x).convert('1')) for x in y]
+                 for y in batchfile])
+            yield batchimages, batchlabel
+
 
     def set_batch_iterator(self, type='all'):
         train_iterator = self.batch_iterator(type=type)
