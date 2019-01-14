@@ -25,12 +25,16 @@ If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH
 *BEFORE SUBMISSION DELETED THE UNUSUED MODELS*
 
 ### Data Augmentation
-To augment data, run <br/>
-`python code/data_loader/data_aug.py`<br/>
+Data augmentation is done by rotating and reversing images. The number of transformations depends on the frequency of the image's label(s).
+From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.<br/>
 
-Arguments (optional) are: <br/>
-- `-n <output_folder>` where 'output_folder' the name of the folder where to save the augmented images (default is same as folder as original training data)
-- `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
+Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models
+- if we want to use an augmented dataset.
+
+To augment data, run: <br/>
+`python code/data_loader/data_aug.py`<br/>
+An optional argument is `-n <output_folder>` - where 'output_folder' the name of the folder where to save the augmented images
+(default is same folder as where the original training data is located - in DATA_PATH)
 
 
 
