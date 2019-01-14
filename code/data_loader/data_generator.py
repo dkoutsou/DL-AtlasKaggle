@@ -2,6 +2,8 @@ import numpy as np
 import os
 import sys
 import pandas as pd
+from os import listdir
+from os.path import isfile, join
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
@@ -43,7 +45,7 @@ class DataGenerator:
         print(data_path)
         self.n = len(image_ids)
 
-        # for each id sublist of the 4 filenames [batch_size, 4]
+        # For each id sublist of the 4 filenames [batch_size, 4]
         self.filenames = np.asarray([[
             os.path.join(cwd, 'train', id + '_' + c + '.png')
             for c in ['red', 'green', 'yellow', 'blue']
@@ -71,6 +73,58 @@ class DataGenerator:
                 self.train_labels, self.val_labels = train_test_split(
                     self.filenames, self.labels,
                     test_size=0.1, random_state=42)
+
+        print("Shape of training data: {}".format(self.train_filenames.shape))
+        print("Shape of training labels: {}".format(self.train_labels.shape))
+
+        # Get list of all possible images (incl. augmented if exist)
+        print("Getting augmented dataset...")
+        data_train_folder = os.path.join(cwd, 'train')
+        all_file_names = [f.rsplit('_', 1)[0]
+                          for f in listdir(data_train_folder)
+                          if isfile(join(data_train_folder, f)) and
+                          join(data_train_folder, f).endswith('.png')]
+
+        # Augment training data if specified in config file (and if possible)
+        if self.config.augment:
+            filter_list = ['yellow', 'red', 'blue', 'green']
+            aug_train_list = []
+            aug_train_labels = []
+
+            for i in range(0, self.train_filenames.shape[0]):
+                filename = self.train_filenames[i][0] \
+                    .rsplit('/')[-1].rsplit('_')[0]
+                # List of augmented images for given file
+                aug_list = list(set((filter(
+                    lambda x: str(filename) in x, all_file_names))))
+
+                # If exists augmented images for this file, add to train data
+                if len(aug_list) != 1:
+                    # Remove original filename from list
+                    aug_list = [i for i in aug_list if i != filename]
+
+                    # Append vector of size 4 (image for each colour filter)
+                    for aug_img in aug_list:
+                        aug_train_list.append(
+                            [os.path.join(data_train_folder,
+                                          aug_img + '_' + f + '.png')
+                             for f in filter_list])
+                        aug_train_labels.append(self.train_labels[i])
+
+            try:
+                # Append list of all aug filenames to training set
+                self.train_filenames = np.vstack((self.train_filenames,
+                                                  np.asarray(aug_train_list)))
+                self.train_labels = np.vstack((self.train_labels,
+                                               np.asarray(aug_train_labels)))
+            # aug_train_list is empty (no aug data available)
+            except ValueError:
+                print('No augmented data found. Please augment first')
+
+        # New label frequency
+        print("New label distribution: {}".format(
+            self.train_labels.sum(axis=0)))
+
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
 
@@ -140,15 +194,12 @@ class DataGenerator:
             end_index = min((batch_num + 1) * self.config.batch_size, n)
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
-            try:
-                # try
-                # Convert image to grayscale (if not already)
-                batchimages = np.asarray(
-                    [[np.asarray(Image.open(x).convert('1')) for x in y]
-                     for y in batchfile])
-                yield batchimages, batchlabel
-            except UnboundLocalError:
-                print("Batch unused")
+
+            # Convert image to grayscale (if not already)
+            batchimages = np.asarray(
+                [[np.asarray(Image.open(x).convert('1')) for x in y]
+                 for y in batchfile])
+            yield batchimages, batchlabel
 
     def set_batch_iterator(self, type='all'):
         train_iterator = self.batch_iterator(type=type)

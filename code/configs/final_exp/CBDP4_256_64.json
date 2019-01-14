@@ -8,5 +8,6 @@
     "batch_size": 64,
     "use_weighted_loss": false,
     "focalLoss": false,
-    "input_size": 256
+    "input_size": 256,
+    "augment": false
 }

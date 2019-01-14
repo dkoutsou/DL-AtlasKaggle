@@ -9,5 +9,6 @@
     "use_weighted_loss": false,
     "focalLoss": false,
     "input_size": 256,
-    "f1_loss": false
+    "f1_loss": false,
+    "augment": false
 }

@@ -11,18 +11,35 @@ Revolving around medical image analysis, the main goal of this project is to cla
 
 ### Setup
 - Set your PYTHONPATH variable to where your code folder is <br/>
-(ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`)
-- Set path EXP_PATH to where run results should be saved <br/>
 (ie: `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
-- Set your DATA_PATH variable to where the data is <br/>
+- Set path EXP_PATH to where run results should be saved <br/>
 (ie: `export EXP_PATH="${HOME}/DL-AtlasKaggle/result/"`)<br/>
-If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH}/"`
+- Set your DATA_PATH variable to where the data is <br/>
+(ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`) <br/>
+If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH}/data/"`
 
 - Install the requirements:
 `pip install -r requirements.txt`
 
 ## Models (in 'code/models' folder)
 *BEFORE SUBMISSION DELETED THE UNUSUED MODELS*
+
+### Data Augmentation
+Data augmentation is done by rotating and reversing images. The number of transformations depends on the frequency of the image's label(s).
+From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.<br/>
+
+Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models
+- if we want to later use an augmented dataset.
+
+To augment data, run: <br/>
+`python code/data_loader/data_aug.py`<br/>
+(Optional) arguments are: <br/>
+ - `-n <output_folder>` - where 'output_folder' the name of the folder where to save the augmented images <br/>
+(default is same folder as where the original training data is located - in DATA_PATH)
+- `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
+
+
+
 
 ### Baseline
 - **Random Forest**

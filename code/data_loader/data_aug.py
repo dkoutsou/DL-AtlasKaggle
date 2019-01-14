@@ -7,65 +7,42 @@ from joblib import Parallel, delayed
 import multiprocessing
 import time
 import pickle as pkl
-
-
+import argparse
 from PIL import Image
 
 
-def processInput(image_name, train_labels, filter_list, num_augs, data_folder):
-    aug_data_folder = os.path.join(data_folder, 'train_aug')
-    for image_name in train_labels.Id:
-        image_target = train_labels[
-            train_labels.Id == image_name].Target.values[0]
-        for colour in filter_list:
-            image_path = os.path.join(data_folder, 'train',
-                                      image_name + '_' +
-                                      colour + '.png')
-
-            max_num_rot = min(num_augs[label_names[int(num)]]
-                              for num in image_target.split(' '))
-
-            # Augmenting the image set
-            for i_rot in range(0, max_num_rot):
-                # Rotating the image
-                rot_image = np.rot90(mpimg.imread(image_path),
-                                     i_rot+1)
-                # Convert array to image
-                # Multiply by 255 because original values from 0 to 1
-                img = Image.fromarray(rot_image * 255)
-                # img.show()  # Uncomment to view image
-
-                # Save newly created images
-                # Convert image to RBG mode
-                # (because original - possible CMYK - not supported by PNG)
-                img.convert('RGB').save(
-                    os.path.join(aug_data_folder, image_name +
-                                 '_rot' + str(i_rot+1) +
-                                 '_' + colour + '.png'))
-
-                # Same for reversed image
-                rev_image = np.fliplr(np.rot90(mpimg.imread(image_path),
-                                               i_rot+1))
-                img = Image.fromarray(rev_image * 255)
-                # Save image
-                img.convert('RGB').save(
-                    os.path.join(aug_data_folder, image_name +
-                                 '_rev' + str(i_rot+1) + '_' +
-                                 colour + '.png'))
-
-    return {[image_name + '_rot' + str(i_rot+1), image_target],
-            [image_name + '_rev' + str(i_rot+1), image_target]}
-
-
 def data_aug(data_folder, train_labels, label_names,
-             parallelization_bool=True, aug_data_name='train_aug'):
+             parallelization_bool, aug_data_name):
+    """
+    Function to augment data (by rotating and revolving images)
+    Number of augmentations/sample depending on label frequency
+    Solves newly created images in folder defined by aug_data_name
+
+    Args:
+    data_folder: path to data folder
+    train_labels: dataframe with image name and label
+    label_names: dictionary index-label (see main)
+    parallelization_bool: whether to parallelize process (bool)
+        (default from argparse is False)
+    aug_data_name: folder to store augmented images
+        (default from argparse is data/train)
+
+    Returns a dataframe with all image names and associated labels
+    """
     print('Starting data augmentation')
 
+    aug_data_folder = os.path.join(os.path.dirname(
+                                os.path.dirname(data_folder)),
+                                aug_data_name)
+
     # Create data/train_aug folder if it does not exist yet
-    if not os.path.exists(os.path.join(data_folder, aug_data_name)):
-        print('Creating train_aug data folder')
-        aug_data_folder = os.path.join(data_folder, aug_data_name)
+    if not os.path.exists(aug_data_folder):
+        print('Creating {} folder'.format(str(aug_data_name)))
         os.makedirs(aug_data_folder)
+        os.makedirs(os.path.join(aug_data_folder, 'train'))
+
+    print("Saving aug images to: {}".format(os.path.join(
+        aug_data_folder, 'train')))
 
     # Add 1 column/target: to 1 if in image's target label
     train_labels_counts = train_labels.apply(fill_targets, axis=1)
@@ -75,21 +52,22 @@ def data_aug(data_folder, train_labels, label_names,
 
     filter_list = ['yellow', 'red', 'blue', 'green']
 
+    t_start = time.time()
     # Parallelizing process
     if parallelization_bool:
         print("Parallelizing...")
 
         num_cores = multiprocessing.cpu_count()
 
-        rebalanced_images = Parallel(n_jobs=num_cores)(delayed(
+        Parallel(n_jobs=num_cores)(delayed(
             processInput)(image_name, train_labels,
                           filter_list, num_augs,
-                          data_folder) for image_name in train_labels.Id)
-        save_obj(rebalanced_images, os.path.join(aug_data_folder,
-                                                 'train.csv'))
+                          data_folder, aug_data_folder) for image_name
+                                   in train_labels.Id)
 
-    # If no parallelization
+    # If no Parallelization
     else:
+        print('No parallelization')
         rebalanced_images = []
 
         counter = 0
@@ -120,8 +98,8 @@ def data_aug(data_folder, train_labels, label_names,
                     # Save newly created images
                     # Convert image to RBG mode
                     # (because original not supported by PNG)
-                    img.convert('RGB').save(
-                        os.path.join(aug_data_folder, image_name +
+                    img.convert('LA').save(
+                        os.path.join(aug_data_folder, 'train', image_name +
                                      '_rot' + str(i_rot+1) + '_' +
                                      colour + '.png'))
 
@@ -130,8 +108,8 @@ def data_aug(data_folder, train_labels, label_names,
                                                    i_rot+1))
                     img = Image.fromarray(rev_image * 255)
                     # Save image
-                    img.convert('RGB').save(
-                        os.path.join(aug_data_folder, image_name +
+                    img.convert('LA').save(
+                        os.path.join(aug_data_folder, 'train', image_name +
                                      '_rev' + str(i_rot+1) +
                                      '_' + colour + '.png'))
 
@@ -151,27 +129,59 @@ def data_aug(data_folder, train_labels, label_names,
     t_end = time.time()
     print("Data augmentation took {}s.".format(t_end - t_start))
 
-    rebalanced_images = pd.DataFrame(rebalanced_images,
-                                     columns=['Id', 'Target']
-                                     ).drop_duplicates()
+    return None
 
-    # Concatenate
-    rebalanced_train_labels = pd.concat([train_labels,
-                                         rebalanced_images])
 
-    # Save dataframe
-    rebalanced_images = pd.DataFrame(rebalanced_train_labels,
-                                     columns=['Id', 'Target'])
-    rebalanced_images.to_csv(os.path.join(aug_data_folder,
-                                          'train.csv'))
+def processInput(image_name, train_labels, filter_list,
+                 num_augs, data_folder, aug_data_folder):
+    """
+    Base function to call parallelization of process
+    """
+    image_target = train_labels[
+        train_labels.Id == image_name].Target.values[0]
+    for colour in filter_list:
+        image_path = os.path.join(data_folder, 'train',
+                                  image_name + '_' +
+                                  colour + '.png')
 
-    print("Saved dataframe as augmented_train.csv in data folder")
+        max_num_rot = min(num_augs[label_names[int(num)]]
+                          for num in image_target.split(' '))
 
-    return rebalanced_images
+        # Augmenting the image set
+        for i_rot in range(0, max_num_rot):
+            # Rotating the image
+            rot_image = np.rot90(mpimg.imread(image_path),
+                                 i_rot+1)
+            # Convert array to image
+            # Multiply by 255 because original values from 0 to 1
+            img = Image.fromarray(rot_image * 255)
+            # img.show()  # Uncomment to view image
+
+            # Save newly created images
+            # Convert image to RBG mode
+            # (because original - possible CMYK - not supported by PNG)
+            img.convert('LA').save(
+                os.path.join(aug_data_folder, 'train', image_name +
+                             '_rot' + str(i_rot+1) +
+                             '_' + colour + '.png'))
+
+            # Same for reversed image
+            rev_image = np.fliplr(np.rot90(mpimg.imread(image_path),
+                                           i_rot+1))
+            img = Image.fromarray(rev_image * 255)
+            # Save image
+            img.convert('LA').save(
+                os.path.join(aug_data_folder, 'train', image_name +
+                             '_rev' + str(i_rot+1) + '_' +
+                             colour + '.png'))
+
+        return None
 
 
 def num_aug_perlabel(train_labels):
-    # Find number of augmentations necessary
+    """
+    Function to find number of augmentations necessary
+    """
     sorted_label_values = train_labels.drop(
         ["Id", "Target"], axis=1).sum(axis=0).\
         sort_values(ascending=False)
@@ -188,8 +198,11 @@ def num_aug_perlabel(train_labels):
     return num_augs
 
 
-# Function to get target count for each image
 def fill_targets(row):
+    """
+    Function to get target count for each image
+    Fills cell with a 1 if target in label
+    """
     for key in row.Target.split(" "):
         row.loc[label_names[int(key)]] = 1
     return row
@@ -204,6 +217,27 @@ def save_obj(obj, name):
     """
     with open(name + '.pkl', 'wb') as f:
         pkl.dump(obj, f, pkl.HIGHEST_PROTOCOL)
+
+
+def parseArguments():
+    # Create argument parser
+    parser = argparse.ArgumentParser()
+
+    # Arguments (optional)
+    parser.add_argument("-p", "--parallelize",
+                        default=False, action='store_true',
+                        help='Parallelization (boolean type)')
+    parser.add_argument("-n", "--name",
+                        help="Folder name for augmented data",
+                        type=str, default='data')
+
+    # Print version
+    parser.add_argument("--version", action="version",
+                        version='%(prog)s - Version 1.0')
+
+    # Parse arguments
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == '__main__':
@@ -256,5 +290,12 @@ if __name__ == '__main__':
         27: "Rods & rings"
     }
 
-    parallelization_bool = sys.argv[1]
-    data_aug(cwd, tmp, label_names, parallelization_bool)
+    # Parse the arguments
+    args = parseArguments()
+
+    # Raw print arguments
+    print("You are running the script with arguments: ")
+    for a in args.__dict__:
+        print(str(a) + ": " + str(args.__dict__[a]))
+
+    data_aug(cwd, tmp, label_names, args.parallelize, args.name)
