@@ -22,6 +22,11 @@ def main():
         args = get_args()
         config_array = [process_config(x) for x in args.config.split(" ")]
         check_array = args.checkpoint_nb.split(" ")
+        cwd = os.getenv("EXP_PATH")
+        if args.outfile_multiple:
+            outfile = cwd + '/' + args.outfile_multiple + '.csv'
+        else:
+            outfile = cwd + '/prediction.csv'
     except Exception:
         print("missing or invalid arguments")
         raise
@@ -51,6 +56,7 @@ def main():
         probas[i, :, :] = predictor.predict_probas(testIterator)
         print('processed {} model'.format(model))
         i += 1
+        tf.reset_default_graph()
     probas = np.mean(probas, axis=0)
     print(np.shape(probas))
     one_hot_pred = get_pred_from_probas_threshold(probas)
@@ -63,9 +69,7 @@ def main():
     print(np.shape(predicted_labels))
     testIterator.result['Predicted'] = predicted_labels
     testIterator.result = testIterator.result.sort_values(by='Id')
-    cwd = os.getenv("EXP_PATH")
-    # TODO add parser argument for outfile name
-    testIterator.result.to_csv(cwd + '/mean_pred.csv', index=False)
+    testIterator.result.to_csv(outfile, index=False)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
     "model": "ResNet",
     "learning_rate": 0.0001,
     "max_to_keep": 10,
-    "exp_name": "ResNet_batch16_25epochs_256",
+    "exp_name": "ResNet_batch16_25epochs_256_7",
     "val_split": 0.1, 
     "num_epochs": 25,
     "batch_size": 16,
