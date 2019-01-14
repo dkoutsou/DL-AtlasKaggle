@@ -41,7 +41,8 @@ def data_aug(data_folder, train_labels, label_names,
         os.makedirs(aug_data_folder)
         os.makedirs(os.path.join(aug_data_folder, 'train'))
 
-    print("Saving aug images to: {}".format(os.path.join(aug_data_folder, 'train')))
+    print("Saving aug images to: {}".format(os.path.join(
+        aug_data_folder, 'train')))
 
     # Add 1 column/target: to 1 if in image's target label
     train_labels_counts = train_labels.apply(fill_targets, axis=1)
@@ -57,15 +58,13 @@ def data_aug(data_folder, train_labels, label_names,
 
         num_cores = multiprocessing.cpu_count()
 
-        rebalanced_images = Parallel(n_jobs=num_cores)(delayed(
+        Parallel(n_jobs=num_cores)(delayed(
             processInput)(image_name, train_labels,
                           filter_list, num_augs,
                           data_folder, aug_data_folder) for image_name
-                                                       in train_labels.Id)
-        save_obj(rebalanced_images, os.path.join(aug_data_folder,
-                                                 'train_aug.csv'))
+                                   in train_labels.Id)
 
-    # If no parallelization
+    # If no Parallelization
     else:
         print('No parallelization')
         rebalanced_images = []
@@ -188,8 +187,7 @@ def processInput(image_name, train_labels, filter_list,
                              '_rev' + str(i_rot+1) + '_' +
                              colour + '.png'))
 
-    return {[image_name + '_rot' + str(i_rot+1), image_target],
-            [image_name + '_rev' + str(i_rot+1), image_target]}
+        return None
 
 
 def num_aug_perlabel(train_labels):

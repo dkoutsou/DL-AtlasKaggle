@@ -100,7 +100,6 @@ class DataGenerator:
 
                 # If exists augmented images for this file, add to train data
                 if len(aug_list) != 1:
-                    #aug_list = list(set([x.rsplit('_', 1)[0] for x in aug_list]))
                     # Remove original filename from list
                     aug_list = [i for i in aug_list if i != filename]
 
@@ -197,7 +196,6 @@ class DataGenerator:
                 [[np.asarray(Image.open(x).convert('1')) for x in y]
                  for y in batchfile])
             yield batchimages, batchlabel
-
 
     def set_batch_iterator(self, type='all'):
         train_iterator = self.batch_iterator(type=type)
