@@ -121,6 +121,10 @@ class DataGenerator:
             except ValueError:
                 print('No augmented data found. Please augment first')
 
+        # New label frequency
+        print("New label distribution: {}".format(
+            self.train_labels.sum(axis=0)))
+
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
 

@@ -52,6 +52,7 @@ def data_aug(data_folder, train_labels, label_names,
 
     filter_list = ['yellow', 'red', 'blue', 'green']
 
+    t_start = time.time()
     # Parallelizing process
     if parallelization_bool:
         print("Parallelizing...")
@@ -128,27 +129,14 @@ def data_aug(data_folder, train_labels, label_names,
     t_end = time.time()
     print("Data augmentation took {}s.".format(t_end - t_start))
 
-    rebalanced_images = pd.DataFrame(rebalanced_images,
-                                     columns=['Id', 'Target']
-                                     ).drop_duplicates()
-
-    # Concatenate
-    rebalanced_train_labels = pd.concat([train_labels,
-                                         rebalanced_images])
-
-    # Save dataframe
-    rebalanced_images = pd.DataFrame(rebalanced_train_labels,
-                                     columns=['Id', 'Target'])
-    rebalanced_images.to_csv(os.path.join(aug_data_folder,
-                                          'train_aug.csv'))
-
-    print("Saved dataframe as augmented_train.csv in data folder")
-
-    return rebalanced_images
+    return None
 
 
 def processInput(image_name, train_labels, filter_list,
                  num_augs, data_folder, aug_data_folder):
+    """
+    Base function to call parallelization of process
+    """
     image_target = train_labels[
         train_labels.Id == image_name].Target.values[0]
     for colour in filter_list:
