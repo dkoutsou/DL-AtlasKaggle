@@ -34,8 +34,6 @@ Because data augmentation takes a lot of time (creating several tens of thousand
 To augment data, run: <br/>
 `python code/data_loader/data_aug.py`<br/>
 (Optional) arguments are: <br/>
- - `-n <output_folder>` - where 'output_folder' the name of the folder where to save the augmented images <br/>
-(default is same folder as where the original training data is located - in DATA_PATH)
 - `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
 
 
