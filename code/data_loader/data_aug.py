@@ -28,11 +28,8 @@ def data_aug(data_folder, train_labels, label_names,
     Returns a dataframe with all image names and associated labels
     """
     print('Starting data augmentation')
-
-    aug_data_folder = data_folder
-
     print("Saving aug images to: {}".format(os.path.join(
-        aug_data_folder, 'train')))
+        data_folder, 'train')))
 
     # Add 1 column/target: to 1 if in image's target label
     train_labels_counts = train_labels.apply(fill_targets, axis=1)
@@ -89,7 +86,7 @@ def data_aug(data_folder, train_labels, label_names,
                     # Convert image to RBG mode
                     # (because original not supported by PNG)
                     img.convert('LA').save(
-                        os.path.join(aug_data_folder, 'train', image_name +
+                        os.path.join(data_folder, 'train', image_name +
                                      '_rot' + str(i_rot+1) + '_' +
                                      colour + '.png'))
 
@@ -99,7 +96,7 @@ def data_aug(data_folder, train_labels, label_names,
                     img = Image.fromarray(rev_image * 255)
                     # Save image
                     img.convert('LA').save(
-                        os.path.join(aug_data_folder, 'train', image_name +
+                        os.path.join(data_folder, 'train', image_name +
                                      '_rev' + str(i_rot+1) +
                                      '_' + colour + '.png'))
 
