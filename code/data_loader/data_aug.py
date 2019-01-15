@@ -175,7 +175,7 @@ def processInput(image_name, train_labels, filter_list,
                              '_rev' + str(i_rot+1) + '_' +
                              colour + '.png'))
 
-        return None
+    return None
 
 
 def num_aug_perlabel(train_labels):
