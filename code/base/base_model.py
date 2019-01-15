@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils.loss import f1_loss
+from utils.loss import f1_loss, binary_focal_loss
 
 
 class BaseModel:
@@ -85,28 +85,33 @@ class BaseModel:
             x, (self.config.input_size, self.config.input_size))
 
     def build_loss_output(self):
-        try:
-            if self.config.use_weighted_loss:
-                pass
-        except AttributeError:
-            print('WARN: use_weighted_loss not set - using False')
-            self.config.use_weighted_loss = False
-        try:
-            if self.config.f1_loss:
-                pass
-        except AttributeError:
-            print('WARN: f1_loss not set - using False')
-            self.config.f1_loss = False
+        losses_names = ["use_weighted_loss", "f1_loss", "focal_loss"]
+        losses = {}
+
+        for loss_name in losses_names:
+            try:
+                losses[loss_name] = eval("self.config." + loss_name)
+            except AttributeError:
+                losses[loss_name] = None
+
+        for key, value in losses.items():
+            if value is None:
+                print('WARN: {} not set - using False'.format(key))
+                losses[key] = False
+
         with tf.name_scope("output"):
             self.out = tf.nn.sigmoid(self.logits, name='out')
         with tf.name_scope("loss"):
-            if self.config.f1_loss:
+            if losses["f1_loss"]:
                 self.loss = f1_loss(y_true=self.label, y_pred=self.out)
-            elif self.config.use_weighted_loss:
+            elif losses["use_weighted_loss"]:
                 self.loss = tf.losses.compute_weighted_loss(
                     tf.nn.sigmoid_cross_entropy_with_logits(
                         labels=self.label, logits=self.logits),
                     weights=self.class_weights)
+            elif losses["focal_loss"]:
+                self.loss = binary_focal_loss(y_true=self.label,
+                                              y_pred=self.out)
             else:
                 self.loss = tf.reduce_mean(
                     tf.nn.sigmoid_cross_entropy_with_logits(
