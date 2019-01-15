@@ -48,16 +48,16 @@ def binary_focal_loss(y_true, y_pred, gamma=2.0, alpha=0.25):
     # Clip the prediciton value
     y_pred = tf.clip_by_value(y_pred, epsilon, 1.0-epsilon)
     # Calculate p_t
-    p_t = tf.where(tf.math.equal(y_true, 1), y_pred, 1-y_pred)
+    p_t = tf.where(tf.equal(y_true, 1), y_pred, 1-y_pred)
     # Calculate alpha_t
     alpha_factor = tf.ones_like(y_true)*alpha
-    alpha_t = tf.where(tf.math.equal(y_true, 1), alpha_factor, 1-alpha_factor)
+    alpha_t = tf.where(tf.equal(y_true, 1), alpha_factor, 1-alpha_factor)
     # Calculate cross entropy
-    cross_entropy = -tf.math.log(p_t)
-    weight = alpha_t * tf.math.pow((1-p_t), gamma)
+    cross_entropy = -tf.log(p_t)
+    weight = alpha_t * tf.pow((1-p_t), gamma)
     # Calculate focal loss
     loss = weight * cross_entropy
     # Sum the losses in mini_batch
-    loss = tf.math.reduce_sum(loss, axis=1)
+    loss = tf.reduce_sum(loss)
 
     return loss
