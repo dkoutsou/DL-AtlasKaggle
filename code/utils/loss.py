@@ -58,6 +58,6 @@ def binary_focal_loss(y_true, y_pred, gamma=2.0, alpha=0.25):
     # Calculate focal loss
     loss = weight * cross_entropy
     # Sum the losses in mini_batch
-    loss = tf.reduce_sum(loss, axis=1)
+    loss = tf.reduce_sum(loss)
 
     return loss
