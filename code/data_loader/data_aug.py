@@ -288,4 +288,4 @@ if __name__ == '__main__':
     for a in args.__dict__:
         print(str(a) + ": " + str(args.__dict__[a]))
 
-    data_aug(cwd, tmp, label_names, args.parallelize, args.name)
+    data_aug(cwd, tmp, label_names, args.parallelize)
