@@ -33,6 +33,11 @@ class DataGenerator:
             print("Set your DATA_PATH env first")
             sys.exit(1)
         self.config = config
+        try:
+            if self.config.augment:
+                pass
+        except AttributeError:
+            self.config.augment = False
 
         # Read csv file
         tmp = pd.read_csv(
@@ -78,7 +83,6 @@ class DataGenerator:
         print("Shape of training labels: {}".format(self.train_labels.shape))
 
         # Get list of all possible images (incl. augmented if exist)
-        print("Getting augmented dataset...")
         data_train_folder = os.path.join(cwd, 'train')
         all_file_names = [f.rsplit('_', 1)[0]
                           for f in listdir(data_train_folder)
@@ -87,6 +91,7 @@ class DataGenerator:
 
         # Augment training data if specified in config file (and if possible)
         if self.config.augment:
+            print("Getting augmented dataset...")
             filter_list = ['yellow', 'red', 'blue', 'green']
             aug_train_list = []
             aug_train_labels = []
