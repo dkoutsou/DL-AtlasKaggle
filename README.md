@@ -85,7 +85,7 @@ Example of command to launch prediction <br/>
 
 ## Averaging probabilities from several models
 If you have several trained models and you wish to combine all predicted probabilities (averaging them) in order to predict the labels you can use `predict_from_several_main.py`. It takes a list of config files (one per model to load) and a corresponding list of check_nb for the corresponding checkpoint numbers to load.
-The result are saved in a csv file called `/{filename}.csv` in your `EXP_PATH` folder, specify `filename` via the `-om`parder argument. <br/>
+The result are saved in a csv file called `/{filename}.csv` in your `EXP_PATH` folder, specify `filename` via the `-om` parser argument. <br/>
 Example of command: <br/>
 `python code/mains/predict_from_several_main.py -c "path/to/config1 path/to/config2" -check_nb "checknb1 checknb2" -om "filename"`
 
