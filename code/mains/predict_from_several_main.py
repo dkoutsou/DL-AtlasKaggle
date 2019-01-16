@@ -24,9 +24,9 @@ def main():
         check_array = args.checkpoint_nb.split(" ")
         cwd = os.getenv("EXP_PATH")
         if args.outfile_multiple:
-            outfile = cwd + '/' + args.outfile_multiple + '.csv'
+            outfile = os.path.join(cwd, args.outfile_multiple + '.csv')
         else:
-            outfile = cwd + '/prediction.csv'
+            outfile = os.path.join(cwd, 'prediction.csv')
     except Exception:
         print("missing or invalid arguments")
         raise

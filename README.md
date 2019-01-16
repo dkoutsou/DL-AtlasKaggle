@@ -28,8 +28,8 @@ If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH
 Data augmentation is done by rotating and reversing images. The number of transformations depends on the frequency of the image's label(s).
 From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.<br/>
 
-Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models
-- if we want to later use an augmented dataset.
+Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models,
+if we want to later use an augmented dataset.
 
 To augment data, run: <br/>
 `python code/data_loader/data_aug.py`<br/>

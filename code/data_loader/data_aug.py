@@ -214,9 +214,6 @@ def parseArguments():
     parser.add_argument("-p", "--parallelize",
                         default=False, action='store_true',
                         help='Parallelization (boolean type)')
-    parser.add_argument("-n", "--name",
-                        help="Folder name for augmented data",
-                        type=str, default='data')
 
     # Print version
     parser.add_argument("--version", action="version",

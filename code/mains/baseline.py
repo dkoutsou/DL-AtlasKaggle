@@ -127,8 +127,9 @@ if __name__ == '__main__':
     print('Result: {}'.format(result))
 
     # Create data/train_aug folder if it does not exist yet
-    result_folder = os.path.join(os.path.dirname(
-        os.getcwd()), 'prediction', config.exp_name)
+    cwd = os.getenv("EXP_PATH")
+    result_folder = os.path.join(
+        cwd, 'prediction', config.exp_name)
     if not os.path.exists(result_folder):
         print('Creating train_aug data folder')
         os.makedirs(result_folder)
