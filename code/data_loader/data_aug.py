@@ -12,7 +12,7 @@ from PIL import Image
 
 
 def data_aug(data_folder, train_labels, label_names,
-             parallelization_bool, aug_data_name):
+             parallelization_bool):
     """
     Function to augment data (by rotating and revolving images)
     Number of augmentations/sample depending on label frequency
@@ -24,25 +24,12 @@ def data_aug(data_folder, train_labels, label_names,
     label_names: dictionary index-label (see main)
     parallelization_bool: whether to parallelize process (bool)
         (default from argparse is False)
-    aug_data_name: folder to store augmented images
-        (default from argparse is data/train)
 
     Returns a dataframe with all image names and associated labels
     """
     print('Starting data augmentation')
-
-    aug_data_folder = os.path.join(os.path.dirname(
-                                os.path.dirname(data_folder)),
-                                aug_data_name)
-
-    # Create data/train_aug folder if it does not exist yet
-    if not os.path.exists(aug_data_folder):
-        print('Creating {} folder'.format(str(aug_data_name)))
-        os.makedirs(aug_data_folder)
-        os.makedirs(os.path.join(aug_data_folder, 'train'))
-
     print("Saving aug images to: {}".format(os.path.join(
-        aug_data_folder, 'train')))
+        data_folder, 'train')))
 
     # Add 1 column/target: to 1 if in image's target label
     train_labels_counts = train_labels.apply(fill_targets, axis=1)
@@ -62,7 +49,7 @@ def data_aug(data_folder, train_labels, label_names,
         Parallel(n_jobs=num_cores)(delayed(
             processInput)(image_name, train_labels,
                           filter_list, num_augs,
-                          data_folder, aug_data_folder) for image_name
+                          data_folder) for image_name
                                    in train_labels.Id)
 
     # If no Parallelization
@@ -99,7 +86,7 @@ def data_aug(data_folder, train_labels, label_names,
                     # Convert image to RBG mode
                     # (because original not supported by PNG)
                     img.convert('LA').save(
-                        os.path.join(aug_data_folder, 'train', image_name +
+                        os.path.join(data_folder, 'train', image_name +
                                      '_rot' + str(i_rot+1) + '_' +
                                      colour + '.png'))
 
@@ -109,7 +96,7 @@ def data_aug(data_folder, train_labels, label_names,
                     img = Image.fromarray(rev_image * 255)
                     # Save image
                     img.convert('LA').save(
-                        os.path.join(aug_data_folder, 'train', image_name +
+                        os.path.join(data_folder, 'train', image_name +
                                      '_rev' + str(i_rot+1) +
                                      '_' + colour + '.png'))
 
@@ -133,7 +120,7 @@ def data_aug(data_folder, train_labels, label_names,
 
 
 def processInput(image_name, train_labels, filter_list,
-                 num_augs, data_folder, aug_data_folder):
+                 num_augs, data_folder):
     """
     Base function to call parallelization of process
     """
@@ -161,7 +148,7 @@ def processInput(image_name, train_labels, filter_list,
             # Convert image to RBG mode
             # (because original - possible CMYK - not supported by PNG)
             img.convert('LA').save(
-                os.path.join(aug_data_folder, 'train', image_name +
+                os.path.join(data_folder, 'train', image_name +
                              '_rot' + str(i_rot+1) +
                              '_' + colour + '.png'))
 
@@ -171,11 +158,11 @@ def processInput(image_name, train_labels, filter_list,
             img = Image.fromarray(rev_image * 255)
             # Save image
             img.convert('LA').save(
-                os.path.join(aug_data_folder, 'train', image_name +
+                os.path.join(data_folder, 'train', image_name +
                              '_rev' + str(i_rot+1) + '_' +
                              colour + '.png'))
 
-        return None
+    return None
 
 
 def num_aug_perlabel(train_labels):
@@ -298,4 +285,4 @@ if __name__ == '__main__':
     for a in args.__dict__:
         print(str(a) + ": " + str(args.__dict__[a]))
 
-    data_aug(cwd, tmp, label_names, args.parallelize, args.name)
+    data_aug(cwd, tmp, label_names, args.parallelize)
