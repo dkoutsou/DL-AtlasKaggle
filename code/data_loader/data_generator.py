@@ -204,6 +204,10 @@ class DataGenerator:
             batchimages = np.asarray(
                 [[np.asarray(Image.open(x).convert('1')) for x in y]
                  for y in batchfile])
+            # print(batchimages[0])
+            # print(np.asarray(
+            #    [[np.asarray(Image.open(x)) for x in y]
+            #     for y in batchfile])[0])
             yield batchimages, batchlabel
 
     def set_batch_iterator(self, type='all'):
@@ -250,7 +254,7 @@ class DataTestLoader:
             end_index = min((batch_num + 1) * self.config.batch_size, self.n)
             batchfile = self.filenames[start_index:end_index]
             batchimages = np.asarray(
-                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
+                [[np.asarray(Image.open(x).convert('1')) for x in y] for y in batchfile])
             yield batchimages
 
 
