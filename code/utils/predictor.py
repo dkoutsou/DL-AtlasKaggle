@@ -108,9 +108,12 @@ class Predictor:
                 self.model.input: batch_imgs,
                 self.model.is_training: False
             })
+            # print(batch_probas[0])
             # one_hot_batch_pred = get_pred_from_probas(batch_probas)
             one_hot_batch_pred = get_pred_from_probas_threshold(batch_probas)
+            # print(one_hot_batch_pred[0])
             batch_pred = bin.inverse_transform(one_hot_batch_pred)
+            # print(batch_pred[0])
             predicted_labels = np.append(predicted_labels, [
                 ' '.join([str(p) for p in sample_pred])
                 for sample_pred in batch_pred
