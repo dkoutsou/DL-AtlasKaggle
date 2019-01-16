@@ -200,9 +200,8 @@ class DataGenerator:
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
 
-            # Convert image to grayscale (if not already)
             batchimages = np.asarray(
-                [[np.asarray(Image.open(x).convert('1')) for x in y]
+                [[np.asarray(Image.open(x)) for x in y]
                  for y in batchfile])
             # print(batchimages[0])
             # print(np.asarray(
@@ -254,27 +253,5 @@ class DataTestLoader:
             end_index = min((batch_num + 1) * self.config.batch_size, self.n)
             batchfile = self.filenames[start_index:end_index]
             batchimages = np.asarray(
-                [[np.asarray(Image.open(x).convert('1')) for x in y] for y in batchfile])
+                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
             yield batchimages
-
-
-if __name__ == '__main__':
-    # just for testing
-    from bunch import Bunch
-    config_dict = {'batch_size': 32, 'bootstrap_size': 0.001}
-    config = Bunch(config_dict)
-    TrainingSet = DataGenerator(config, random_state=42)
-    TrainingSet2 = DataGenerator(config, random_state=43)
-    print(TrainingSet.train_filenames)
-    print()
-    print(TrainingSet2.train_filenames)
-    """
-    all_batches = TrainingSet.batch_iterator()
-    for batch_x, batch_y in all_batches:
-        print(np.shape(batch_x))   # (32, 4, 512, 512)
-        print(np.shape(batch_y))
-    """
-    TestLoader = DataTestLoader(config)
-    all_test_batches = TestLoader.batch_iterator()
-    for batch_x in all_test_batches:
-        print(np.shape(batch_x))  # (32, 4, 512, 512)
