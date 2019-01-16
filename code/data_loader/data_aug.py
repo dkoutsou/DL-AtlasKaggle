@@ -85,7 +85,7 @@ def data_aug(data_folder, train_labels, label_names,
                     # Save newly created images
                     # Convert image to RBG mode
                     # (because original not supported by PNG)
-                    img.convert('LA').save(
+                    img.convert('P').save(
                         os.path.join(data_folder, 'train', image_name +
                                      '_rot' + str(i_rot+1) + '_' +
                                      colour + '.png'))
