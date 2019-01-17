@@ -86,10 +86,11 @@ class DataGenerator:
 
         # Get list of all possible images (incl. augmented if exist)
         data_train_folder = os.path.join(cwd, 'train')
-        all_file_names = [f.rsplit('_', 1)[0]
-                          for f in listdir(data_train_folder)
-                          if isfile(join(data_train_folder, f)) and
-                          join(data_train_folder, f).endswith('.png')]
+        all_file_names = [
+            f.rsplit('_', 1)[0] for f in listdir(data_train_folder)
+            if isfile(join(data_train_folder, f))
+            and join(data_train_folder, f).endswith('.png')
+        ]
 
         # Augment training data if specified in config file (and if possible)
         if self.config.augment:
@@ -102,8 +103,9 @@ class DataGenerator:
                 filename = self.train_filenames[i][0] \
                     .rsplit('/')[-1].rsplit('_')[0]
                 # List of augmented images for given file
-                aug_list = list(set((filter(
-                    lambda x: str(filename) in x, all_file_names))))
+                aug_list = list(
+                    set((filter(lambda x: str(filename) in x,
+                                all_file_names))))
 
                 # If exists augmented images for this file, add to train data
                 if len(aug_list) != 1:
@@ -111,12 +113,21 @@ class DataGenerator:
                     aug_list = [i for i in aug_list if i != filename]
 
                     # Append vector of size 4 (image for each colour filter)
+
                     for aug_img in aug_list:
-                        aug_train_list.append(
-                            [os.path.join(data_train_folder,
-                                          aug_img + '_' + f + '.png')
-                             for f in filter_list])
-                        aug_train_labels.append(self.train_labels[i])
+                        temp = [
+                            os.path.join(data_train_folder,
+                                         aug_img + '_' + f + '.png')
+                            for f in filter_list
+                        ]
+                        flag = True
+                        for fname in temp:
+                            with open(fname, 'rb') as f:
+                                # Check header of file
+                                flag = flag and (f.read(4) == '\x89PNG')
+                        if flag is True:
+                            aug_train_list.append(temp)
+                            aug_train_labels.append(self.train_labels[i])
 
             try:
                 # Append list of all aug filenames to training set
@@ -203,8 +214,7 @@ class DataGenerator:
             batchlabel = shuffled_labels[start_index:end_index]
 
             batchimages = np.asarray(
-                [[np.asarray(Image.open(x)) for x in y]
-                 for y in batchfile])
+                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
             # print(batchimages[0])
             # print(np.asarray(
             #    [[np.asarray(Image.open(x)) for x in y]
