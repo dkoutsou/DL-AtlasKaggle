@@ -95,7 +95,7 @@ def data_aug(data_folder, train_labels, label_names,
                                                    i_rot+1))
                     img = Image.fromarray(rev_image * 255)
                     # Save image
-                    img.convert('LA').save(
+                    img.convert('P').save(
                         os.path.join(data_folder, 'train', image_name +
                                      '_rev' + str(i_rot+1) +
                                      '_' + colour + '.png'))
@@ -147,7 +147,7 @@ def processInput(image_name, train_labels, filter_list,
             # Save newly created images
             # Convert image to RBG mode
             # (because original - possible CMYK - not supported by PNG)
-            img.convert('LA').save(
+            img.convert('P').save(
                 os.path.join(data_folder, 'train', image_name +
                              '_rot' + str(i_rot+1) +
                              '_' + colour + '.png'))
@@ -157,7 +157,7 @@ def processInput(image_name, train_labels, filter_list,
                                            i_rot+1))
             img = Image.fromarray(rev_image * 255)
             # Save image
-            img.convert('LA').save(
+            img.convert('P').save(
                 os.path.join(data_folder, 'train', image_name +
                              '_rev' + str(i_rot+1) + '_' +
                              colour + '.png'))
