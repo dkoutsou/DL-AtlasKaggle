@@ -13,13 +13,15 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class DataGenerator:
-    """A class that implements an iterator to load the data. It uses  as an
+    """
+    A class that implements an iterator to load the data. It uses  as an
     environmental variable the data folder and then loads the necessary files
     (labels and images) and starts loading the data
     """
 
     def __init__(self, config):
-        """The constructor of the DataGenerator class. It loads the training
+        """
+        The constructor of the DataGenerator class. It loads the training
         labels and the images.
 
         Parameters
