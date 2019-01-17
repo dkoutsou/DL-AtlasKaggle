@@ -121,10 +121,13 @@ class DataGenerator:
                             for f in filter_list
                         ]
                         flag = True
-                        for fname in temp:
-                            with open(fname, 'rb') as f:
-                                # Check header of file
-                                flag = flag and (f.read(4) == '\x89PNG')
+                        try:
+                            for fname in temp:
+                                with open(fname, 'rb') as f:
+                                    # Check header of file
+                                    flag = flag and (f.read(4) == '\x89PNG')
+                        except IOError:
+                            flag = False
                         if flag is True:
                             aug_train_list.append(temp)
                             aug_train_labels.append(self.train_labels[i])
