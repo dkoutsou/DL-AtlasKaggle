@@ -46,7 +46,7 @@ def data_aug(data_folder, train_labels, label_names,
 
         num_cores = multiprocessing.cpu_count()
 
-        Parallel(n_jobs=num_cores)(delayed(
+        Parallel(n_jobs=num_cores, verbose=1)(delayed(
             processInput)(image_name, train_labels,
                           filter_list, num_augs,
                           data_folder) for image_name
