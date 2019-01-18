@@ -28,8 +28,8 @@ If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH
 Data augmentation is done by rotating and reversing images. The number of transformations depends on the frequency of the image's label(s).
 From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.<br/>
 
-Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models
-- if we want to later use an augmented dataset.
+Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models,
+if we want to later use an augmented dataset.
 
 To augment data, run: <br/>
 `python code/data_loader/data_aug.py`<br/>
@@ -85,8 +85,8 @@ Example of command to launch prediction <br/>
 
 ## Averaging probabilities from several models
 If you have several trained models and you wish to combine all predicted probabilities (averaging them) in order to predict the labels you can use `predict_from_several_main.py`. It takes a list of config files (one per model to load) and a corresponding list of check_nb for the corresponding checkpoint numbers to load.
-The result are saved in a csv file called `/mean_pred.csv` in your `EXP_PATH` folder. <br/>
+The result are saved in a csv file called `/{filename}.csv` in your `EXP_PATH` folder, specify `filename` via the `-om` parser argument. <br/>
 Example of command: <br/>
-`python code/mains/predict_from_several_main.py -c "path/to/config1 path/to/config2" -check_nb "checknb1 checknb2"`
+`python code/mains/predict_from_several_main.py -c "path/to/config1 path/to/config2" -check_nb "checknb1 checknb2" -om "filename"`
 
 
