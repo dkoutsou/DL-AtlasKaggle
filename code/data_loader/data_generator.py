@@ -126,11 +126,14 @@ class DataGenerator:
                                 with open(fname, 'rb') as f:
                                     # Check header of file
                                     flag = flag and (f.read(4) == '\x89PNG')
-                        except IOError:
+                        except IOError as e:
+                            print(e)
                             flag = False
                         if flag is True:
                             aug_train_list.append(temp)
                             aug_train_labels.append(self.train_labels[i])
+                        else:
+                            print("skipping {}".format(aug_img))
 
             try:
                 # Append list of all aug filenames to training set
