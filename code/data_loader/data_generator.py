@@ -288,3 +288,11 @@ class DataTestLoader:
             batchimages = np.asarray(
                 [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
             yield batchimages
+
+
+if __name__ == '__main__':
+    # just for testing
+    from bunch import Bunch
+    config_dict = {'batch_size': 32, 'augment': True}
+    config = Bunch(config_dict)
+    TrainingSet = DataGenerator(config)
