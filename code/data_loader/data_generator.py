@@ -10,6 +10,7 @@ from sklearn.utils import resample
 from PIL import Image
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+SKIP_CHECK = True
 
 
 class DataGenerator:
@@ -86,11 +87,6 @@ class DataGenerator:
 
         # Get list of all possible images (incl. augmented if exist)
         data_train_folder = os.path.join(cwd, 'train')
-        all_file_names = [
-            f.rsplit('_', 1)[0] for f in listdir(data_train_folder)
-            if isfile(join(data_train_folder, f))
-            and join(data_train_folder, f).endswith('.png')
-        ]
 
         # Augment training data if specified in config file (and if possible)
         if self.config.augment:
@@ -102,38 +98,53 @@ class DataGenerator:
             for i in range(0, self.train_filenames.shape[0]):
                 filename = self.train_filenames[i][0] \
                     .rsplit('/')[-1].rsplit('_')[0]
-                # List of augmented images for given file
-                aug_list = list(
-                    set((filter(lambda x: str(filename) in x,
-                                all_file_names))))
-
-                # If exists augmented images for this file, add to train data
-                if len(aug_list) != 1:
-                    # Remove original filename from list
-                    aug_list = [i for i in aug_list if i != filename]
-
-                    # Append vector of size 4 (image for each colour filter)
-
-                    for aug_img in aug_list:
-                        temp = [
-                            os.path.join(data_train_folder,
-                                         aug_img + '_' + f + '.png')
-                            for f in filter_list
-                        ]
-                        flag = True
+                print(filename)
+                temp_rot = []
+                temp_rev = []
+                counter = 0
+                while True:
+                    test_f = os.path.join(
+                        data_train_folder, filename + '_rot{}'.format(counter)
+                        + '_' + filter_list[0] + '.png')
+                    if os.path.isfile(test_f) is False:
+                        break
+                    temp_rot = [
+                        os.path.join(
+                            data_train_folder, filename +
+                            '_rot{}'.format(counter) + '_' + f + '.png')
+                        for f in filter_list
+                    ]
+                    temp_rev = [
+                        os.path.join(
+                            data_train_folder, filename +
+                            '_rev{}'.format(counter) + '_' + f + '.png')
+                        for f in filter_list
+                    ]
+                    flag = True
+                    if SKIP_CHECK is True:
                         try:
-                            for fname in temp:
+                            for fname in temp_rev:
+                                with open(fname, 'rb') as f:
+                                    # Check header of file
+                                    flag = flag and (f.read(4) == b'\x89PNG')
+                            for fname in temp_rot:
                                 with open(fname, 'rb') as f:
                                     # Check header of file
                                     flag = flag and (f.read(4) == b'\x89PNG')
                         except IOError as e:
                             print(e)
                             flag = False
-                        if flag is True:
-                            aug_train_list.append(temp)
-                            aug_train_labels.append(self.train_labels[i])
-                        else:
-                            print("skipping {}".format(aug_img))
+                    if flag is True:
+                        aug_train_list.append(temp_rot)
+                        aug_train_labels.append(self.train_labels[i])
+                        aug_train_list.append(temp_rev)
+                        aug_train_labels.append(self.train_labels[i])
+                    else:
+                        print("corrupted images found")
+                        print(temp_rot)
+                        print(temp_rev)
+
+                    counter += 1
 
             try:
                 # Append list of all aug filenames to training set
@@ -219,13 +230,17 @@ class DataGenerator:
             batchfile = shuffled_filenames[start_index:end_index]
             batchlabel = shuffled_labels[start_index:end_index]
 
-            batchimages = np.asarray(
-                [[np.asarray(Image.open(x)) for x in y] for y in batchfile])
-            # print(batchimages[0])
-            # print(np.asarray(
-            #    [[np.asarray(Image.open(x)) for x in y]
-            #     for y in batchfile])[0])
-            yield batchimages, batchlabel
+            try:
+                batchimages = np.asarray(
+                    [[np.asarray(Image.open(x)) for x in y]
+                     for y in batchfile])
+                # print(batchimages[0])
+                # print(np.asarray(
+                #    [[np.asarray(Image.open(x)) for x in y]
+                #     for y in batchfile])[0])
+                yield batchimages, batchlabel
+            except Exception as e:
+                print("WARN: throwing away batch - {}".format(e))
 
     def set_batch_iterator(self, type='all'):
         train_iterator = self.batch_iterator(type=type)
