@@ -2,8 +2,6 @@ import numpy as np
 import os
 import sys
 import pandas as pd
-from os import listdir
-from os.path import isfile, join
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
@@ -98,10 +96,10 @@ class DataGenerator:
             for i in range(0, self.train_filenames.shape[0]):
                 filename = self.train_filenames[i][0] \
                     .rsplit('/')[-1].rsplit('_')[0]
-                print(filename)
+                print("Augmenting {}".format(filename))
                 temp_rot = []
                 temp_rev = []
-                counter = 0
+                counter = 1
                 while True:
                     test_f = os.path.join(
                         data_train_folder, filename + '_rot{}'.format(counter)
@@ -121,7 +119,7 @@ class DataGenerator:
                         for f in filter_list
                     ]
                     flag = True
-                    if SKIP_CHECK is True:
+                    if SKIP_CHECK is False:
                         try:
                             for fname in temp_rev:
                                 with open(fname, 'rb') as f:
@@ -296,3 +294,7 @@ if __name__ == '__main__':
     config_dict = {'batch_size': 32, 'augment': True}
     config = Bunch(config_dict)
     TrainingSet = DataGenerator(config)
+    all_batches = TrainingSet.batch_iterator()
+    for batch_x, batch_y in all_batches:
+        print(np.shape(batch_x))  # (32, 4, 512, 512)
+        print(np.shape(batch_y))
