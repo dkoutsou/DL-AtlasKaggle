@@ -114,6 +114,3 @@ set_path.sh
 
 # Result
 /result
-
-pretrained/*
-!pretrained/.gitkeep
