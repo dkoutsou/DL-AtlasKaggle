@@ -2,11 +2,9 @@
 ## Deep Learning - Fall 2018 - ETH Zurich
 ### Mélanie Bernhardt - Mélanie Gaillochet - Andreas Georgiou - Dimitrios Koutsoukos
 
-## REMARK: we have a second readme for the template, should we delete it? But we should probalby cite the template anyway.
-
 ## Main goal
 Based on the "Human Protein Atlas Image Classication" Kaggle competition (https://www.kaggle.com/c/human-protein-atlas-image-classification) <br/>
-Revolving around medical image analysis, the main goal of this project is to classify mixed patterns of proteins in microscope images using computer vision.
+Revolving around medical image analysis, the main goal of this project is to classify mixed patterns of proteins in microscope images using computer vision. 
 
 
 ### Setup
@@ -22,39 +20,30 @@ If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH
 `pip install -r requirements.txt`
 
 ## Models (in 'code/models' folder)
-*BEFORE SUBMISSION DELETED THE UNUSUED MODELS*
 
 ### Data Augmentation
 Data augmentation is done by rotating and reversing images. The number of transformations depends on the frequency of the image's label(s).
-From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.<br/>
+From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.
 
-Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models,
-if we want to later use an augmented dataset.
+On 28 cores data augmentation takes about ~30 minutes. However, it has to be done separately, prior to running the models, if someone wants to later use an augmented dataset.
 
-To augment data, run: <br/>
-`python code/data_loader/data_aug.py`<br/>
-(Optional) arguments are: <br/>
+To augment data, run:
+`python code/data_loader/data_aug.py`
+(Optional) arguments are:
 - `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
-
-
 
 
 ### Baseline
 - **Random Forest**
 
 ### Simple CNN with increasing complexity
-- **CP2_model** : Simple *2-layer* CNN (with ReLU activation and max pooling)
 - **CP4_model**: Simple *4-layer* CNN(with ReLU activation and max pooling)
-- **CDP4_model**: 4-layer CNN (each followed by *dropout* of rate 0.5 before max pooling)
 - **CBDP4_model**: 4-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling)
-- **SimpleCNN_model**: 3-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling) *NOT USED FOR NOW*
-- **DeepSimple_model**: 3 blocks of (conv layer + batch_normalization + dropout + conv layer + batch_normalization + dropout+ 2x2 maxpooling) followed by one dense layer with 28 output units.
 
 ### Existing state-of-the-art models
-- **DeepYeast_model**: DeepYeast (11-layer CNN, with 8 convolutional layers and 3 fully connected layers)
-- **inception_model**: InceptionNets
-- **resNet_model**: ResNets
-- DenseNets
+- **DeepYeast_model** :DeepYeast (11-layer CNN, with 8 convolutional layers and 3 fully connected layers)
+- **resNet_model** :
+- **denset_model** :
 
 Parameters for each model can be modified in the corresponding file of the 'code/configs' folder.
 
@@ -70,7 +59,9 @@ In this file you specify the following arguments:
 - "batch_size": batch size to use
 - "use_weighted_loss": (optional, default: false) whether to use class weigths to weight to loss function.
 - "input_size": (optional, default: 512) if you want to resize the input images to "input_size"x"input_size"
-- "use_f1_loss": (optional, default: false) whether to use f1 loss instead of cross-entropy loss
+- "f1_loss": (optional, default: false) whether to use f1 loss instead of cross-entropy loss
+- "focal_loss": : (optional, default: false) whether to use focal loss instead of cross-entropy loss
+- "augment": (optional, default: false) whether to use the augmented dataset
 
 Then to launch training use the following command: <br/>
 `python code/mains/train_main.py -c path/to/config/<json file to be used>`
@@ -88,5 +79,10 @@ If you have several trained models and you wish to combine all predicted probabi
 The result are saved in a csv file called `/{filename}.csv` in your `EXP_PATH` folder, specify `filename` via the `-om` parser argument. <br/>
 Example of command: <br/>
 `python code/mains/predict_from_several_main.py -c "path/to/config1 path/to/config2" -check_nb "checknb1 checknb2" -om "filename"`
+
+## Acknowledgement
+Tensorflow template taken from [here](https://github.com/jtoy/awesome-tensorflow).
+
+Please see the separate README in the code folder in order to see how to use it.
 
 
