@@ -51,10 +51,10 @@ To launch training use the following command: <br/>
 ### Existing state-of-the-art models
 - **DeepYeast_model**: DeepYeast (11-layer CNN, with 8 convolutional layers and 3 fully connected layers)
 - **DeepLoc**: DeepYeast (11-layer CNN, with 8 convolutional layers and 3 fully connected layers)
-- **inception_model**: InceptionNets
+- **DenseNet**
 - **resNet_model**: ResNets
-- **DeepSimple_model**: 3 blocks of (conv layer + batch_normalization + dropout + conv layer + batch_normalization + dropout+ 2x2 maxpooling) followed by one dense layer with 28 output units
-- **DenseNets**
+- ADD IF WE HAVE OTHER
+
 
 Parameters for each model can be modified in the corresponding file of the 'code/configs' folder.
 
