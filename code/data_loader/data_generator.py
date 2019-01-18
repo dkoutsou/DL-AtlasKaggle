@@ -125,7 +125,7 @@ class DataGenerator:
                             for fname in temp:
                                 with open(fname, 'rb') as f:
                                     # Check header of file
-                                    flag = flag and (f.read(4) == '\x89PNG')
+                                    flag = flag and (f.read(4) == b'\x89PNG')
                         except IOError as e:
                             print(e)
                             flag = False
