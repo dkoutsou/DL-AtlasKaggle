@@ -20,7 +20,7 @@ The main idea is that there's much stuff you do every time you start your tensor
  -  [Contributing](#contributing)
  -  [Acknowledgments](#acknowledgments)
 
-# In a Nutshell   
+# In a Nutshell
 In a nutshell here's how to use this template, so **for example** assume you want to implement VGG model so you should do the following:
 -  In models folder create a class named VGG that inherit the "base_model" class
 
@@ -30,22 +30,22 @@ In a nutshell here's how to use this template, so **for example** assume you wan
         def __init__(self, config):
             super(VGGModel, self).__init__(config)
             #call the build_model and init_saver functions.
-            self.build_model() 
-            self.init_saver() 
+            self.build_model()
+            self.init_saver()
   ```
 - Override these two functions "build_model" where you implement the vgg model, and "init_saver" where you define a tensorflow saver, then call them in the initalizer.
-    
+
 ```python
      def build_model(self):
         # here you build the tensorflow graph of any model you want and also define the loss.
         pass
-            
+
      def init_saver(self):
         # here you initalize the tensorflow saver that will be used in saving the checkpoints.
         self.saver = tf.train.Saver(max_to_keep=self.config.max_to_keep)
 
   ```
-   
+
 - In trainers folder create a VGG trainer that inherit from "base_train" class
 ```python
 
@@ -83,7 +83,7 @@ In a nutshell here's how to use this template, so **for example** assume you wan
     # create tensorboard logger
     logger = Logger(sess, config)
 ```
-- Pass the all these objects to the trainer object, and start your training by calling "trainer.train()" 
+- Pass the all these objects to the trainer object, and start your training by calling "trainer.train()"
 ```python
     trainer = VGGTrainer(sess, model, data, config, logger)
 
@@ -95,7 +95,7 @@ In a nutshell here's how to use this template, so **for example** assume you wan
 
 # In Details
 
-Project architecture 
+Project architecture
 --------------
 
 <div align="center">
@@ -120,14 +120,14 @@ Folder structure
 │
 ├── trainer             - this folder contains trainers of your project.
 │   └── example_trainer.py
-│   
+│
 ├──  mains              - here's the main(s) of your project (you may need more than one main).
 │    └── example_main.py  - here's an example of main that is responsible for the whole pipeline.
 
-│  
-├──  data _loader  
+│
+├──  data _loader
 │    └── data_generator.py  - here's the data_generator that is responsible for all data handling.
-│ 
+│
 └── utils
      ├── logger.py
      └── any_other_utils_you_need
@@ -140,10 +140,10 @@ Folder structure
 ### Models
 --------------
 - #### **Base model**
-    
+
     Base model is an abstract class that must be Inherited by any model you create, the idea behind this is that there's much shared stuff between all models.
     The base model contains:
-    - ***Save*** -This function to save a checkpoint to the desk. 
+    - ***Save*** -This function to save a checkpoint to the desk.
     - ***Load*** -This function to load a checkpoint from the desk.
     - ***Cur_epoch, Global_step counters*** -These variables to keep track of the current epoch and global step.
     - ***Init_Saver*** An abstract function to initialize the saver used for saving and loading the checkpoint, ***Note***: override this function in the model you want to implement.
@@ -160,7 +160,7 @@ Folder structure
 --------------
 - #### **Base trainer**
     Base trainer is an abstract class that just wrap the training process.
-    
+
 - #### **Your trainer**
      Here's what you should implement in your trainer.
     1. Create your trainer class and inherit the base_trainer class.
@@ -178,12 +178,12 @@ For example: "comet_api_key": "your key here"
 
 
 ### Comet.ml Integration
-This template also supports reporting to Comet.ml which allows you to see all your hyper-params, metrics, graphs, dependencies and more including real-time metric. 
+This template also supports reporting to Comet.ml which allows you to see all your hyper-params, metrics, graphs, dependencies and more including real-time metric.
 
 Add your API key [in the configuration file](configs/example.json#L9):
 
 
-For example:  `"comet_api_key": "your key here"` 
+For example:  `"comet_api_key": "your key here"`
 
 Here's how it looks after you start training:
 <div align="center">
@@ -192,7 +192,7 @@ Here's how it looks after you start training:
 
 </div>
 
-You can also link your Github repository to your comet.ml project for full version control. 
+You can also link your Github repository to your comet.ml project for full version control.
 [Here's a live page showing the example from this repo](https://www.comet.ml/gidim/tensorflow-project-template/caba580d8d1547ccaed982693a645507/chart)
 
 
@@ -219,4 +219,4 @@ Any kind of enhancement or contribution is welcomed.
 # Acknowledgments
 Thanks for my colleague  [Mo'men Abdelrazek](https://github.com/moemen95) for contributing in this work.
 and thanks for [Mohamed Zahran](https://github.com/moh3th1) for the review.
-**Thanks for Jtoy for including the repo in  [Awesome Tensorflow](https://github.com/jtoy/awesome-tensorflow).** 
+**Thanks for Jtoy for including the repo in  [Awesome Tensorflow](https://github.com/jtoy/awesome-tensorflow).**
