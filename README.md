@@ -7,7 +7,7 @@ Based on the "Human Protein Atlas Image Classication" [Kaggle competition](http
 
 
 ### Setup
-- Download the data from the kaggle competition and put the training data in a folder called train and the test data in a folder called test. Both of these folders should be inside the data folder.
+- Download the data from the kaggle competition and put the training data in a folder called train and the test data in a folder called test. Both of these folders and the train.csv and sample_submission.csv files should be inside the data folder.
 - Set your PYTHONPATH variable to where your code folder is:
   (i.e. `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
 - Set path EXP_PATH to where run results should be saved:
@@ -37,8 +37,9 @@ To augment the data, run:
 
 ### Baseline
 - **Random Forest** <br/>
-To launch training use the following command:
-`python code/mains/baseline.py -c path/to/config/<baseline json file to be used>`
+To launch training of the random forest classifier, use the following command:
+`python code/mains/baseline.py -c path/to/config/<baseline json file to be used>`.
+This will automatically launch prediction
 
 ### Simple CNN with increasing complexity
 - **CP4_model**: Simple *4-layer* CNN (with ReLU activation and max pooling)
