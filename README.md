@@ -29,7 +29,7 @@ From 0 (most represented label class) to 8 (least represented class) transformat
 On 28 cores data augmentation takes about ~30 minutes. However, it has to be done separately, prior to running the models, if someone wants to later use an augmented dataset.
 
 To augment the data, run:
-`python code/data_loader/data_aug.py`
+`python code/data_loader/data_aug.py`.
 (Optional) arguments are:
 
 - `--parallelize` to parallelize the process (if running on the cluster, for instance) (default is no parallelization)
@@ -38,8 +38,8 @@ To augment the data, run:
 ### Baseline
 - **Random Forest** <br/>
 To launch training of the random forest classifier, use the following command:
-`python code/mains/baseline.py -c path/to/config/<baseline json file to be used>`.
-This will automatically launch prediction
+`python code/mains/baseline.py -c path/to/config/baseline.json`.
+This will automatically launch prediction.
 
 ### Simple CNN with increasing complexity
 - **CP4_model**: Simple *4-layer* CNN (with ReLU activation and max pooling)
