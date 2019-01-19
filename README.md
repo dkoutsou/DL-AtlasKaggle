@@ -32,7 +32,7 @@ To augment the data, run:
 `python code/data_loader/data_aug.py`
 (Optional) arguments are:
 
-- `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
+- `--parallelize` to parallelize the process (if running on the cluster, for instance) (default is no parallelization)
 
 
 ### Baseline
@@ -78,7 +78,7 @@ Then to launch training use the following command:
 To reproduce the experiments of the report you can use the config files in the `code/configs/final_exp` subfolder.
 
 ## Predicting from a trained model
-To output a csv prediction file for the images in the Kaggle test set use the `predict_main` file. You also have to feed the training config file as a parser argument. If you are running the prediction code on the same machine that was used for training you don't need to specify the number of the model checkpoint to use, it will automatically retrieve the latest checkpoint saved during training. However if you are on a other machine (i.e. training on the cluster, downloading the checkpoint folder and predicting on your laptop) you have to use an additional parser argument `-check_nb` that specifies the number of the checkpoint to use for prediction.
+To output a csv prediction file for the images in the Kaggle test set use the `predict_main` file. You also have to feed the training config file as a parser argument. If you are running the prediction code on the same machine that was used for training you don't need to specify the number of the model checkpoint to use, it will automatically retrieve the latest checkpoint saved during training. However if you are on an other machine (i.e. training on the cluster, downloading the checkpoint folder and predicting on your laptop) you have to use an additional parser argument `-check_nb` that specifies the number of the checkpoint to use for prediction. 
 
 **Note**: the checkpoints are saved as `-{check_nb}.meta` files in the checkpoint subfolder of the training experiment folder.
 
