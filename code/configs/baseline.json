@@ -1,5 +1,5 @@
 {
-  "exp_name": "baseline_first",
+  "exp_name": "baseline_RF",
   "batch_size": 1024,
   "patch_size": 64,
   "n_estimators": 1000,
