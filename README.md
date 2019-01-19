@@ -1,92 +1,97 @@
-# DL-AtlasKaggle
+# Investigating deep learning algorithms in the context of Human Protein Image Classification
 ## Deep Learning - Fall 2018 - ETH Zurich
 ### Mélanie Bernhardt - Mélanie Gaillochet - Andreas Georgiou - Dimitrios Koutsoukos
 
-## REMARK: we have a second readme for the template, should we delete it? But we should probalby cite the template anyway.
-
 ## Main goal
-Based on the "Human Protein Atlas Image Classication" Kaggle competition (https://www.kaggle.com/c/human-protein-atlas-image-classification) <br/>
-Revolving around medical image analysis, the main goal of this project is to classify mixed patterns of proteins in microscope images using computer vision.
+Based on the "Human Protein Atlas Image Classication" [Kaggle competition](https://www.kaggle.com/c/human-protein-atlas-image-classification). Revolving around medical image analysis, the main goal of this project is to classify mixed patterns of proteins in microscope images using computer vision.
 
 
 ### Setup
-- Set your PYTHONPATH variable to where your code folder is <br/>
-(ie: `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
-- Set path EXP_PATH to where run results should be saved <br/>
-(ie: `export EXP_PATH="${HOME}/DL-AtlasKaggle/result/"`)<br/>
-- Set your DATA_PATH variable to where the data is <br/>
-(ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`) <br/>
-If using cluster (to avoid data size problem), use: export `DATA_PATH="${SCRATCH}/data/"`
+- Download the data from the kaggle competition and put the training data in a folder called train and the test data in a folder called test. Both of these folders should be inside the data folder.
+- Set your PYTHONPATH variable to where your code folder is:
+  (i.e. `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
+- Set path EXP_PATH to where run results should be saved:
+  (i.e. `export EXP_PATH="${HOME}/DL-AtlasKaggle/result/"`)
+- Set your DATA_PATH variable to where the data is
+  (ie: `export DATA_PATH="${HOME}/DL-AtlasKaggle/data/"`)
+
+If using the Leonhard cluster (to avoid data size problem), use: `export DATA_PATH="${SCRATCH}/data/"`
 
 - Install the requirements:
 `pip install -r requirements.txt`
 
 ## Models (in 'code/models' folder)
-*BEFORE SUBMISSION DELETED THE UNUSUED MODELS*
 
 ### Data Augmentation
 Data augmentation is done by rotating and reversing images. The number of transformations depends on the frequency of the image's label(s).
-From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.<br/>
+From 0 (most represented label class) to 8 (least represented class) transformations are possible for each image.
 
-Because data augmentation takes a lot of time (creating several tens of thousands of images), it has to be done separately, prior to running the models,
-if we want to later use an augmented dataset.
+On 28 cores data augmentation takes about ~30 minutes. However, it has to be done separately, prior to running the models, if someone wants to later use an augmented dataset.
 
-To augment data, run: <br/>
-`python code/data_loader/data_aug.py`<br/>
-(Optional) arguments are: <br/>
+To augment the data, run:
+`python code/data_loader/data_aug.py`
+(Optional) arguments are:
+
 - `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
-
-
 
 
 ### Baseline
 - **Random Forest**
 
 ### Simple CNN with increasing complexity
-- **CP2_model** : Simple *2-layer* CNN (with ReLU activation and max pooling)
-- **CP4_model**: Simple *4-layer* CNN(with ReLU activation and max pooling)
-- **CDP4_model**: 4-layer CNN (each followed by *dropout* of rate 0.5 before max pooling)
-- **CBDP4_model**: 4-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling)
-- **SimpleCNN_model**: 3-layer CNN (each with *batch_normalization*, followed by dropout of rate 0.5 before max pooling) *NOT USED FOR NOW*
-- **DeepSimple_model**: 3 blocks of (conv layer + batch_normalization + dropout + conv layer + batch_normalization + dropout+ 2x2 maxpooling) followed by one dense layer with 28 output units.
+- **CP4_model**: Simple *4-layer* CNN (with ReLU activation and max pooling)
+- **CBDP4_model**: 4-layer CNN (each layer is followed by a *batch_normalization* layer, and then by a dropout layer with rate 0.5 before the max pooling layer)
 
 ### Existing state-of-the-art models
-- **DeepYeast_model**: DeepYeast (11-layer CNN, with 8 convolutional layers and 3 fully connected layers)
-- **inception_model**: InceptionNets
-- **resNet_model**: ResNets
-- DenseNets
+- **DeepYeast**: 11-layer CNN, with 8 convolutional layers and 3 fully connected layers
+- **DeepLoc**: 11-layer CNN, with 8 convolutional layers and 3 fully connected layers
+- **Resnet**: Residual Convolutional Networks {18, 34, 50, 101, 152, 200} variants
+- **Densenet**: Densely Connected Convolutional Networks {121, 169, 201} variants
 
 Parameters for each model can be modified in the corresponding file of the 'code/configs' folder.
 
 ## Training the models
-Each training procedure is defined by one jSON configuration file.
+Each training procedure is defined by one JSON configuration file.
 In this file you specify the following arguments:
-- "model": (mandatory) to choose between "DeepYeast, "SimpleCNN" (*maybe to remove*), "CP2", "CP4, "CDP4", "CBDP4", "CDP2", "CBDP2", "Inception", "ResNet", "Kaggle", "DeepSimple"
-- "learning_rate": (mandatory) learning rate for ADAM
-- "max_to_keep": (mandatory) max number of model checkpoint to keep
-- "exp_name": (mandatory) name of the folder in which to place the checkpoint and summary subfolder for this training run
+
+- "model": (mandatory) to choose between "DeepYeast, "CP4, "CBDP4", "ResNet", "DenseNet"
+- "learning_rate": (mandatory) learning rate for the ADAM optimizer
+- "max\_to\_keep": (mandatory) max number of model checkpoints to keep
+- "exp_name": (mandatory) name of the folder in which the checkpoint and summary subfolder for this training run are going to be placed
 - "val_split": (optional, default: 0.1) validation / train split ratio to use
 - "num_epochs": number of epochs to train your model
 - "batch_size": batch size to use
-- "use_weighted_loss": (optional, default: false) whether to use class weigths to weight to loss function.
-- "input_size": (optional, default: 512) if you want to resize the input images to "input_size"x"input_size"
-- "use_f1_loss": (optional, default: false) whether to use f1 loss instead of cross-entropy loss
+- "use\_weighted\_loss": (optional, default: false) whether to use class weigths to weight the loss function
+- "input\_size": (optional, default: 512) if you want to resize the input images to "input\_size" in each dimension
+- "f1_loss": (optional, default: false) whether to use the f1 loss instead of the cross-entropy loss
+- "focal_loss": (optional, default: false) whether to use the focal loss instead of the cross-entropy loss
+- "augment": (optional, default: false) whether to use the augmented dataset
+- "resnet_size": (optional, default 101) the depth of the Residual Network in case you are using one (you can choose from the {18, 34, 50, 101, 152, 200} variants
+- "densenet_size": (optional, default 121) the depth of the Dense Network in case you are using one (you can choose from the {121, 169, 201} variants
 
-Then to launch training use the following command: <br/>
+Then to launch training use the following command: 
 `python code/mains/train_main.py -c path/to/config/<json file to be used>`
 
 If you want to reproduce the experiments of the report you can use the config files in the `code/configs/final_exp` subfolder.
 
-## Predicting from a trained model <br/>
-To output a csv prediction file for the images in the Kaggle test set use `predict_main`. You also have to feed the training config file as a parser argument. If you are running the prediction code on the same machine that was used for training you don't need to specify the number of the model checkpoint to use, it will automatically retrieve the latest checkpoint saved during training. However if you are on a other machine (i.e. training on the cluster, downloading the checkpoint folder and predicting on local laptop) you have to use an additional parser argument `-check_nb` that specifies the number of the checkpoint to use for prediction. Note: the checkpoints are saved as `-{check_nb}.meta` files in the checkpoint subfolder of the training experiment folder.
+## Predicting from a trained model
+To output a csv prediction file for the images in the Kaggle test set use the `predict_main` file. You also have to feed the training config file as a parser argument. If you are running the prediction code on the same machine that was used for training you don't need to specify the number of the model checkpoint to use, it will automatically retrieve the latest checkpoint saved during training. However if you are on a other machine (i.e. training on the cluster, downloading the checkpoint folder and predicting on your laptop) you have to use an additional parser argument `-check_nb` that specifies the number of the checkpoint to use for prediction. 
 
-Example of command to launch prediction <br/>
+**Note**: the checkpoints are saved as `-{check_nb}.meta` files in the checkpoint subfolder of the training experiment folder.
+
+Example of command to launch prediction:
 `python code/mains/predict_main.py -c "path/to/config/<json file to be used>" -check_nb 11900`
 
 ## Averaging probabilities from several models
-If you have several trained models and you wish to combine all predicted probabilities (averaging them) in order to predict the labels you can use `predict_from_several_main.py`. It takes a list of config files (one per model to load) and a corresponding list of check_nb for the corresponding checkpoint numbers to load.
-The result are saved in a csv file called `/{filename}.csv` in your `EXP_PATH` folder, specify `filename` via the `-om` parser argument. <br/>
-Example of command: <br/>
+If you have several trained models and you wish to combine all predicted probabilities (by averaging them) in order to predict the labels you can use the `predict_from_several_main.py` file. It takes a list of config files (one per model to load) and a corresponding list of check_nb checkpoints to load.
+The result are saved in a csv file called `/{filename}.csv` in your `EXP_PATH` folder. You can also specify `filename` via the `-om` parser argument.
+
+Example of such a command:
 `python code/mains/predict_from_several_main.py -c "path/to/config1 path/to/config2" -check_nb "checknb1 checknb2" -om "filename"`
+
+## Acknowledgements
+Tensorflow template taken from [here](https://github.com/jtoy/awesome-tensorflow).
+
+Please see the separate README in the code folder for instructions on how to use it.
 
 

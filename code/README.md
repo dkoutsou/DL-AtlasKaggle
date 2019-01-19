@@ -91,7 +91,6 @@ In a nutshell here's how to use this template, so **for example** assume you wan
     trainer.train()
 
 ```
-**You will find a template file and a simple example in the model and trainer folder that shows you how to try your first model simply.**
 
 
 # In Details
