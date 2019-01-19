@@ -150,6 +150,11 @@ class DataGenerator:
                                                   np.asarray(aug_train_list)))
                 self.train_labels = np.vstack((self.train_labels,
                                                np.asarray(aug_train_labels)))
+                # Append list of all aug filenames to 'all' set
+                self.filenames = np.vstack((self.filenames,
+                                            np.asarray(aug_train_list)))
+                self.labels = np.vstack((self.labels,
+                                         np.asarray(aug_train_labels)))
             # aug_train_list is empty (no aug data available)
             except ValueError:
                 print('No augmented data found. Please augment first')
@@ -160,6 +165,7 @@ class DataGenerator:
 
         self.n_train = len(self.train_labels)
         self.n_val = len(self.val_labels)
+        self.n = len(self.labels)
 
         if hasattr(config, 'random_state'):
             random_state = config.random_state
@@ -180,7 +186,7 @@ class DataGenerator:
         print('Size of validation set is {}'.format(self.n_val))
         # Compute class weigths
         self.class_weights = (self.n_train) * np.reshape(
-            1 / np.sum(self.labels, axis=0), (1, -1))
+            1 / np.sum(self.train_labels, axis=0), (1, -1))
         # Number batches per epoch
         self.train_batches_per_epoch = int(
             (self.n_train - 1) / self.config.batch_size) + 1
