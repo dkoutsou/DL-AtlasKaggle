@@ -1,0 +1,10 @@
+{
+    "model": "DeepLoc",
+    "learning_rate": 0.0001,
+    "max_to_keep": 2,
+    "exp_name": "DeepLoc_batch16_15epochs",
+    "val_split": 0.1, 
+    "num_epochs": 15,
+    "batch_size": 16,
+    "input_size": 256
+}
