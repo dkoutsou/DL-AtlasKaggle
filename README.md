@@ -7,7 +7,7 @@ Based on the "Human Protein Atlas Image Classication" [Kaggle competition](http
 
 
 ### Setup
-- Download the data from the kaggle competition and put the training data in a folder called train and the test data in a folder called test. Both of these folders and the train.csv and sample_submission.csv files should be inside the data folder.
+- Download the data from the kaggle competition and put the training data in a folder called train and the test data in a folder called test. Both of these folders should be inside the data folder.
 - Set your PYTHONPATH variable to where your code folder is:
   (i.e. `export PYTHONPATH="${PYTHONPATH}:${HOME}/DL-AtlasKaggle/code/"`)
 - Set path EXP_PATH to where run results should be saved:
@@ -32,14 +32,11 @@ To augment the data, run:
 `python code/data_loader/data_aug.py`
 (Optional) arguments are:
 
-- `--parallelize` to parallelize the process (if running of the cluster, for instance) (default is no parallelization)
+- `--parallelize` to parallelize the process (if running on the cluster, for instance) (default is no parallelization)
 
 
 ### Baseline
-- **Random Forest** <br/>
-To launch training of the random forest classifier, use the following command:
-`python code/mains/baseline.py -c path/to/config/<baseline json file to be used>`.
-This will automatically launch prediction
+- **Random Forest**
 
 ### Simple CNN with increasing complexity
 - **CP4_model**: Simple *4-layer* CNN (with ReLU activation and max pooling)
@@ -72,13 +69,13 @@ In this file you specify the following arguments:
 - "resnet_size": (optional, default 101) the depth of the Residual Network in case you are using one (you can choose from the {18, 34, 50, 101, 152, 200} variants
 - "densenet_size": (optional, default 121) the depth of the Dense Network in case you are using one (you can choose from the {121, 169, 201} variants
 
-Then to launch training use the following command:
+Then to launch training use the following command: 
 `python code/mains/train_main.py -c path/to/config/<json file to be used>`
 
-To reproduce the experiments of the report you can use the config files in the `code/configs/final_exp` subfolder.
+If you want to reproduce the experiments of the report you can use the config files in the `code/configs/final_exp` subfolder.
 
 ## Predicting from a trained model
-To output a csv prediction file for the images in the Kaggle test set use the `predict_main` file. You also have to feed the training config file as a parser argument. If you are running the prediction code on the same machine that was used for training you don't need to specify the number of the model checkpoint to use, it will automatically retrieve the latest checkpoint saved during training. However if you are on a other machine (i.e. training on the cluster, downloading the checkpoint folder and predicting on your laptop) you have to use an additional parser argument `-check_nb` that specifies the number of the checkpoint to use for prediction.
+To output a csv prediction file for the images in the Kaggle test set use the `predict_main` file. You also have to feed the training config file as a parser argument. If you are running the prediction code on the same machine that was used for training you don't need to specify the number of the model checkpoint to use, it will automatically retrieve the latest checkpoint saved during training. However if you are on an other machine (i.e. training on the cluster, downloading the checkpoint folder and predicting on your laptop) you have to use an additional parser argument `-check_nb` that specifies the number of the checkpoint to use for prediction. 
 
 **Note**: the checkpoints are saved as `-{check_nb}.meta` files in the checkpoint subfolder of the training experiment folder.
 
