@@ -3,5 +3,5 @@
   "batch_size": 1024,
   "patch_size": 64,
   "n_estimators": 1000,
-  "val_split": 0.2
+  "val_split": 0.1
 }

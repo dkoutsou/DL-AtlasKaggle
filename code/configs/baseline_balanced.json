@@ -4,6 +4,6 @@
   "patch_size": 64,
   "n_estimators": 1000,
   "class_weight": "balanced",
-  "val_split": 0.2,
+  "val_split": 0.1,
   "augment":false
 }
